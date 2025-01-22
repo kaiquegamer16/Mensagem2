@@ -9,17 +9,20 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-                               body {
+    body {
             font-family: 'Roboto', sans-serif;
-            background-color: #121212;
+             background-image: linear-gradient(to bottom, #7023c8, #5535ad, #3a4793, #20597a, #016a62);
+             background-repeat: no-repeat;
+              background-size: cover;
             color: #e0e0e0;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden;
         }
-          .user-avatar {
+       .user-avatar {
             display: inline-flex;
             align-items: center;
             margin-right: 5px;
@@ -50,28 +53,37 @@
             flex: 1;
             /* Take available space */
         }
-
-        .item {
-            background-color: #1e1e1e;
-            padding: 15px;
+        
+    .item {
+            background-color: rgba(0,0,0,.25); /* Ajustado para uma cor de fundo menos intensa */
+            padding: 10px; /* Ajustado o padding */
             margin-bottom: 10px;
             border-radius: 8px;
             display: flex;
+           align-items: flex-start;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-left: 20px;
+            margin-right: 20px;
         }
 
         .item.private {
-            background-color: #282828;
+            background-color: rgba(0,0,0,.5);
         }
 
         .item.admin {
-            background-color: #0f4c75;
+            background-color: rgba(0,0,0,.5);
         }
 
+
         .date {
-            margin-right: 15px;
+             margin-right: 10px;
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+           color: white;
         }
+
 
         .date span {
             display: block;
@@ -80,31 +92,34 @@
         }
 
         .date span:first-child {
-            font-size: 0.7em;
-            color: #9e9e9e;
+           font-size: 0.7em;
+            color: white;
         }
-
+      
         .info {
             flex: 1;
+             padding-top: 5px;
         }
-
-        .info img {
+     .info img {
             width: 100%;
             max-width: 200px;
             border-radius: 6px;
             margin-bottom: 10px;
             display: block;
         }
-
         .info h2 {
-            font-size: 1em;
+            font-size: 1.2em;
             margin: 5px 0;
+             color: white;
+            font-weight: 500;
         }
 
-        .info p {
-            font-size: 0.9em;
-            line-height: 1.4;
-            white-space: pre-line;
+       .info p {
+           font-size: 0.9em;
+           line-height: 1.4;
+           white-space: pre-line;
+          color: white;
+           font-weight: 400;
         }
 
         .filters {
@@ -112,7 +127,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background-color: #1e1e1e;
+            background-color: rgba(0,0,0,.3);
             position: fixed;
             bottom: 0;
             left: 0;
@@ -120,47 +135,52 @@
             box-sizing: border-box;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
         }
-         .filters label {
+        .filters label {
             color: white;
             background: transparent;
          }
 
         input,
         textarea {
-            background-color: #212121;
-            color: #e0e0e0;
+           background-color: rgba(0,0,0,.25);
+            color: white;
             font-weight: normal;
-            padding: 10px;
+           padding: 10px;
             border-radius: 4px;
             outline: none;
             border: none;
             box-sizing: border-box;
+         
         }
 
-        #entrada {
-            flex: 1;
+         #entrada {
+             flex: 1;
             margin-left: 10px;
             resize: none;
             height: 40px;
-            overflow-y: hidden;
-        }
+           overflow-y: hidden;
+            padding-right: 35px;
+           
+          }
 
         .filters button {
-            background-color: #e50914;
-            border: none;
+           
+             border: none;
             color: white;
             padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s;
+             transition: background-color 0.3s;
+           
         }
 
         .filters button:hover {
-            background-color: #f6121d;
+           
+            background-color: #3e195f
         }
 
          #properties-btn {
-           background-color: #444;
+           background-color: rgba(0,0,0,.25);
             border: none;
             color: white;
             padding: 10px 15px;
@@ -174,7 +194,7 @@
             }
 
         footer {
-            background-color: #1e1e1e;
+             background-color: rgba(0,0,0,.3);
             padding: 5px;
             text-align: center;
             position: sticky;
@@ -272,7 +292,7 @@
         }
 
         .btn-primary {
-            background-color: #e50914;
+            background-color: #2e7d32; /* Verde escuro */
             color: white;
             border: none;
             padding: 10px 20px;
@@ -283,7 +303,7 @@
         }
 
         .btn-primary:hover {
-            background-color: #f6121d;
+            background-color: #388e3c;
         }
 
         .btn-secondary {
@@ -391,7 +411,7 @@
             background-color: #2e2e2e;
         }
          #properties-panel-container {
-           position: fixed;
+            position: fixed;
            top: 0;
             left: 0;
            width: 200px;
@@ -418,7 +438,7 @@
            background-color: #2e2e2e;
            }
         #admin-panel-container {
-            display: none;
+           display: none;
              position: fixed;
             top: 0;
             left: 0;
@@ -548,7 +568,7 @@
 </head>
 
 <body>
-     <dialog id="initial-setup-dialog">
+      <dialog id="initial-setup-dialog">
         <div class="dialog-content">
             <p class="dialog-message">Bem-vindo! Insira seu nome e escolha uma foto de perfil:</p>
             <input type="text" id="initial-user-name" placeholder="Seu nome">
@@ -589,13 +609,13 @@
             <ul>
             </ul>
         </div>
-               <div id="properties-panel-container" style="position: fixed;">
+        <div id="properties-panel-container" style="position: fixed;">
              <ul>
                <li id="admin-option">Admin</li>
                <li id="create-group-option">Criar Grupo</li>
                </ul>
             </div>
-              <div id="admin-panel-container" style="position: fixed;">
+        <div id="admin-panel-container" style="position: fixed;">
             <div id="admin-panel">
                 <h2>Painel do Administrador</h2>
                 <div class="admin-options">
@@ -608,12 +628,15 @@
                 <button id="logout-admin" class="btn-secondary">Logout</button>
             </div>
         </div>
+    </div>
     <div class="filters">
          <button id="properties-btn">⚙️</button>
-        <input type="file" id="file" accept="image/*" style="display: none;">
-        <label for="file" style="cursor: pointer; background: transparent; font-size: 1.5em;">📎</label>
-        <textarea id="entrada" placeholder="Digite algo..."></textarea>
-        <button id="enviar">Enviar</button>
+          <div style="display:flex; align-items: center; width: 100%;  position: relative;">
+           <input type="file" id="file" accept="image/*" style="display: none;">
+           <div style="  position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.5em; pointer-events: auto; border: 1px solid white; padding: 2px 4px; border-radius: 4px; color:white" onclick="document.getElementById('file').click();">📎</div>
+           <textarea id="entrada" placeholder="Digite algo..." ></textarea>
+        </div>
+        <div id="enviar" style=" border: 1px solid white; padding: 8px; border-radius: 4px;  color:white; cursor: pointer;">Enviar</div>
     </div>
 
 
@@ -628,7 +651,7 @@
             </div>
         </div>
     </dialog>
-     <dialog id="user-name-dialog">
+      <dialog id="user-name-dialog">
         <div class="dialog-content">
             <p class="dialog-message">Detectamos que você está sem nome de usuário. Por favor, insira seu nome abaixo:</p>
             <input type="text" id="new-user-name" placeholder="Seu nome">
@@ -676,7 +699,7 @@
         };
     </script>
     <script type="module">
-                         // Importando os módulos do Firebase
+           // Importando os módulos do Firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import { getDatabase, ref as dbRef, onValue, set, get, remove, update, push, } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
@@ -776,114 +799,137 @@
         }
         checkInitialSetup()
 
-        btnInitialSetup.addEventListener("click", async function () {
-            let userNameInitial = initialUserNameInput.value.trim();
-            if (userNameInitial === "") {
+       btnInitialSetup.addEventListener("click", async function () {
+        let userNameInitial = initialUserNameInput.value.trim();
+        if (userNameInitial === "") {
+            Swal.fire({
+                title: 'Erro',
+                text: 'Por favor, insira um nome de usuário válido!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        let userPhoto = null;
+        if (initialUserPhotoInput.files && initialUserPhotoInput.files[0]) {
+            try {
+                userPhoto = await fileToBase64(initialUserPhotoInput.files[0]);
+            } catch (error) {
+                console.error("Erro converting image to base64", error)
                 Swal.fire({
                     title: 'Erro',
-                    text: 'Por favor, insira um nome de usuário válido!',
+                    text: 'Houve um erro na conversão da imagem, tente novamente!',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
                 return;
             }
-            let userPhoto = null;
-            if (initialUserPhotoInput.files && initialUserPhotoInput.files[0]) {
+        }
+         localStorage.setItem("nome", userNameInitial);
+           if(userPhoto){
+           localStorage.setItem("userPhoto", userPhoto);
+         }
+             let nomeAleatorio = gerarIdAleatorio(10);
+               const userRef = dbRef(database, `users/${userNameInitial}`);
+                  const dados = {
+                      userPhoto: localStorage.getItem("userPhoto")
+                 };
+             fetch('https://engine-c02f6-default-rtdb.firebaseio.com/users/' + userNameInitial + '.json', {
+                method: "PATCH",
+                   body: JSON.stringify(dados)
+               })
+                 .then(response => {
+                       if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                         return response.json();
+                      })
+                .catch(error => {
+                       Swal.fire({
+                             title: 'Erro',
+                           text: 'Houve um erro ao enviar sua imagem de perfil, tente novamente!',
+                              icon: 'error',
+                             confirmButtonText: 'OK'
+                         });
+                      console.error("Erro on sending image:", error);
+               });
+
+        initialSetupDialog.close();
+        enviar.disabled = false;
+        entrada.disabled = false;
+        fileInput.disabled = false;
+        // Reinicia o evento de clique
+        enviar.onclick = sendMessage;
+        fileInput.onchange = async function () {
+            if (this.files && this.files[0]) {
                 try {
-                    userPhoto = await fileToBase64(initialUserPhotoInput.files[0]);
+                    const file = this.files[0];
+                    const base64Image = await fileToBase64(file);
+                    let date = new Date();
+                    let nomeAleatorio = gerarIdAleatorio(10);
+                    let conteudo = "";
+                    let nome = localStorage.getItem("nome");
+                    let timestamp = date.getTime();
+                    let privateChat = currentPrivateChat;
+
+                    const dados = {
+                        nome: nome,
+                        conteudo: `<img src="${base64Image}" alt="Imagem do usuário"/>`,
+                        Dia: date.getDate(),
+                        Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+                        hora: date.getHours(),
+                        minutos: date.getMinutes(),
+                        timestamp: timestamp,
+                        privateChat: privateChat || null,
+                        senderName: userName,
+                        receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
+                        admin: adminMode,
+                         userPhoto: localStorage.getItem("userPhoto")
+                    };
+                    fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                        method: "PATCH",
+                        body: JSON.stringify(dados)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(() => {
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                title: 'Erro',
+                                text: 'Houve um erro no envio da imagem, verifique sua internet e tente novamente!',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            console.error("Erro on sending image:", error);
+                        });
                 } catch (error) {
-                    console.error("Erro converting image to base64", error)
+                    console.error("Error converting image to base64", error)
                     Swal.fire({
                         title: 'Erro',
                         text: 'Houve um erro na conversão da imagem, tente novamente!',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
-                    return;
                 }
             }
-            localStorage.setItem("nome", userNameInitial);
-            if (userPhoto) {
-                localStorage.setItem("userPhoto", userPhoto);
-            }
-
-            initialSetupDialog.close();
-            enviar.disabled = false;
-            entrada.disabled = false;
-            fileInput.disabled = false;
-            // Reinicia o evento de clique
-            enviar.onclick = sendMessage;
-            fileInput.onchange = async function () {
-                if (this.files && this.files[0]) {
-                    try {
-                        const file = this.files[0];
-                        const base64Image = await fileToBase64(file);
-                        let date = new Date();
-                        let nomeAleatorio = gerarIdAleatorio(10);
-                        let conteudo = "";
-                        let nome = localStorage.getItem("nome");
-                        let timestamp = date.getTime();
-                        let privateChat = currentPrivateChat;
-
-                        const dados = {
-                            nome: nome,
-                            conteudo: `<img src="${base64Image}" alt="Imagem do usuário"/>`,
-                            Dia: date.getDate(),
-                            Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
-                            hora: date.getHours(),
-                            minutos: date.getMinutes(),
-                            timestamp: timestamp,
-                            privateChat: privateChat || null,
-                            senderName: userName,
-                            receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
-                            admin: adminMode,
-                            userPhoto: localStorage.getItem("userPhoto")
-                        };
-                        fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
-                            method: "PATCH",
-                            body: JSON.stringify(dados)
-                        })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error(`HTTP error! status: ${response.status}`);
-                                }
-                                return response.json();
-                            })
-                            .then(() => {
-                                window.scrollTo({
-                                    top: document.body.scrollHeight,
-                                    behavior: 'smooth'
-                                });
-                            })
-                            .catch(error => {
-                                Swal.fire({
-                                    title: 'Erro',
-                                    text: 'Houve um erro no envio da imagem, verifique sua internet e tente novamente!',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                                console.error("Erro on sending image:", error);
-                            });
-                    } catch (error) {
-                        console.error("Error converting image to base64", error)
-                        Swal.fire({
-                            title: 'Erro',
-                            text: 'Houve um erro na conversão da imagem, tente novamente!',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                }
-            }
-            updateMessages()
-            Swal.fire({
-                title: 'Sucesso',
-                text: 'Seu nome e foto de perfil foram salvos com sucesso!',
-                icon: 'success',
-                confirmButtonText: 'OK'
-            });
+        }
+        updateMessages()
+        Swal.fire({
+            title: 'Sucesso',
+            text: 'Seu nome e foto de perfil foram salvos com sucesso!',
+            icon: 'success',
+            confirmButtonText: 'OK'
         });
-
+    });
         const userName = localStorage.getItem("nome");
 
         // Setup real-time typing indicator listener
@@ -933,18 +979,18 @@
             }
         };
 
-        // Function to fetch initial data
+       // Function to fetch initial data
         const fetchData = async () => {
             try {
                 const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
-                if (!response.ok) {
+                  if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                   }
                 const dt = await response.json();
-                if (dt === null || typeof dt !== 'object') {
-                    console.warn("Data from Firebase is invalid:", dt);
-                    return;
-                }
+                 if (dt === null || typeof dt !== 'object') {
+                       console.warn("Data from Firebase is invalid:", dt);
+                         return;
+                   }
                 geral = dt;
 
                 if (geral !== msgAntiga) {
@@ -963,6 +1009,7 @@
                 console.error("Failed to fetch initial data:", error);
             }
         };
+
 
         // Function to fetch and display admin users
         const fetchAdminUsers = async () => {
@@ -1104,20 +1151,20 @@
             });
         })
 
-        // Function to fetch and display messages
-        const updateMessages = async () => {
+         // Function to fetch and display messages
+         const updateMessages = async () => {
             if (blockPanelUpdate) return; // Verifica a flag antes de atualizar
             try {
                 const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                   }
                 const data = await response.json();
                 if (data === null || typeof data !== 'object') {
-                    posters.innerHTML = '';
-                    console.warn("Data from Firebase is invalid:", data);
-                    return;
-                }
+                       posters.innerHTML = '';
+                        console.warn("Data from Firebase is invalid:", data);
+                         return;
+                   }
                 let itensOrdenados = Object.keys(data)
                     .map(key => ({ key: key, ...data[key] }))
                     .sort((a, b) => b.timestamp - a.timestamp);
@@ -1138,7 +1185,7 @@
                     if (item.admin) {
                         itemClass = 'admin';
                     }
-                    if (adminMode || !item.privateChat || (item.privateChat && item.senderName == userName) || (item.privateChat && item.receiverName == userName) || currentPrivateChat === item.privateChat) {
+                     if (adminMode || !item.privateChat || (item.privateChat && item.senderName == userName) || (item.privateChat && item.receiverName == userName) || currentPrivateChat === item.privateChat) {
                         if (!item.nome.includes("gosar") && !item.nome.includes("pau")) {
                             posters.insertAdjacentHTML('afterbegin', `
                                     <div class="item ${itemClass}">
@@ -1229,7 +1276,7 @@
         });
 
 
-  function sendMessage() {
+        function sendMessage() {
             let date = new Date();
             let nomeAleatorio = gerarIdAleatorio(10);
             let conteudo = entrada.value;
@@ -1249,7 +1296,7 @@
                 senderName: userName,
                 receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
                 admin: adminMode,
-               userPhoto: localStorage.getItem("userPhoto")
+                 userPhoto: localStorage.getItem("userPhoto")
             };
           if (conteudo && !conteudo.includes("<")){
             fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
@@ -1292,7 +1339,6 @@
               event.preventDefault();
              sendMessage();
           });
-          
         // Properties panel toggle
         propertiesBtn.addEventListener('click', () => {
             propertiesPanelContainer.style.display = propertiesPanelContainer.style.display === 'block' ? 'none' : 'block';
@@ -1439,5 +1485,3 @@
             });
         });
     </script>
-
-        
