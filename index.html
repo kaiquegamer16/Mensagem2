@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
+                body {
             font-family: 'Roboto', sans-serif;
             background-color: #121212;
             color: #e0e0e0;
@@ -19,7 +19,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
+/* removendo estilos do header
         header {
             background-color: #1e1e1e;
             padding: 15px;
@@ -55,7 +55,7 @@
             align-items: center;
             justify-content: center;
         }
-
+*/
         .content {
             flex: 1;
             padding: 20px;
@@ -143,6 +143,11 @@
             box-sizing: border-box;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
         }
+         .filters label {
+            color: white;
+            background: transparent;
+         }
+
 
         input,
         textarea {
@@ -409,7 +414,6 @@
         #user-list-container li:hover {
             background-color: #2e2e2e;
         }
-
          #properties-panel-container {
            position: absolute;
            top: 0;
@@ -448,7 +452,7 @@
             z-index: 100;
         }
 
-        #admin-panel {
+               #admin-panel {
             background-color: #181818;
             border-radius: 10px;
             position: absolute;
@@ -456,30 +460,30 @@
             left: 50%;
             transform: translate(-50%, -50%);
             padding: 20px;
-            width: 500px;
+            width: 350px;  /* Reduzido o tamanho do painel */
         }
         
        #admin-panel .admin-options {
            display: flex;
            flex-direction: column;
-            margin-bottom: 10px;
-         }
-
-        #admin-panel h2 {
-            text-align: center;
-            margin-bottom: 10px;
+           margin-bottom: 10px;
         }
-        
-        #admin-panel  input {
+        #admin-panel h2 {
+           text-align: center;
+           margin-bottom: 10px;
+            font-size: 1.2em; /* Reduzido o tamanho do título */
+         }
+      
+         #admin-panel  input {
            background-color: #212121;
             color: #e0e0e0;
             font-weight: normal;
-            padding: 10px;
+            padding: 8px; /* Reduzido o padding */
             border-radius: 4px;
             outline: none;
             border: none;
             box-sizing: border-box;
-             margin-bottom: 10px;
+             margin-bottom: 5px; /* Reduzido o margin */
         }
 
         #admin-panel ul {
@@ -487,39 +491,38 @@
             margin: 0;
             padding: 0;
         }
-
         #admin-panel li {
             padding: 5px 0;
-            border-bottom: 1px solid #333;
+           border-bottom: 1px solid #333;
             display: flex;
             justify-content: space-between;
             align-items: center;
+           width: 90%; /* Manter a largura em 90% */
         }
 
         #admin-panel li:last-child {
             border-bottom: none;
         }
-
         #admin-panel li button {
             background-color: #e50914;
             border: none;
             color: white;
-            padding: 5px 10px;
+            padding: 5px 8px;  /* Reduzido o padding do botão */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 0.9em; /* Reduzido o tamanho da fonte do botão */
         }
-
-        #admin-panel li button:hover {
+        
+         #admin-panel li button:hover {
             background-color: #f6121d;
-        }
+         }
 
         .admin-user-name {
             margin-left: 5px;
             font-weight: bold;
-
+             font-size: 0.9em; /* Reduzido o tamanho da fonte do nome */
         }
-
         .private-name {
 
             font-weight: bold;
@@ -550,10 +553,11 @@
 
         /* Estilos para quando a tela for menor */
         @media (max-width: 600px) {
+       /* removendo estilos do header
             header h1 {
                 font-size: 1.2em;
             }
-
+         */
             .item {
                 flex-direction: column;
             }
@@ -561,7 +565,6 @@
             .date {
                 margin-bottom: 10px;
             }
-
                .info img {
         width: 100%;
         max-width: 200px;
@@ -588,12 +591,6 @@
                 onclick="fechar()">Fechar</button>
         </div>
     </dialog>
-    <header>
-        <div id="nomeGif">
-            <h1>Echo</h1>
-        </div>
-        <p>Chat público, chame pessoas para jogar, divulgue suas obras, divirta-se!</p>
-    </header>
 
     <div class="content" id="content">
         <div class="chat-container" id="posters">
@@ -631,12 +628,14 @@
         </div>
     </div>
     <div class="filters">
-    <button id="properties-btn">⚙️</button>
-    <input type="file" id="file" accept="image/*" style="display: none;">
-    <label for="file" style="cursor: pointer;">📎</label>
-    <textarea id="entrada" placeholder="Digite algo..."></textarea>
-    <button id="enviar">Enviar</button>
-</div>
+         <button id="properties-btn">⚙️</button>
+        <input type="file" id="file" accept="image/*" style="display: none;">
+        <label for="file" style="cursor: pointer; background: transparent; font-size: 1.5em;">📎</label>
+        <textarea id="entrada" placeholder="Digite algo..."></textarea>
+        <button id="enviar">Enviar</button>
+    </div>
+
+
     <dialog id="login-dialog">
         <div class="dialog-content">
             <p class="dialog-message">Insira as credenciais de administrador</p>
@@ -648,7 +647,8 @@
             </div>
         </div>
     </dialog>
-
+    
+         <!-- Diálogo de aviso (já existente) -->
     <dialog id="aviso">
         <div class="dialog-content">
             <p class="dialog-message">Ao clicar em concordar você concorda que esta aplicação não é recomendada para
@@ -656,6 +656,16 @@
             <div class="dialog-buttons">
                 <button id="btnConcordo" class="btn-primary">Concordo</button>
                 <button id="btnNaoConcordo" class="btn-secondary">Não concordo</button>
+            </div>
+        </div>
+    </dialog>
+    <!-- Diálogo de nome de usuário -->
+     <dialog id="user-name-dialog">
+        <div class="dialog-content">
+            <p class="dialog-message">Detectamos que você está sem nome de usuário. Por favor, insira seu nome abaixo:</p>
+            <input type="text" id="new-user-name" placeholder="Seu nome">
+             <div class="dialog-buttons">
+                <button id="btnSetNome" class="btn-primary">Confirmar</button>
             </div>
         </div>
     </dialog>
@@ -688,7 +698,7 @@
         };
     </script>
     <script type="module">
-                // Importando os módulos do Firebase
+                  // Importando os módulos do Firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import { getDatabase, ref as dbRef, onValue, set, get, remove, update,  push, } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
@@ -721,15 +731,18 @@
         const adminLogin = document.getElementById("login-dialog");
         const content = document.getElementById("content");
         const logoutAdmin = document.getElementById("logout-admin");
-         const propertiesBtn = document.getElementById('properties-btn');
-         const propertiesPanelContainer = document.getElementById('properties-panel-container');
-          const adminOption = document.getElementById('admin-option');
-            const deleteUserInput = document.getElementById("delete-user-input")
-           const deleteUserBtn = document.getElementById("delete-user-btn")
-          const clearChatBtn = document.getElementById("clear-chat-btn");
-             const createGroupOption = document.getElementById("create-group-option")
-           const fileInput = document.getElementById('file');
-
+        const propertiesBtn = document.getElementById('properties-btn');
+        const propertiesPanelContainer = document.getElementById('properties-panel-container');
+        const adminOption = document.getElementById('admin-option');
+        const deleteUserInput = document.getElementById("delete-user-input")
+        const deleteUserBtn = document.getElementById("delete-user-btn")
+        const clearChatBtn = document.getElementById("clear-chat-btn");
+        const createGroupOption = document.getElementById("create-group-option")
+        const fileInput = document.getElementById('file');
+        const userNameDialog = document.getElementById("user-name-dialog");
+        const newUserNameInput = document.getElementById("new-user-name");
+        const btnSetNome = document.getElementById("btnSetNome");
+         
         let currentPrivateChat = null;
 
         // Setting up local variables for use
@@ -741,18 +754,130 @@
         let typingTimeout;
         let adminMode = false;
 
-        // Check if user has a name, or a wrong one
-        if (!localStorage.getItem("nome") || localStorage.getItem("nome").includes("gosar")) {
-            let Nm = prompt("Seu nome");
-            if (Nm && Nm.trim() !== "") {
-                localStorage.setItem("nome", Nm);
-            } else {
-                localStorage.setItem("nome", "Anônimo");
+         function checkUserName(){
+            // Check if user has a name, or a wrong one
+            let userNameLocal = localStorage.getItem("nome");
+            if (!userNameLocal || userNameLocal.includes("gosar") || userNameLocal === "Anônimo" ) {
+                   userNameDialog.showModal();
+                   // desabilita o botão de enviar
+                    enviar.disabled = true;
+                    entrada.disabled = true;
+                    fileInput.disabled = true;
+                     // Bloqueia o envio de mensagens enquanto o nome não é definido
+                    enviar.onclick = function(event){
+                    event.preventDefault();
+                     Swal.fire({
+                          title: 'Aviso',
+                          text: 'Por favor, insira um nome de usuário!',
+                          icon: 'info',
+                           confirmButtonText: 'OK'
+                     });
+                    };
+                    fileInput.onchange = function(event){
+                       event.preventDefault();
+                         Swal.fire({
+                          title: 'Aviso',
+                          text: 'Por favor, insira um nome de usuário!',
+                          icon: 'info',
+                           confirmButtonText: 'OK'
+                     });
+                    };
+
             }
         }
+            checkUserName();
 
-        const userName = localStorage.getItem("nome");
 
+          btnSetNome.addEventListener("click", function() {
+            let newName = newUserNameInput.value.trim();
+             if (newName !== "") {
+                    localStorage.setItem("nome", newName);
+                 userNameDialog.close();
+                enviar.disabled = false;
+                entrada.disabled = false;
+                fileInput.disabled = false;
+                 // Reinicia o evento de clique
+                enviar.onclick = sendMessage;
+                fileInput.onchange = async function(){
+                     if (this.files && this.files[0]) {
+                         try {
+                          const file = this.files[0];
+                           const base64Image = await fileToBase64(file);
+                         let date = new Date();
+                         nomeAleatorio = gerarIdAleatorio(10);
+                         let conteudo = "";
+                         let nome = localStorage.getItem("nome");
+                        let timestamp = date.getTime();
+                         let privateChat = currentPrivateChat;
+
+                        const dados = {
+                         nome: nome,
+                        conteudo: `<img src="${base64Image}" alt="Imagem do usuário"/>`,
+                           Dia: date.getDate(),
+                          Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+                        hora: date.getHours(),
+                            minutos: date.getMinutes(),
+                         timestamp: timestamp,
+                        privateChat: privateChat || null,
+                        senderName: userName,
+                         receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
+                        admin: adminMode
+                           };
+                     fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                       method: "PATCH",
+                        body: JSON.stringify(dados)
+                           })
+                         .then(response => {
+                            if (!response.ok) {
+                             throw new Error(`HTTP error! status: ${response.status}`);
+                             }
+                             return response.json();
+                           })
+                       .then(() => {
+                         window.scrollTo({
+                            top: document.body.scrollHeight,
+                          behavior: 'smooth'
+                           });
+                           })
+                           .catch(error => {
+                           Swal.fire({
+                              title: 'Erro',
+                              text: 'Houve um erro no envio da imagem, verifique sua internet e tente novamente!',
+                                  icon: 'error',
+                                confirmButtonText: 'OK'
+                               });
+                            console.error("Erro on sending image:", error);
+                           });
+                             } catch (error) {
+                             console.error("Error converting image to base64", error)
+                             Swal.fire({
+                            title: 'Erro',
+                           text: 'Houve um erro na conversão da imagem, tente novamente!',
+                           icon: 'error',
+                              confirmButtonText: 'OK'
+                           });
+                        }
+                    }
+                 }
+                    Swal.fire({
+                            title: 'Sucesso',
+                            text: 'Seu nome foi salvo com sucesso!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+
+            } else {
+               Swal.fire({
+                    title: 'Erro',
+                     text: 'Por favor, insira um nome válido!',
+                     icon: 'error',
+                     confirmButtonText: 'OK'
+                    });
+                 }
+         })
+
+         const userName = localStorage.getItem("nome");
+        
         // Setup real-time typing indicator listener
         const typingRef = dbRef(database, 'typing');
         onValue(typingRef, (snapshot) => {
@@ -774,7 +899,6 @@
                 typingIndicator.style.display = 'none';
             }
         });
-
         // Fetch and display user list
         const fetchUsers = async () => {
             try {
