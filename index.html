@@ -1229,7 +1229,7 @@
         });
 
 
-        function sendMessage() {
+  function sendMessage() {
             let date = new Date();
             let nomeAleatorio = gerarIdAleatorio(10);
             let conteudo = entrada.value;
@@ -1249,50 +1249,50 @@
                 senderName: userName,
                 receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
                 admin: adminMode,
-                userPhoto: localStorage.getItem("userPhoto")
+               userPhoto: localStorage.getItem("userPhoto")
             };
-            if (conteudo && !conteudo.includes("<")) {
-                fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
-                    method: "PATCH",
-                    body: JSON.stringify(dados)
+          if (conteudo && !conteudo.includes("<")){
+            fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                method: "PATCH",
+                body: JSON.stringify(dados)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(() => {
+                 .then(() => {
                         window.scrollTo({
                             top: document.body.scrollHeight,
                             behavior: 'smooth'
                         });
-                        entrada.value = "";
+                         entrada.value = "";
                     })
-                    .catch(error => {
-                        Swal.fire({
-                            title: 'Erro',
-                            text: 'Houve um erro no envio da mensagem, verifique sua internet e tente novamente!',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                        console.error("Erro on sending message:", error);
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Houve um erro no envio da mensagem, verifique sua internet e tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
                     });
+                    console.error("Erro on sending message:", error);
+                });
             } else if (conteudo && conteudo.includes("<")) {
-                Swal.fire({
+                  Swal.fire({
                     title: 'Inválido',
                     text: 'Seu texto contém caracteres inválidos ou nenhum conteúdo foi inserido. Por favor, revise!',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-            }
-        }
-
-        // Event listener for sending data
-        enviar.addEventListener("click", async function (event) {
-            event.preventDefault();
-            sendMessage();
-        });
+             }
+             }
+         // Event listener for sending data
+         enviar.addEventListener("click", function (event) {
+              event.preventDefault();
+             sendMessage();
+          });
+          
         // Properties panel toggle
         propertiesBtn.addEventListener('click', () => {
             propertiesPanelContainer.style.display = propertiesPanelContainer.style.display === 'block' ? 'none' : 'block';
