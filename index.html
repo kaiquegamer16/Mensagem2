@@ -7,7 +7,7 @@
     <title>Echo</title>
     <link rel="manifest" href="app.json">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -63,14 +63,16 @@
             flex-direction: column;
             overflow-y: auto;
             max-height: calc(100vh - 180px);
-             position: relative;
+            position: relative;
         }
-          .chat-container {
-             margin-bottom: 10px;
-             overflow-y: auto; /* Enable vertical scroll for messages */
-             flex: 1; /* Take available space */
-            
-         }
+
+        .chat-container {
+            margin-bottom: 10px;
+            overflow-y: auto;
+            /* Enable vertical scroll for messages */
+            flex: 1;
+            /* Take available space */
+        }
 
         .item {
             background-color: #1e1e1e;
@@ -80,14 +82,14 @@
             display: flex;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
-           .item.private {
-           background-color: #282828;
-          }
-          
+
+        .item.private {
+            background-color: #282828;
+        }
+
         .item.admin {
             background-color: #0f4c75;
-          }
+        }
 
         .date {
             margin-right: 15px;
@@ -176,22 +178,19 @@
             background-color: #f6121d;
         }
 
-        #file {
-            display: none;
-        }
-
-        #file+label {
-            background-color: #444;
-            color: #fff;
-            padding: 10px;
-            border-radius: 50%;
+         #properties-btn {
+           background-color: #444;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+           border-radius: 4px;
             cursor: pointer;
-            display: inline-block;
+           transition: background-color 0.3s;
         }
-
-        #file+label:hover {
+        
+          #properties-btn:hover {
             background-color: #555;
-        }
+            }
 
         footer {
             background-color: #1e1e1e;
@@ -253,10 +252,10 @@
             color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
             text-align: center;
-             z-index: 99;
+            z-index: 99;
         }
-        
-         dialog.admin {
+
+        dialog.admin {
             border: none;
             border-radius: 8px;
             background-color: #181818;
@@ -265,7 +264,7 @@
             color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
             text-align: center;
-             z-index: 99;
+            z-index: 99;
         }
 
         .dialog-content {
@@ -273,11 +272,12 @@
             flex-direction: column;
             align-items: center;
         }
+
         .dialog-content input {
-           width: 90%;
+            width: 90%;
             margin-bottom: 10px;
-           
-         }
+
+        }
 
         .dialog-message {
             font-size: 1em;
@@ -377,106 +377,163 @@
                 opacity: 1;
             }
         }
-     /* User List Styles */
+
+        /* User List Styles */
         #user-list-container {
             position: absolute;
             top: 0;
             right: 0;
             width: 200px;
-           background-color: #212121;
-             padding: 10px;
-             z-index: 99;
-             border-radius: 10px;
-             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-             display: none;
-           max-height: 300px;
+            background-color: #212121;
+            padding: 10px;
+            z-index: 99;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: none;
+            max-height: 300px;
             overflow-y: auto;
         }
-         #user-list-container ul {
+
+        #user-list-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #user-list-container li {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #user-list-container li:hover {
+            background-color: #2e2e2e;
+        }
+
+         #properties-panel-container {
+           position: absolute;
+           top: 0;
+           left: 0;
+           width: 200px;
+           background-color: #212121;
+           padding: 10px;
+           z-index: 100;
+            border-radius: 10px;
+           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+           display: none;
+           max-height: 300px;
+           overflow-y: auto;
+        }
+         #properties-panel-container ul {
            list-style: none;
            padding: 0;
            margin: 0;
          }
-        #user-list-container li {
+        #properties-panel-container li {
            padding: 5px 10px;
-          cursor: pointer;
+           cursor: pointer;
            border-radius: 5px;
          }
-        #user-list-container li:hover {
+           #properties-panel-container li:hover {
            background-color: #2e2e2e;
-          }
-
-          #admin-panel-container {
-             display: none;
+           }
+        #admin-panel-container {
+            display: none;
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-             background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.7);
             z-index: 100;
-          }
-          #admin-panel {
+        }
+
+        #admin-panel {
             background-color: #181818;
-             border-radius: 10px;
-             position: absolute;
-             top: 50%;
-             left: 50%;
-             transform: translate(-50%,-50%);
-             padding: 20px;
-             width: 500px;
-          }
-         #admin-panel h2 {
-           text-align: center;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            width: 500px;
+        }
+        
+       #admin-panel .admin-options {
+           display: flex;
+           flex-direction: column;
             margin-bottom: 10px;
          }
-         #admin-panel ul {
-           list-style: none;
-           margin: 0;
-           padding: 0;
-         }
-         #admin-panel li {
-           padding: 5px 0;
-           border-bottom: 1px solid #333;
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-         }
-         #admin-panel li:last-child {
-          border-bottom: none;
-         }
-         #admin-panel li button {
-           background-color: #e50914;
+
+        #admin-panel h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        #admin-panel  input {
+           background-color: #212121;
+            color: #e0e0e0;
+            font-weight: normal;
+            padding: 10px;
+            border-radius: 4px;
+            outline: none;
+            border: none;
+            box-sizing: border-box;
+             margin-bottom: 10px;
+        }
+
+        #admin-panel ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #admin-panel li {
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #admin-panel li:last-child {
+            border-bottom: none;
+        }
+
+        #admin-panel li button {
+            background-color: #e50914;
             border: none;
             color: white;
             padding: 5px 10px;
-           border-radius: 4px;
+            border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
-           }
-             #admin-panel li button:hover {
-               background-color: #f6121d;
-         }
-         .admin-user-name {
+        }
+
+        #admin-panel li button:hover {
+            background-color: #f6121d;
+        }
+
+        .admin-user-name {
             margin-left: 5px;
             font-weight: bold;
-           
+
         }
-        
+
         .private-name {
-           
+
             font-weight: bold;
-           
+
         }
-        
-          .audio-controls {
-           display: flex;
-           align-items: center;
-           margin-bottom: 5px;
-           
-           }
-           
-           .audio-controls button {
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+
+        }
+
+        .audio-controls button {
             padding: 10px;
             background-color: #444;
             border: none;
@@ -485,10 +542,11 @@
             color: white;
             transition: background-color 0.3s;
             margin-right: 5px;
-           }
-           .audio-controls button:hover {
+        }
+
+        .audio-controls button:hover {
             background-color: #555;
-            }
+        }
 
         /* Estilos para quando a tela for menor */
         @media (max-width: 600px) {
@@ -504,57 +562,18 @@
                 margin-bottom: 10px;
             }
 
-            .info img {
-                max-width: 100%;
-            }
-        }
+               .info img {
+        width: 100%;
+        max-width: 200px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        display: block;
+    }
     </style>
 
 </head>
 
 <body>
-    <header>
-        <div id="nomeGif">
-            <h1>Echo</h1>
-        </div>
-        <p>Chat público, chame pessoas para jogar, divulgue suas obras, divirta-se!</p>
-    </header>
-
-    <div class="content" id="content">
-          <div class="chat-container" id="posters">
-           </div>
-        <div id="typing-indicator">
-            <span id="typing-user"></span>
-            <div class="typing-dots">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        </div>
-    <div id="user-list-container">
-        <ul>
-            </ul>
-      </div>
-          <div id="admin-panel-container">
-            <div id="admin-panel">
-              <h2>Painel do Administrador</h2>
-              <ul id="admin-user-list">
-                 </ul>
-                 <button id="logout-admin" class="btn-secondary">Logout</button>
-              </div>
-        </div>
-     </div>
-    <div class="filters">
-        <input id="file" type="file" accept="image/*">
-        <label id="label" for="file" role="button" tabindex="0">📸</label>
-           <button id="audio-btn" role="button" tabindex="0">🎤</button>
-           <input id="fileAudio" type="file" accept="audio/*" style="display: none">
-             <button id="file-btn" role="button" tabindex="0">📎</button>
-             <input id="fileDoc" type="file" style="display: none">
-        <textarea id="entrada" placeholder="Digite algo..."></textarea>
-        <button id="enviar">Enviar</button>
-    </div>
-    
    <dialog id="dialog" style="border: none; padding: 0;">
         <div
             style="background-color: #141414; color: white; padding: 20px; border-radius: 10px; max-width: 300px; text-align: center; font-family: Arial, sans-serif;">
@@ -569,18 +588,66 @@
                 onclick="fechar()">Fechar</button>
         </div>
     </dialog>
-     
-   <dialog id="login-dialog">
-    <div class="dialog-content">
-      <p class="dialog-message">Insira as credenciais de administrador</p>
-      <input type="text" id="admin-username" placeholder="Usuário">
-        <input type="password" id="admin-password" placeholder="Senha">
-        <div class="dialog-buttons">
-      <button id="btnLogar" class="btn-primary">Logar</button>
-          <button id="btnCancelar" class="btn-secondary">Cancelar</button>
-       </div>
+    <header>
+        <div id="nomeGif">
+            <h1>Echo</h1>
+        </div>
+        <p>Chat público, chame pessoas para jogar, divulgue suas obras, divirta-se!</p>
+    </header>
+
+    <div class="content" id="content">
+        <div class="chat-container" id="posters">
+        </div>
+        <div id="typing-indicator">
+            <span id="typing-user"></span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        <div id="user-list-container">
+            <ul>
+            </ul>
+        </div>
+        <div id="properties-panel-container">
+             <ul>
+               <li id="admin-option">Admin</li>
+               <li id="create-group-option">Criar Grupo</li>
+               </ul>
+            </div>
+        <div id="admin-panel-container">
+            <div id="admin-panel">
+                <h2>Painel do Administrador</h2>
+                <div class="admin-options">
+                <input type="text" id="delete-user-input" placeholder="Nome do Usuário">
+                    <button id="delete-user-btn" class="btn-primary">Deletar Usuário</button>
+                       <button id="clear-chat-btn" class="btn-primary">Limpar Chat</button>
+                </div>
+                <ul id="admin-user-list">
+                </ul>
+                <button id="logout-admin" class="btn-secondary">Logout</button>
+            </div>
+        </div>
     </div>
-  </dialog>
+    <div class="filters">
+    <button id="properties-btn">⚙️</button>
+    <input type="file" id="file" accept="image/*" style="display: none;">
+    <label for="file" style="cursor: pointer;">📎</label>
+    <textarea id="entrada" placeholder="Digite algo..."></textarea>
+    <button id="enviar">Enviar</button>
+</div>
+    <dialog id="login-dialog">
+        <div class="dialog-content">
+            <p class="dialog-message">Insira as credenciais de administrador</p>
+            <input type="text" id="admin-username" placeholder="Usuário">
+            <input type="password" id="admin-password" placeholder="Senha">
+            <div class="dialog-buttons">
+                <button id="btnLogar" class="btn-primary">Logar</button>
+                <button id="btnCancelar" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
 
     <dialog id="aviso">
         <div class="dialog-content">
@@ -592,38 +659,38 @@
             </div>
         </div>
     </dialog>
-    <script>
+     <script>
         const dialogo = document.getElementById("aviso");
         const btnConcordo = document.getElementById("btnConcordo");
         const btnNaoConcordo = document.getElementById("btnNaoConcordo");
-
-        let concordo = localStorage.getItem("concordo")
+         const dialog = document.getElementById('dialog');
+        let concordo = localStorage.getItem("concordo");
+       
+            function fechar() {
+                dialog.close();
+            }
 
         if (!concordo) {
             dialogo.showModal();
-
         }
 
         // Funções para os botões
         btnConcordo.onclick = () => {
             dialogo.close();
             alert("Você concordou!");
-            concordo = 1
-            localStorage.setItem("concordo", concordo)
+            localStorage.setItem("concordo", "1");
         };
-
 
         btnNaoConcordo.onclick = () => {
             dialogo.close();
             alert("Você não concordou.");
-            window.location.href = "n.html"
+            window.location.href = "n.html";
         };
     </script>
     <script type="module">
-        // Importando os módulos do Firebase
+                // Importando os módulos do Firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js';
-        import { getDatabase, ref as dbRef, onValue, set,  push, get, child,remove } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+        import { getDatabase, ref as dbRef, onValue, set, get, remove, update,  push, } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
         // Configurações do Firebase
         const firebaseConfig = {
@@ -635,32 +702,35 @@
             appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
             measurementId: "G-T81G36LMJG"
         };
-        
+
         // Inicializando o Firebase
-         const app = initializeApp(firebaseConfig);
-         const storage = getStorage(app);
+        const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
         // Get DOM elements
         const enviar = document.getElementById("enviar");
         const entrada = document.getElementById("entrada");
         const posters = document.getElementById("posters");
-        const fileInput = document.getElementById("file");
         const typingIndicator = document.getElementById("typing-indicator");
         const typingUser = document.getElementById("typing-user");
         const userListContainer = document.getElementById("user-list-container");
         const userList = userListContainer.querySelector("ul");
-          const adminPanelContainer = document.getElementById("admin-panel-container");
-         const adminPanel = document.getElementById("admin-panel");
-         const adminUserList = document.getElementById("admin-user-list");
-         const adminLogin = document.getElementById("login-dialog")
-         const audioBtn = document.getElementById("audio-btn");
-          const fileAudio = document.getElementById("fileAudio");
-            const fileBtn = document.getElementById("file-btn");
-            const fileDoc = document.getElementById("fileDoc");
-             const content = document.getElementById("content");
-          const logoutAdmin = document.getElementById("logout-admin")
-          let currentPrivateChat = null;
+        const adminPanelContainer = document.getElementById("admin-panel-container");
+        const adminPanel = document.getElementById("admin-panel");
+        const adminUserList = document.getElementById("admin-user-list");
+        const adminLogin = document.getElementById("login-dialog");
+        const content = document.getElementById("content");
+        const logoutAdmin = document.getElementById("logout-admin");
+         const propertiesBtn = document.getElementById('properties-btn');
+         const propertiesPanelContainer = document.getElementById('properties-panel-container');
+          const adminOption = document.getElementById('admin-option');
+            const deleteUserInput = document.getElementById("delete-user-input")
+           const deleteUserBtn = document.getElementById("delete-user-btn")
+          const clearChatBtn = document.getElementById("clear-chat-btn");
+             const createGroupOption = document.getElementById("create-group-option")
+           const fileInput = document.getElementById('file');
+
+        let currentPrivateChat = null;
 
         // Setting up local variables for use
         let rolar = 1;
@@ -668,11 +738,8 @@
         let itemColors = {};
         let geral;
         let msgAntiga = localStorage.getItem("msgAntiga");
-         let typingTimeout;
-         let audioRecorder;
-         let audioChunks = [];
-          let adminMode = false;
-
+        let typingTimeout;
+        let adminMode = false;
 
         // Check if user has a name, or a wrong one
         if (!localStorage.getItem("nome") || localStorage.getItem("nome").includes("gosar")) {
@@ -683,71 +750,74 @@
                 localStorage.setItem("nome", "Anônimo");
             }
         }
-        
-      const userName = localStorage.getItem("nome");
 
-          // Setup real-time typing indicator listener
-          const typingRef = dbRef(database, 'typing');
-          onValue(typingRef, (snapshot) => {
-              const typingData = snapshot.val();
-              let someoneTyping = false;
+        const userName = localStorage.getItem("nome");
+
+        // Setup real-time typing indicator listener
+        const typingRef = dbRef(database, 'typing');
+        onValue(typingRef, (snapshot) => {
+            const typingData = snapshot.val();
+            let someoneTyping = false;
             if (typingData) {
-            
                 for (const key in typingData) {
-                if (typingData[key].isTyping === true && key !== userName){
-                    typingUser.textContent = typingData[key].nome + " está digitando";
-                      typingIndicator.style.display = 'flex';
-                     someoneTyping = true;
-                    break
-                }
-             }
-             if(!someoneTyping){
-                typingIndicator.style.display = 'none';
-             }
-             } else {
-                typingIndicator.style.display = 'none';
-            }
-          });
-
-          // Fetch and display user list
-          const fetchUsers = async () => {
-            try {
-                const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
-                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                 }
-                const data = await response.json();
-                 userList.innerHTML = '';
-                const users = {};
-                for (const key in data){
-                    if (!users[data[key].nome]){
-                        users[data[key].nome] = data[key];
-                      userList.insertAdjacentHTML('afterbegin',`
-                        <li data-user="${data[key].nome}">
-                           ${data[key].nome}
-                         </li>`)
+                    if (typingData[key].isTyping === true && key !== userName) {
+                        typingUser.textContent = typingData[key].nome + " está digitando";
+                        typingIndicator.style.display = 'flex';
+                        someoneTyping = true;
+                        break;
                     }
                 }
-              userListContainer.style.display = "block";
-            } catch (error) {
-                 console.error('Error on fetching users:', error);
+                if (!someoneTyping) {
+                    typingIndicator.style.display = 'none';
+                }
+            } else {
+                typingIndicator.style.display = 'none';
             }
-          };
+        });
+
+        // Fetch and display user list
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                userList.innerHTML = '';
+                const users = {};
+                for (const key in data) {
+                    if (!users[data[key].nome]) {
+                        users[data[key].nome] = data[key];
+                        userList.insertAdjacentHTML('afterbegin', `
+                        <li data-user="${data[key].nome}">
+                           ${data[key].nome}
+                         </li>`);
+                    }
+                }
+                userListContainer.style.display = "block";
+            } catch (error) {
+                console.error('Error on fetching users:', error);
+            }
+        };
 
         // Function to fetch initial data
         const fetchData = async () => {
             try {
                 const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
-                 if (!response.ok) {
+                  if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
-                 }
+                   }
                 const dt = await response.json();
+                 if (dt === null || typeof dt !== 'object') {
+                       console.warn("Data from Firebase is invalid:", dt);
+                         return;
+                   }
                 geral = dt;
 
-                 if (geral !== msgAntiga) {
-                    msgAntiga = geral;
-                    localStorage.setItem("msgAntiga", msgAntiga);
-                  }
+                if (geral !== msgAntiga) {
+                    msgAntiga = JSON.stringify(geral);
+                    localStorage.setItem("msgAntiga", JSON.stringify(geral));
+                }
                 let msgs = Object.keys(dt);
 
                 msgs.forEach(e => {
@@ -756,92 +826,182 @@
                         itemColors[e] = color[colorSelect];
                     }
                 });
-             } catch (error) {
-                 console.error("Failed to fetch initial data:", error);
-             }
-           };
-        
-          // Function to fetch and display admin users
-         const fetchAdminUsers = async () => {
-           try {
-            const usersRef = dbRef(database, 'users');
-            const snapshot = await get(usersRef);
-            if (snapshot.exists()) {
-            adminUserList.innerHTML = '';
-            const users = snapshot.val();
-              for (const key in users) {
-               if (key !== "admin"){
-                   adminUserList.insertAdjacentHTML('afterbegin',`
+            } catch (error) {
+                console.error("Failed to fetch initial data:", error);
+            }
+        };
+
+        // Function to fetch and display admin users
+        const fetchAdminUsers = async () => {
+            try {
+                const usersRef = dbRef(database, 'users');
+                const snapshot = await get(usersRef);
+                if (snapshot.exists()) {
+                    adminUserList.innerHTML = '';
+                    const users = snapshot.val();
+                    for (const key in users) {
+                        if (key !== "admin") {
+                            adminUserList.insertAdjacentHTML('afterbegin', `
                     <li><span class="admin-user-name">${key}</span>
                       <button data-user="${key}"class="delete-user">Deletar</button>
                     </li>`);
-                 }
-                 }
-             }
-           } catch (error) {
-            console.error('Error fetching admin users:', error)
-           }
-         };
-         
-         // Handle admin user actions
-         adminUserList.addEventListener('click', async function(event){
-           if(event.target.classList.contains('delete-user')){
-              const userKey = event.target.dataset.user;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching admin users:', error);
+            }
+        };
+
+        // Handle admin user actions
+        adminUserList.addEventListener('click', async function (event) {
+            if (event.target.classList.contains('delete-user')) {
+                const userKey = event.target.dataset.user;
                 try {
-                   const userRef = dbRef(database, `users/${userKey}`);
-                    await remove(userRef)
+                    const userRef = dbRef(database, `users/${userKey}`);
+                    await remove(userRef);
                     fetchAdminUsers();
                     Swal.fire({
-                         title: 'Sucesso',
+                        title: 'Sucesso',
                         text: `O usuário ${userKey} foi deletado com sucesso!`,
                         icon: 'success',
                         confirmButtonText: 'OK'
                     });
                 } catch (error) {
                     console.error('Error deleting admin user:', error);
-                     Swal.fire({
-                         title: 'Erro',
+                    Swal.fire({
+                        title: 'Erro',
                         text: 'Houve um erro ao deletar o usuário, tente novamente!',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
                 }
-              }
-           })
+            }
+        });
+        
+        //Delete user by name
+        deleteUserBtn.addEventListener("click", async function(){
+            const userToDelete = deleteUserInput.value;
+             if (userToDelete && userToDelete.trim() !== "") {
+                  try {
+                       const usersRef = dbRef(database, 'users');
+                        const snapshot = await get(usersRef);
+                          if (snapshot.exists()) {
+                            const users = snapshot.val()
+                            let keyToDelete;
+                                for (const key in users){
+                                 if (key == userToDelete){
+                                   keyToDelete = key;
+                                   break;
+                                 }
+                                }
+                                   if (keyToDelete){
+                                    const userRef = dbRef(database, `users/${keyToDelete}`);
+                                    await remove(userRef);
+                                  fetchAdminUsers()
+                                    Swal.fire({
+                                        title: 'Sucesso',
+                                        text: `O usuário ${userToDelete} foi deletado com sucesso!`,
+                                        icon: 'success',
+                                        confirmButtonText: 'OK'
+                                    });
+                                     deleteUserInput.value = "";
+                                   } else {
+                                      Swal.fire({
+                                          title: 'Erro',
+                                        text: 'Usuário não encontrado!',
+                                          icon: 'error',
+                                           confirmButtonText: 'OK'
+                                      });
+                                   }
+                               }
+                       } catch (error) {
+                            Swal.fire({
+                                   title: 'Erro',
+                                    text: 'Houve um erro ao deletar o usuário, tente novamente!',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                             console.error("Erro deleting user by name",error)
+                       }
+                } else {
+                      Swal.fire({
+                           title: 'Aviso',
+                            text: 'Insira um nome de usuário válido!',
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                         });
+                }
+        })
+         // Function to clear the chat messages
+         clearChatBtn.addEventListener('click', async function(){
+           try{
+              const feedRef = dbRef(database, "feed");
+               await remove(feedRef)
+               Swal.fire({
+                title: 'Sucesso',
+                   text: 'O chat foi limpo com sucesso!',
+                   icon: 'success',
+                    confirmButtonText: 'OK'
+                 });
+                 updateMessages();
+            } catch (error) {
+                console.error("Error on clear the chat", error);
+                 Swal.fire({
+                    title: 'Erro',
+                       text: 'Houve um erro ao limpar o chat!',
+                      icon: '                    error',
+                       confirmButtonText: 'OK'
+                   });
+            }
+         })
+         //Handle group create action
+          createGroupOption.addEventListener('click', function(){
+              propertiesPanelContainer.style.display = "none";
+               Swal.fire({
+                         title: 'Aviso',
+                        text: 'Função de criação de grupo em desenvolvimento!',
+                          icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+          })
 
-          // Function to fetch and display messages
+        // Function to fetch and display messages
         const updateMessages = async () => {
             try {
                 const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
-                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                  }
+                if (!response.ok) {
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                   }
                 const data = await response.json();
-                let itensOrdenados = Object.keys(data).map(key => ({
-                    key: key,
-                    ...data[key]
-                })).sort((a, b) => b.timestamp - a.timestamp);
-               posters.innerHTML = '';
-              
-              itensOrdenados.forEach(item => {
-                     let selected = itemColors[item.key];
-                      let itemClass = '';
-                      let name = item.nome
-                      if(item.privateChat) {
+                 if (data === null || typeof data !== 'object') {
+                       posters.innerHTML = '';
+                        console.warn("Data from Firebase is invalid:", data);
+                         return;
+                   }
+                let itensOrdenados = Object.keys(data)
+                    .map(key => ({ key: key, ...data[key] }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
+                posters.innerHTML = '';
+
+                itensOrdenados.forEach(item => {
+                    let selected = itemColors[item.key];
+                    let itemClass = '';
+                    let name = item.nome;
+                    if (item.privateChat) {
                         itemClass = 'private';
-                         if(item.senderName != userName){
-                             name = `<span class="private-name">${item.senderName}</span>`
-                          } else {
-                            name = "Você"
-                            }
-                      }
-                       if (item.admin){
-                          itemClass = 'admin'
-                       }
-                     if(adminMode || !item.privateChat || item.privateChat && item.senderName == userName || item.privateChat && item.receiverName == userName || currentPrivateChat == item.privateChat){
-                             
-                             if (!item.nome.includes("gosar") && !item.nome.includes("pau")) {
-                                posters.insertAdjacentHTML('afterbegin', `
+                        if (item.senderName != userName) {
+                            name = `<span class="private-name">${item.senderName}</span>`;
+                        } else {
+                            name = "Você";
+                        }
+                    }
+                    if (item.admin) {
+                        itemClass = 'admin';
+                    }
+                     if (adminMode || !item.privateChat || (item.privateChat && item.senderName == userName) || (item.privateChat && item.receiverName == userName) || currentPrivateChat === item.privateChat) {
+                        if (!item.nome.includes("gosar") && !item.nome.includes("pau")) {
+                            posters.insertAdjacentHTML('afterbegin', `
                                     <div class="item ${itemClass}">
                                         <div class="date">
                                             <span>${item.Mes}</span>
@@ -849,18 +1009,16 @@
                                         </div>
                                         <div class="info">
                                             <h2 style="color: ${selected}; font-weight: bold;">${name}</h2>
-                                           ${item.conteudo}
-                                             ${item.imagemURL ? `<img id='imgg' src="${item.imagemURL}" alt="imagem"/>` : ''}
-                                              ${item.audioURL ? `<div class="audio-controls"> <audio controls src="${item.audioURL}"></audio></div>` : ''}
-                                               ${item.fileURL ? `<a href="${item.fileURL}" target="_blank">Arquivo</a>` : ''}
-                                             <p>${item.hora} : ${item.minutos}</p>
+                                            ${item.conteudo}
+                                            <p>${item.hora} : ${item.minutos}</p>
                                         </div>
                                     </div>
                                     <hr>
                                 `);
-                           }
                         }
-                  if (rolar === 1) {
+                    }
+
+                    if (rolar === 1) {
                         rolar = 0;
                         setTimeout(() => {
                             window.scrollTo({
@@ -880,7 +1038,6 @@
 
         const date = new Date();
         const nomeDoMes = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date);
-        const mes = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(date);
         let dia = date.getDate();
         let nomeAleatorio;
 
@@ -893,20 +1050,19 @@
             }
             return resultado;
         }
-        
-           // Function to handle private chats
-         userList.addEventListener('click', function(event){
-              if (event.target && event.target.tagName === 'LI'){
-                const selectedUser = event.target.dataset.user;
-                  currentPrivateChat = generateChatId(userName,selectedUser)
-                userListContainer.style.display = "none";
-                   updateMessages();
 
-             }
-            })
-        
+        // Function to handle private chats
+        userList.addEventListener('click', function (event) {
+            if (event.target && event.target.tagName === 'LI') {
+                const selectedUser = event.target.dataset.user;
+                currentPrivateChat = generateChatId(userName, selectedUser);
+                userListContainer.style.display = "none";
+                updateMessages();
+            }
+        });
+
         function generateChatId(user1, user2) {
-           const sortedUsers = [user1, user2].sort();
+            const sortedUsers = [user1, user2].sort();
             return sortedUsers.join('_');
         }
 
@@ -915,255 +1071,250 @@
             this.style.height = "auto";
             this.style.height = (this.scrollHeight) + "px";
 
-              // Show typing indicator and set timeout
-             set(dbRef(database, `typing/${userName}`), {
-                    isTyping: true,
+            // Show typing indicator and set timeout
+            set(dbRef(database, `typing/${userName}`), {
+                isTyping: true,
+                nome: userName,
+            });
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                set(dbRef(database, `typing/${userName}`), {
+                    isTyping: false,
                     nome: userName,
-                 });
-
-               clearTimeout(typingTimeout);
-                  typingTimeout = setTimeout(() => {
-                   set(dbRef(database, `typing/${userName}`), {
-                        isTyping: false,
-                        nome: userName,
-                     });
-
-                 }, 1000);
-
+                });
+            }, 1000);
         });
 
-         // Setup audio recording
-        audioBtn.addEventListener("click", async () => {
-            try {
-                if (!audioRecorder) {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                     audioRecorder = new MediaRecorder(stream);
-                     audioRecorder.ondataavailable = event => {
-                           audioChunks.push(event.data);
-                         }
-                         audioRecorder.onstop = async () => {
-                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                                 audioChunks = [];
-                            try {
-                                const audioName = gerarIdAleatorio(10);
-                                 const audioRef = ref(storage, `audios/${audioName}.webm`);
-                                 const snapshot = await uploadBytes(audioRef, audioBlob);
-                                 const audioUrl = await getDownloadURL(snapshot.ref);
-                                 sendMessage(null, audioUrl, null);
-                            } catch(error) {
-                             console.error('Error sending audio:', error)
-                              Swal.fire({
-                                title: 'Erro',
-                                text: 'Houve um erro ao enviar o áudio, tente novamente!',
-                                icon: 'error',
-                                 confirmButtonText: 'OK'
-                            });
-                           }
-                         };
-                      audioRecorder.start();
-                     audioBtn.textContent = "🛑"
-                } else {
-                  audioRecorder.stop();
-                     audioRecorder = null;
-                     audioBtn.textContent = "🎤"
-                }
-           } catch (error) {
-                console.error('Error starting audio:', error)
-                 Swal.fire({
-                       title: 'Erro',
-                       text: 'Houve um erro ao acessar o microfone, verifique as permissões do seu navegador!',
-                       icon: 'error',
-                        confirmButtonText: 'OK'
-                });
-           }
-           });
-        
-    // Event listener for sending files
-        fileBtn.addEventListener("click", () => {
-            fileDoc.click()
-          })
-        fileDoc.addEventListener("change", async function () {
-          const file = fileDoc.files[0];
-         if (file){
-           try {
-               const fileId = gerarIdAleatorio(10);
-              const fileRef = ref(storage, `files/${fileId}-${file.name}`);
-                 const snapshot = await uploadBytes(fileRef, file);
-                 const fileUrl = await getDownloadURL(snapshot.ref);
-                sendMessage(null, null, fileUrl);
-           } catch (error) {
-              console.error('Error sending file:', error)
-                Swal.fire({
-                       title: 'Erro',
-                       text: 'Houve um erro ao enviar o arquivo, tente novamente!',
-                       icon: 'error',
-                        confirmButtonText: 'OK'
-                });
-            }
-          }
-          });
-          
+         // Function to convert image to Base64
+         function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
 
-          
-        function sendMessage(audioUrl = null, fileUrl = null, imagemUrl = null) {
-          
-           let date = new Date();
-           nomeAleatorio = gerarIdAleatorio(10);
-           let conteudo = entrada.value;
-           let nome = localStorage.getItem("nome");
-           let timestamp = date.getTime();
-           
-          let privateChat = currentPrivateChat
-            
+        fileInput.addEventListener('change', async function() {
+             if (this.files && this.files[0]) {
+                try {
+                     const file = this.files[0];
+                    const base64Image = await fileToBase64(file);
+                  
+                   let date = new Date();
+                    nomeAleatorio = gerarIdAleatorio(10);
+                    let conteudo = "";
+                    let nome = localStorage.getItem("nome");
+                    let timestamp = date.getTime();
+                     let privateChat = currentPrivateChat;
+
+                    const dados = {
+                         nome: nome,
+                          conteudo: `<img src="${base64Image}" alt="Imagem do usuário"/>`,
+                          Dia: date.getDate(),
+                           Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+                        hora: date.getHours(),
+                        minutos: date.getMinutes(),
+                        timestamp: timestamp,
+                       privateChat: privateChat || null,
+                        senderName: userName,
+                         receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
+                        admin: adminMode
+                     };
+                      fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                        method: "PATCH",
+                        body: JSON.stringify(dados)
+                       })
+                        .then(response => {
+                            if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                           }
+                             return response.json();
+                        })
+                        .then(() => {
+                             window.scrollTo({
+                            top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        })
+                        .catch(error => {
+                           Swal.fire({
+                                 title: 'Erro',
+                                text: 'Houve um erro no envio da imagem, verifique sua internet e tente novamente!',
+                                 icon: 'error',
+                            confirmButtonText: 'OK'
+                           });
+                        console.error("Erro on sending image:", error);
+                      });
+                     } catch (error) {
+                      console.error("Error converting image to base64", error)
+                         Swal.fire({
+                            title: 'Erro',
+                            text: 'Houve um erro na conversão da imagem, tente novamente!',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+        });
+        function sendMessage() {
+            let date = new Date();
+            nomeAleatorio = gerarIdAleatorio(10);
+            let conteudo = entrada.value;
+            let nome = localStorage.getItem("nome");
+            let timestamp = date.getTime();
+             let privateChat = currentPrivateChat;
+
             const dados = {
-                 nome: nome,
-                 conteudo: conteudo ? `<pe>${conteudo}<pe>` : null,
+                nome: nome,
+                conteudo: conteudo ? `<pe>${conteudo}<pe>` : null,
                 Dia: date.getDate(),
-                 Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
-                 hora: date.getHours(),
+                Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+                hora: date.getHours(),
                 minutos: date.getMinutes(),
-                 timestamp: timestamp,
-                imagemURL: imagemUrl,
-                 audioURL: audioUrl,
-                fileURL: fileUrl,
-                 privateChat: privateChat || null,
+                timestamp: timestamp,
+               privateChat: privateChat || null,
                 senderName: userName,
                  receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
-                admin: adminMode
+                 admin: adminMode
             };
-              if ((conteudo && !conteudo.includes("<")) || audioUrl || imagemUrl || fileUrl ) {
-                   fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
-                         method: "PATCH",
-                         body: JSON.stringify(dados)
+            if (conteudo && !conteudo.includes("<")) {
+                fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                        method: "PATCH",
+                        body: JSON.stringify(dados)
                     })
                     .then(response => {
                         if (!response.ok) {
-                           throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json()
+                             throw new Error(`HTTP error! status: ${response.status}`);
+                           }
+                        return response.json();
                     })
-                   .then( () => {
-                       window.scrollTo({
-                        top: document.body.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                     entrada.value = "";
-                    fileInput.value = "";
-                     fileDoc.value = null;
-                       })
-                      .catch(error => {
-                         Swal.fire({
+                    .then(() => {
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                        entrada.value = "";
+                    })
+                    .catch(error => {
+                        Swal.fire({
                             title: 'Erro',
                             text: 'Houve um erro no envio da mensagem, verifique sua internet e tente novamente!',
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
-                        console.error("Erro on sending message:", error)
-                       });
-                } else {
-                      Swal.fire({
-                         title: 'Inválido',
-                       text: 'Seu texto contém caracteres inválidos ou nenhum conteúdo foi inserido. Por favor, revise!',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
+                        console.error("Erro on sending message:", error);
                     });
-             }
+            } else if (conteudo && conteudo.includes("<")) {
+                 Swal.fire({
+                    title: 'Inválido',
+                    text: 'Seu texto contém caracteres inválidos ou nenhum conteúdo foi inserido. Por favor, revise!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
         }
 
         // Event listener for sending data
-       enviar.addEventListener("click", async function (event) {
+        enviar.addEventListener("click", async function (event) {
             event.preventDefault();
-           let imagem = fileInput.files[0];
-           if (imagem) {
-                        try{
-                         const imagemRef = ref(storage, `imagens/${nomeAleatorio}-${imagem.name}`);
-                         const snapshot = await uploadBytes(imagemRef, imagem);
-                       const urlImagem = await getDownloadURL(snapshot.ref);
-                        sendMessage(urlImagem, null, null)
-                            } catch (error) {
-                          Swal.fire({
-                         title: 'Erro',
-                        text: 'Houve um erro ao enviar a imagem, verifique sua internet e tente novamente!',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                      });
-                      console.error("Erro on sending image:", error)
-                      }
-            } else {
-                 sendMessage()
-             }
-           });
-           
-    // Show user list on click on the content
-         content.addEventListener('click', function (event) {
-           if (event.target != userListContainer && event.target != fileInput && event.target != audioBtn && event.target != fileBtn && event.target != entrada  && event.target != enviar && event.target != document.querySelector("#file + label") && event.target != document.querySelector("#audio-btn")){
-            userListContainer.style.display = 'none';
+            sendMessage();
+        });
+          // Properties panel toggle
+        propertiesBtn.addEventListener('click', () => {
+             propertiesPanelContainer.style.display = propertiesPanelContainer.style.display === 'block' ? 'none' : 'block';
+          })
+
+        // Show user list on click on the content
+        content.addEventListener('click', function (event) {
+           if (!userListContainer.contains(event.target) && event.target !== entrada && event.target !== enviar && event.target !== document.querySelector("#file + label") && event.target !== document.querySelector("#audio-btn")) {
+               userListContainer.style.display = 'none';
            }
-         })
+           if (!propertiesPanelContainer.contains(event.target) && event.target !== propertiesBtn && event.target !== entrada && event.target !== enviar) {
+            propertiesPanelContainer.style.display = 'none';
+         }
+        });
+        
+          adminOption.addEventListener('click', function (event) {
+              propertiesPanelContainer.style.display = "none"
+                if (!loggedIn) {
+                loginDialog.showModal();
+              } else {
+                   adminPanelContainer.style.display = "block";
+                  fetchAdminUsers();
+              }
+          })
+            createGroupOption.addEventListener('click', function(){
+               propertiesPanelContainer.style.display = "none";
+               Swal.fire({
+                         title: 'Aviso',
+                        text: 'Função de criação de grupo em desenvolvimento!',
+                          icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+           })
 
         // Call initial fetch
         fetchData();
-        
-       // Admin logic
+         fetchUsers();
 
-    const loginDialog = document.getElementById('login-dialog');
-    const btnLogar = document.getElementById('btnLogar');
-   const btnCancelar = document.getElementById('btnCancelar')
-     
-   let loggedIn = false;
-    const adminButton = document.createElement("button")
-    adminButton.textContent = "ADM";
-    adminButton.classList.add("btn-primary")
-    document.querySelector("footer nav ul").appendChild(adminButton)
-    adminButton.addEventListener("click", () => {
-       if (!loggedIn) {
-           loginDialog.showModal();
-       } else {
-         adminPanelContainer.style.display = "block"
-            fetchAdminUsers()
-           }
-    })
-    
-     btnCancelar.addEventListener("click", () => {
-           loginDialog.close();
-       });
-      
-  btnLogar.addEventListener('click', () => {
-  const username = document.getElementById('admin-username').value;
-  const password = document.getElementById('admin-password').value;
-  
-  if (username === 'admin' && password === 'admin') {
-        loginDialog.close();
-         loggedIn = true;
-        adminMode = true;
-       adminButton.textContent = "ADM(ON)"
-      updateMessages();
-     } else {
-          Swal.fire({
-            title: 'Erro',
-            text: 'Credenciais inválidas, tente novamente!',
-             icon: 'error',
-             confirmButtonText: 'OK'
-            });
-  }
-});
-         
-   logoutAdmin.addEventListener('click', () => {
-        adminPanelContainer.style.display = "none"
-      loggedIn = false;
-        adminMode = false
-     adminButton.textContent = "ADM"
-       updateMessages()
-      });
-    
-      adminPanelContainer.addEventListener('click', (e) => {
-        if (e.target === adminPanelContainer){
-            adminPanelContainer.style.display = "none"
-        }
-      })
+        // Admin logic
+        const loginDialog = document.getElementById('login-dialog');
+        const btnLogar = document.getElementById('btnLogar');
+        const btnCancelar = document.getElementById('btnCancelar');
+
+        let loggedIn = false;
+
+        btnCancelar.addEventListener("click", () => {
+            loginDialog.close();
+        });
+
+        btnLogar.addEventListener('click', () => {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            if (username === 'admin' && password === 'admin') {
+                loginDialog.close();
+                loggedIn = true;
+                adminMode = true;
+                updateMessages();
+                Swal.fire({
+                        title: 'Sucesso',
+                        text: 'Logado como administrador!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+            } else {
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'Credenciais inválidas, tente novamente!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+
+        logoutAdmin.addEventListener('click', () => {
+            adminPanelContainer.style.display = "none";
+            loggedIn = false;
+            adminMode = false;
+             Swal.fire({
+                        title: 'Sucesso',
+                        text: 'Deslogado do painel de administrador!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+            updateMessages();
+        });
+
+        adminPanelContainer.addEventListener('click', (e) => {
+            if (e.target === adminPanelContainer) {
+                adminPanelContainer.style.display = "none";
+            }
+        });
     </script>
     <script type="module" src="img.js"></script>
-    <script src="notifica.js"></script>
     <script>
         navigator.storage.persist().then(function (granted) {
             if (granted) {
@@ -1188,6 +1339,25 @@
             dialog.close();
         }
     </script>
+        
+     <script>
+     if ('Notification' in window && 'serviceWorker' in navigator) {
+  // Verifica se o navegador suporta notificações e Service Workers
+
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      // Se a permissão for concedida, envia a notificação
+      navigator.serviceWorker.getRegistration().then(reg => {
+        reg.showNotification('Bem vindo!', {
+          body: 'Aproveite para apreciar um ambiente onde novas pessoas aparecem todos os dias!',
+          icon: 'icone.png',
+          tag: 'notificacao-pwa'
+        });
+      });
+    }
+  });
+}
+    </script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -1197,6 +1367,3 @@
             });
         });
     </script>
-</body>
-
-</html>
