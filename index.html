@@ -9,7 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-                         font-family: 'Roboto', sans-serif;
+                               body {
+            font-family: 'Roboto', sans-serif;
             background-color: #121212;
             color: #e0e0e0;
             margin: 0;
@@ -18,7 +19,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        .user-avatar {
+          .user-avatar {
             display: inline-flex;
             align-items: center;
             margin-right: 5px;
@@ -32,7 +33,6 @@
             margin-right: 5px;
              object-fit: cover; /* Garante que a imagem cubra o espaço */
         }
-
         .content {
             flex: 1;
             padding: 20px;
@@ -124,7 +124,6 @@
             color: white;
             background: transparent;
          }
-
 
         input,
         textarea {
@@ -391,10 +390,10 @@
         #user-list-container li:hover {
             background-color: #2e2e2e;
         }
-        #properties-panel-container {
+         #properties-panel-container {
            position: fixed;
            top: 0;
-           left: 0;
+            left: 0;
            width: 200px;
            background-color: #212121;
            padding: 10px;
@@ -418,10 +417,9 @@
            #properties-panel-container li:hover {
            background-color: #2e2e2e;
            }
-           
- #admin-panel-container {
+        #admin-panel-container {
             display: none;
-            position: fixed;
+             position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -429,6 +427,7 @@
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 100;
         }
+
         #admin-panel {
             background-color: #181818;
             border-radius: 10px;
@@ -449,6 +448,7 @@
            text-align: center;
            margin-bottom: 10px;
             font-size: 1.2em;
+           color: #90caf9;
          }
       
          #admin-panel  input {
@@ -481,7 +481,7 @@
             border-bottom: none;
         }
         #admin-panel li button {
-            background-color: #e50914;
+           background-color: #2e7d32; /* Verde escuro */
             border: none;
             color: white;
             padding: 5px 8px;
@@ -491,13 +491,14 @@
             font-size: 0.9em;
         }
          #admin-panel li button:hover {
-            background-color: #f6121d;
+            background-color: #388e3c;
          }
 
         .admin-user-name {
             margin-left: 5px;
             font-weight: bold;
              font-size: 0.9em;
+              color: #81d4fa; /* Azul claro */
         }
 
         .private-name {
