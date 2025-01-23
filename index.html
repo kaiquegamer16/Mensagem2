@@ -1,1 +1,1487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo</title>
+    <link rel="manifest" href="app.json">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+    body {
+            font-family: 'Roboto', sans-serif;
+             background-image: linear-gradient(to bottom, #7023c8, #5535ad, #3a4793, #20597a, #016a62);
+             background-repeat: no-repeat;
+              background-size: cover;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+       .user-avatar {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .user-avatar img {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 5px;
+             object-fit: cover; /* Garante que a imagem cubra o espaço */
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: calc(100vh - 180px);
+            position: relative;
+        }
+
+        .chat-container {
+            margin-bottom: 10px;
+            overflow-y: auto;
+            /* Enable vertical scroll for messages */
+            flex: 1;
+            /* Take available space */
+        }
+        
+    .item {
+            background-color: rgba(0,0,0,.25); /* Ajustado para uma cor de fundo menos intensa */
+            padding: 10px; /* Ajustado o padding */
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+           align-items: flex-start;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .item.private {
+            background-color: rgba(0,0,0,.5);
+        }
+
+        .item.admin {
+            background-color: rgba(0,0,0,.5);
+        }
+
+
+        .date {
+             margin-right: 10px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+           color: white;
+        }
+
+
+        .date span {
+            display: block;
+            font-size: 0.7em;
+            text-align: center;
+        }
+
+        .date span:first-child {
+           font-size: 0.7em;
+            color: white;
+        }
+      
+        .info {
+            flex: 1;
+             padding-top: 5px;
+        }
+     .info img {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .info h2 {
+            font-size: 1.2em;
+            margin: 5px 0;
+             color: white;
+            font-weight: 500;
+        }
+
+       .info p {
+           font-size: 0.9em;
+           line-height: 1.4;
+           white-space: pre-line;
+          color: white;
+           font-weight: 400;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: rgba(0,0,0,.3);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .filters label {
+            color: white;
+            background: transparent;
+         }
+
+        input,
+        textarea {
+           background-color: rgba(0,0,0,.25);
+            color: white;
+            font-weight: normal;
+           padding: 10px;
+            border-radius: 4px;
+            outline: none;
+            border: none;
+            box-sizing: border-box;
+         
+        }
+
+         #entrada {
+             flex: 1;
+            margin-left: 10px;
+            resize: none;
+            height: 40px;
+           overflow-y: hidden;
+            padding-right: 35px;
+           
+          }
+
+        .filters button {
+           
+             border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+             transition: background-color 0.3s;
+           
+        }
+
+        .filters button:hover {
+           
+            background-color: #3e195f
+        }
+
+         #properties-btn {
+           background-color: rgba(0,0,0,.25);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+           border-radius: 4px;
+            cursor: pointer;
+           transition: background-color 0.3s;
+        }
+        
+          #properties-btn:hover {
+            background-color: #555;
+            }
+
+        footer {
+             background-color: rgba(0,0,0,.3);
+            padding: 5px;
+            text-align: center;
+            position: sticky;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        footer nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        footer nav ul li {
+            flex: 1;
+            text-align: center;
+        }
+
+        footer nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.7em;
+            display: block;
+            padding: 10px 0;
+        }
+
+        footer nav ul li a:hover {
+            background-color: #333;
+            border-radius: 10px;
+        }
+
+        hr {
+            background-color: #444;
+            padding: 0.1px;
+            border: none;
+        }
+
+        #imgg {
+            max-width: 150vh;
+        }
+
+        #vd {
+            max-width: 400px;
+        }
+
+        dialog {
+            border: none;
+            border-radius: 8px;
+            background-color: #181818;
+            padding: 20px;
+            width: 350px;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            z-index: 99;
+        }
+
+        dialog.admin {
+            border: none;
+            border-radius: 8px;
+            background-color: #181818;
+            padding: 20px;
+            width: 450px;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            z-index: 99;
+        }
+
+        .dialog-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dialog-content input {
+            width: 90%;
+            margin-bottom: 10px;
+
+        }
+
+        .dialog-message {
+            font-size: 1em;
+            margin-bottom: 20px;
+            color: #e5e5e5;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: #2e7d32; /* Verde escuro */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #388e3c;
+        }
+
+        .btn-secondary {
+            background-color: #737373;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #8c8c8c;
+        }
+
+        /* Typing Indicator Styles */
+        #typing-indicator {
+            font-size: 0.8em;
+            color: #9e9e9e;
+            margin-left: 10px;
+            margin-top: 5px;
+            display: none;
+            /* Initially hidden */
+            align-items: center;
+            /* Center items */
+        }
+
+        #typing-indicator span {
+            margin-right: 5px;
+        }
+
+        .typing-dots {
+            display: inline-block;
+            margin-left: 2px;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            background-color: #9e9e9e;
+            border-radius: 50%;
+            width: 5px;
+            height: 5px;
+            animation: typing-dots 1s infinite;
+            margin-right: 2px;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-dots {
+
+            0%,
+            80%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+        }
+
+        /* User List Styles */
+        #user-list-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            background-color: #212121;
+            padding: 10px;
+            z-index: 99;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #user-list-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #user-list-container li {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #user-list-container li:hover {
+            background-color: #2e2e2e;
+        }
+         #properties-panel-container {
+            position: fixed;
+           top: 0;
+            left: 0;
+           width: 200px;
+           background-color: #212121;
+           padding: 10px;
+           z-index: 100;
+            border-radius: 10px;
+           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+           display: none;
+           max-height: 300px;
+           overflow-y: auto;
+        }
+         #properties-panel-container ul {
+           list-style: none;
+           padding: 0;
+           margin: 0;
+         }
+        #properties-panel-container li {
+           padding: 5px 10px;
+           cursor: pointer;
+           border-radius: 5px;
+         }
+           #properties-panel-container li:hover {
+           background-color: #2e2e2e;
+           }
+        #admin-panel-container {
+           display: none;
+             position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+        }
+
+        #admin-panel {
+            background-color: #181818;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            width: 350px;
+        }
+        
+       #admin-panel .admin-options {
+           display: flex;
+           flex-direction: column;
+           margin-bottom: 10px;
+         }
+        #admin-panel h2 {
+           text-align: center;
+           margin-bottom: 10px;
+            font-size: 1.2em;
+           color: #90caf9;
+         }
+      
+         #admin-panel  input {
+           background-color: #212121;
+            color: #e0e0e0;
+            font-weight: normal;
+            padding: 8px;
+            border-radius: 4px;
+            outline: none;
+            border: none;
+            box-sizing: border-box;
+             margin-bottom: 5px;
+        }
+
+        #admin-panel ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        #admin-panel li {
+            padding: 5px 0;
+           border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+           width: 90%;
+        }
+
+        #admin-panel li:last-child {
+            border-bottom: none;
+        }
+        #admin-panel li button {
+           background-color: #2e7d32; /* Verde escuro */
+            border: none;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 0.9em;
+        }
+         #admin-panel li button:hover {
+            background-color: #388e3c;
+         }
+
+        .admin-user-name {
+            margin-left: 5px;
+            font-weight: bold;
+             font-size: 0.9em;
+              color: #81d4fa; /* Azul claro */
+        }
+
+        .private-name {
+
+            font-weight: bold;
+
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+
+        }
+
+        .audio-controls button {
+            padding: 10px;
+            background-color: #444;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+            margin-right: 5px;
+        }
+
+        .audio-controls button:hover {
+            background-color: #555;
+        }
+
+        /* Estilos para quando a tela for menor */
+        @media (max-width: 600px) {
+            .item {
+                flex-direction: column;
+            }
+
+            .date {
+                margin-bottom: 10px;
+            }
+
+            .info img {
+                max-width: 100%;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+      <dialog id="initial-setup-dialog">
+        <div class="dialog-content">
+            <p class="dialog-message">Bem-vindo! Insira seu nome e escolha uma foto de perfil:</p>
+            <input type="text" id="initial-user-name" placeholder="Seu nome">
+            <input type="file" id="initial-user-photo" accept="image/*" style="display:none">
+            <label for="initial-user-photo" style="cursor:pointer; margin-bottom: 10px; display:inline-block;">Escolher Foto</label>
+             <div class="dialog-buttons">
+                <button id="btnInitialSetup" class="btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </dialog>
+     <dialog id="dialog" style="border: none; padding: 0;">
+        <div
+            style="background-color: #141414; color: white; padding: 20px; border-radius: 10px; max-width: 300px; text-align: center; font-family: Arial, sans-serif;">
+            <p style="font-size: 18px; margin-bottom: 20px;">Deseja baixar nosso aplicativo? Assim você não precisa abrir o
+                navegador sempre que for acessar o chat.</p>
+            <br><br />
+            <a id="baixar" href="Tuts.apk"
+                style="background-color: #e50914; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-right: 10px;"
+                download onclick="baixou()">Baixar</a>
+            <button id="fechar"
+                style="background-color: #333; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;"
+                onclick="fechar()">Fechar</button>
+        </div>
+    </dialog>
+
+    <div class="content" id="content">
+        <div class="chat-container" id="posters">
+        </div>
+        <div id="typing-indicator">
+            <span id="typing-user"></span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        <div id="user-list-container">
+            <ul>
+            </ul>
+        </div>
+        <div id="properties-panel-container" style="position: fixed;">
+             <ul>
+               <li id="admin-option">Admin</li>
+               <li id="create-group-option">Criar Grupo</li>
+               </ul>
+            </div>
+        <div id="admin-panel-container" style="position: fixed;">
+            <div id="admin-panel">
+                <h2>Painel do Administrador</h2>
+                <div class="admin-options">
+                <input type="text" id="delete-user-input" placeholder="Nome do Usuário">
+                    <button id="delete-user-btn" class="btn-primary">Deletar Usuário</button>
+                       <button id="clear-chat-btn" class="btn-primary">Limpar Chat</button>
+                </div>
+                <ul id="admin-user-list">
+                </ul>
+                <button id="logout-admin" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="filters">
+         <button id="properties-btn">⚙️</button>
+          <div style="display:flex; align-items: center; width: 100%;  position: relative;">
+           <input type="file" id="file" accept="image/*" style="display: none;">
+           <div style="  position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.5em; pointer-events: auto; border: 1px solid white; padding: 2px 4px; border-radius: 4px; color:white" onclick="document.getElementById('file').click();">📎</div>
+           <textarea id="entrada" placeholder="Digite algo..." ></textarea>
+        </div>
+        <div id="enviar" style=" border: 1px solid white; padding: 8px; border-radius: 4px;  color:white; cursor: pointer;">Enviar</div>
+    </div>
+
+
+    <dialog id="login-dialog">
+        <div class="dialog-content">
+            <p class="dialog-message">Insira as credenciais de administrador</p>
+            <input type="text" id="admin-username" placeholder="Usuário">
+            <input type="password" id="admin-password" placeholder="Senha">
+            <div class="dialog-buttons">
+                <button id="btnLogar" class="btn-primary">Logar</button>
+                <button id="btnCancelar" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
+      <dialog id="user-name-dialog">
+        <div class="dialog-content">
+            <p class="dialog-message">Detectamos que você está sem nome de usuário. Por favor, insira seu nome abaixo:</p>
+            <input type="text" id="new-user-name" placeholder="Seu nome">
+             <div class="dialog-buttons">
+                <button id="btnSetNome" class="btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="aviso">
+        <div class="dialog-content">
+            <p class="dialog-message">Ao clicar em concordar você concorda que esta aplicação não é recomendada para
+                menores de 16 anos.</p>
+            <div class="dialog-buttons">
+                <button id="btnConcordo" class="btn-primary">Concordo</button>
+                <button id="btnNaoConcordo" class="btn-secondary">Não concordo</button>
+            </div>
+        </div>
+    </dialog>
+     <script>
+        const dialogo = document.getElementById("aviso");
+        const btnConcordo = document.getElementById("btnConcordo");
+        const btnNaoConcordo = document.getElementById("btnNaoConcordo");
+         const dialog = document.getElementById('dialog');
+        let concordo = localStorage.getItem("concordo");
+       
+            function fechar() {
+                dialog.close();
+            }
+
+        if (!concordo) {
+            dialogo.showModal();
+        }
+
+        // Funções para os botões
+        btnConcordo.onclick = () => {
+            dialogo.close();
+            alert("Você concordou!");
+            localStorage.setItem("concordo", "1");
+        };
+
+        btnNaoConcordo.onclick = () => {
+            dialogo.close();
+            alert("Você não concordou.");
+            window.location.href = "n.html";
+        };
+    </script>
+    <script type="module">
+                              // Importando os módulos do Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getDatabase, ref as dbRef, onValue, set, get, remove, update, push, } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+
+        // Configurações do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+            authDomain: "engine-c02f6.firebaseapp.com",
+            projectId: "engine-c02f6",
+            storageBucket: "engine-c02f6.firebasestorage.app",
+            messagingSenderId: "562488086423",
+            appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
+            measurementId: "G-T81G36LMJG"
+        };
+
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Get DOM elements
+        const enviar = document.getElementById("enviar");
+        const entrada = document.getElementById("entrada");
+        const posters = document.getElementById("posters");
+        const typingIndicator = document.getElementById("typing-indicator");
+        const typingUser = document.getElementById("typing-user");
+        const userListContainer = document.getElementById("user-list-container");
+        const userList = userListContainer.querySelector("ul");
+        const adminPanelContainer = document.getElementById("admin-panel-container");
+        const adminPanel = document.getElementById("admin-panel");
+        const adminUserList = document.getElementById("admin-user-list");
+        const adminLogin = document.getElementById("login-dialog");
+        const content = document.getElementById("content");
+        const logoutAdmin = document.getElementById("logout-admin");
+        const propertiesBtn = document.getElementById('properties-btn');
+        const propertiesPanelContainer = document.getElementById('properties-panel-container');
+        const adminOption = document.getElementById('admin-option');
+        const deleteUserInput = document.getElementById("delete-user-input")
+        const deleteUserBtn = document.getElementById("delete-user-btn")
+        const clearChatBtn = document.getElementById("clear-chat-btn");
+        const createGroupOption = document.getElementById("create-group-option")
+        const fileInput = document.getElementById('file');
+        const userNameDialog = document.getElementById("user-name-dialog");
+        const newUserNameInput = document.getElementById("new-user-name");
+        const btnSetNome = document.getElementById("btnSetNome");
+        const initialSetupDialog = document.getElementById("initial-setup-dialog");
+        const initialUserNameInput = document.getElementById("initial-user-name");
+        const initialUserPhotoInput = document.getElementById("initial-user-photo");
+        const btnInitialSetup = document.getElementById("btnInitialSetup");
+
+        let currentPrivateChat = null;
+
+        // Setting up local variables for use
+        let rolar = 1;
+        let color = ["red", "blue", "greenyellow", "orange"];
+        let itemColors = {};
+        let geral;
+        let msgAntiga = localStorage.getItem("msgAntiga");
+        let typingTimeout;
+        let adminMode = false;
+        let blockPanelUpdate = false;
+
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function checkInitialSetup() {
+            let userNameLocal = localStorage.getItem("nome");
+            if (!userNameLocal || userNameLocal.includes("gosar") || userNameLocal === "Anônimo") {
+                initialSetupDialog.showModal();
+                enviar.disabled = true;
+                entrada.disabled = true;
+                fileInput.disabled = true;
+                enviar.onclick = function (event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Aviso',
+                        text: 'Por favor, insira um nome de usuário!',
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                };
+                fileInput.onchange = function (event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Aviso',
+                        text: 'Por favor, insira um nome de usuário!',
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                };
+            }
+        }
+        checkInitialSetup()
+
+       btnInitialSetup.addEventListener("click", async function () {
+        let userNameInitial = initialUserNameInput.value.trim();
+        if (userNameInitial === "") {
+            Swal.fire({
+                title: 'Erro',
+                text: 'Por favor, insira um nome de usuário válido!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        let userPhoto = null;
+        if (initialUserPhotoInput.files && initialUserPhotoInput.files[0]) {
+            try {
+                userPhoto = await fileToBase64(initialUserPhotoInput.files[0]);
+            } catch (error) {
+                console.error("Erro converting image to base64", error)
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'Houve um erro na conversão da imagem, tente novamente!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+        }
+         localStorage.setItem("nome", userNameInitial);
+           if(userPhoto){
+           localStorage.setItem("userPhoto", userPhoto);
+         }
+             let nomeAleatorio = gerarIdAleatorio(10);
+               const userRef = dbRef(database, `users/${userNameInitial}`);
+                  const dados = {
+                      userPhoto: localStorage.getItem("userPhoto")
+                 };
+             fetch('https://engine-c02f6-default-rtdb.firebaseio.com/users/' + userNameInitial + '.json', {
+                method: "PATCH",
+                   body: JSON.stringify(dados)
+               })
+                 .then(response => {
+                       if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                         return response.json();
+                      })
+                .catch(error => {
+                       Swal.fire({
+                             title: 'Erro',
+                           text: 'Houve um erro ao enviar sua imagem de perfil, tente novamente!',
+                              icon: 'error',
+                             confirmButtonText: 'OK'
+                         });
+                      console.error("Erro on sending image:", error);
+               });
+
+        initialSetupDialog.close();
+        enviar.disabled = false;
+        entrada.disabled = false;
+        fileInput.disabled = false;
+        // Reinicia o evento de clique
+        enviar.onclick = sendMessage;
+        fileInput.onchange = async function () {
+            if (this.files && this.files[0]) {
+                try {
+                    const file = this.files[0];
+                    const base64Image = await fileToBase64(file);
+                    let date = new Date();
+                    let nomeAleatorio = gerarIdAleatorio(10);
+                    let conteudo = "";
+                    let nome = localStorage.getItem("nome");
+                    let timestamp = date.getTime();
+                    let privateChat = currentPrivateChat;
+
+                    const dados = {
+                        nome: nome,
+                        conteudo: `<img src="${base64Image}" alt="Imagem do usuário"/>`,
+                        Dia: date.getDate(),
+                        Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+                        hora: date.getHours(),
+                        minutos: date.getMinutes(),
+                        timestamp: timestamp,
+                        privateChat: privateChat || null,
+                        senderName: userName,
+                        receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
+                        admin: adminMode,
+                         userPhoto: localStorage.getItem("userPhoto")
+                    };
+                    fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                        method: "PATCH",
+                        body: JSON.stringify(dados)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(() => {
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                title: 'Erro',
+                                text: 'Houve um erro no envio da imagem, verifique sua internet e tente novamente!',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            console.error("Erro on sending image:", error);
+                        });
+                } catch (error) {
+                    console.error("Error converting image to base64", error)
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Houve um erro na conversão da imagem, tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        }
+        updateMessages()
+        Swal.fire({
+            title: 'Sucesso',
+            text: 'Seu nome e foto de perfil foram salvos com sucesso!',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    });
+        const userName = localStorage.getItem("nome");
+
+        // Setup real-time typing indicator listener
+        const typingRef = dbRef(database, 'typing');
+        onValue(typingRef, (snapshot) => {
+            const typingData = snapshot.val();
+            let someoneTyping = false;
+            if (typingData) {
+                for (const key in typingData) {
+                    if (typingData[key].isTyping === true && key !== userName) {
+                        typingUser.textContent = typingData[key].nome + " está digitando";
+                        typingIndicator.style.display = 'flex';
+                        someoneTyping = true;
+                        break;
+                    }
+                }
+                if (!someoneTyping) {
+                    typingIndicator.style.display = 'none';
+                }
+            } else {
+                typingIndicator.style.display = 'none';
+            }
+        });
+
+        // Fetch and display user list
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                userList.innerHTML = '';
+                const users = {};
+                for (const key in data) {
+                    if (!users[data[key].nome]) {
+                        users[data[key].nome] = data[key];
+                        userList.insertAdjacentHTML('afterbegin', `
+                        <li data-user="${data[key].nome}">
+                           ${data[key].nome}
+                         </li>`);
+                    }
+                }
+                userListContainer.style.display = "block";
+            } catch (error) {
+                console.error('Error on fetching users:', error);
+            }
+        };
+
+       // Function to fetch initial data
+        const fetchData = async () => {
+            try {
+                const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                   }
+                const dt = await response.json();
+                 if (dt === null || typeof dt !== 'object') {
+                       console.warn("Data from Firebase is invalid:", dt);
+                         return;
+                   }
+                geral = dt;
+
+                if (geral !== msgAntiga) {
+                    msgAntiga = JSON.stringify(geral);
+                    localStorage.setItem("msgAntiga", JSON.stringify(geral));
+                }
+                let msgs = Object.keys(dt);
+
+                msgs.forEach(e => {
+                    if (!itemColors[e]) {
+                        let colorSelect = Math.floor(Math.random() * color.length);
+                        itemColors[e] = color[colorSelect];
+                    }
+                });
+            } catch (error) {
+                console.error("Failed to fetch initial data:", error);
+            }
+        };
+
+
+        // Function to fetch and display admin users
+        const fetchAdminUsers = async () => {
+            try {
+                const usersRef = dbRef(database, 'users');
+                const snapshot = await get(usersRef);
+                if (snapshot.exists()) {
+                    adminUserList.innerHTML = '';
+                    const users = snapshot.val();
+                    for (const key in users) {
+                        if (key !== "admin") {
+                            adminUserList.insertAdjacentHTML('afterbegin', `
+                    <li><span class="admin-user-name">${key}</span>
+                      <button data-user="${key}"class="delete-user">Deletar</button>
+                    </li>`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching admin users:', error);
+            }
+        };
+
+        // Handle admin user actions
+        adminUserList.addEventListener('click', async function (event) {
+            if (event.target.classList.contains('delete-user')) {
+                const userKey = event.target.dataset.user;
+                try {
+                    const userRef = dbRef(database, `users/${userKey}`);
+                    await remove(userRef);
+                    fetchAdminUsers();
+                    Swal.fire({
+                        title: 'Sucesso',
+                        text: `O usuário ${userKey} foi deletado com sucesso!`,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                } catch (error) {
+                    console.error('Error deleting admin user:', error);
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Houve um erro ao deletar o usuário, tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+
+        //Delete user by name
+        deleteUserBtn.addEventListener("click", async function () {
+            const userToDelete = deleteUserInput.value;
+            if (userToDelete && userToDelete.trim() !== "") {
+                try {
+                    const usersRef = dbRef(database, 'users');
+                    const snapshot = await get(usersRef);
+                    if (snapshot.exists()) {
+                        const users = snapshot.val()
+                        let keyToDelete;
+                        for (const key in users) {
+                            if (key == userToDelete) {
+                                keyToDelete = key;
+                                break;
+                            }
+                        }
+                        if (keyToDelete) {
+                            const userRef = dbRef(database, `users/${keyToDelete}`);
+                            await remove(userRef);
+                            fetchAdminUsers()
+                            Swal.fire({
+                                title: 'Sucesso',
+                                text: `O usuário ${userToDelete} foi deletado com sucesso!`,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+                            deleteUserInput.value = "";
+                        } else {
+                            Swal.fire({
+                                title: 'Erro',
+                                text: 'Usuário não encontrado!',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Houve um erro ao deletar o usuário, tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    console.error("Erro deleting user by name", error)
+                }
+            } else {
+                Swal.fire({
+                    title: 'Aviso',
+                    text: 'Insira um nome de usuário válido!',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        // Function to clear the chat messages
+        clearChatBtn.addEventListener('click', async function () {
+            try {
+                blockPanelUpdate = true; // Bloqueia atualização do painel
+                const feedRef = dbRef(database, "feed");
+                await remove(feedRef)
+                Swal.fire({
+                    title: 'Sucesso',
+                    text: 'O chat foi limpo com sucesso!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+                updateMessages();
+            } catch (error) {
+                console.error("Error on clear the chat", error);
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'Houve um erro ao limpar o chat!',
+                    icon: '                    error',
+                    confirmButtonText: 'OK'
+                });
+            } finally {
+                setTimeout(() => {
+                    blockPanelUpdate = false; // Restaura a flag
+                }, 100); // pequena pausa para certificar que a atualização da tela inicializou
+             }
+        })
+        //Handle group create action
+        createGroupOption.addEventListener('click', function () {
+            propertiesPanelContainer.style.display = "none";
+            Swal.fire({
+                title: 'Aviso',
+                text: 'Função de criação de grupo em desenvolvimento!',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        })
+
+         // Function to fetch and display messages
+         const updateMessages = async () => {
+            if (blockPanelUpdate) return; // Verifica a flag antes de atualizar
+            try {
+                const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
+                if (!response.ok) {
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                   }
+                const data = await response.json();
+                if (data === null || typeof data !== 'object') {
+                       posters.innerHTML = '';
+                        console.warn("Data from Firebase is invalid:", data);
+                         return;
+                   }
+                let itensOrdenados = Object.keys(data)
+                    .map(key => ({ key: key, ...data[key] }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
+                posters.innerHTML = '';
+
+                itensOrdenados.forEach(item => {
+                    let selected = itemColors[item.key];
+                    let itemClass = '';
+                    let name = item.nome;
+                    if (item.privateChat) {
+                        itemClass = 'private';
+                        if (item.senderName != userName) {
+                            name = `<span class="private-name">${item.senderName}</span>`;
+                        } else {
+                            name = "Você";
+                        }
+                    }
+                    if (item.admin) {
+                        itemClass = 'admin';
+                    }
+                     if (adminMode || !item.privateChat || (item.privateChat && item.senderName == userName) || (item.privateChat && item.receiverName == userName) || currentPrivateChat === item.privateChat) {
+                        if (!item.nome.includes("gosar") && !item.nome.includes("pau")) {
+                            posters.insertAdjacentHTML('afterbegin', `
+                                    <div class="item ${itemClass}">
+                                        <div class="date">
+                                            <span>${item.Mes}</span>
+                                            <span>${item.Dia}</span>
+                                        </div>
+                                        <div class="info">
+                                         <div class="user-avatar">
+                                            <img src="${item.userPhoto || 'icone.png'}" alt="Foto do usuário">
+                                               <h2 style="color: ${selected}; font-weight: bold;">${name}</h2>
+                                         </div>
+                                            ${item.conteudo}
+                                            <p>${item.hora} : ${item.minutos}</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                `);
+                        }
+                    }
+
+                    if (rolar === 1) {
+                        rolar = 0;
+                        setTimeout(() => {
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }, 500);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching/displaying data:', error);
+            }
+        };
+
+        // Update messages every 2 seconds
+        setInterval(updateMessages, 2000);
+
+        const date = new Date();
+        const nomeDoMes = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date);
+        let dia = date.getDate();
+        let nomeAleatorio;
+
+        // Generate a random ID
+        function gerarIdAleatorio(tamanho) {
+            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let resultado = '';
+            for (let i = 0; i < tamanho; i++) {
+                resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+            }
+            return resultado;
+        }
+
+        // Function to handle private chats
+        userList.addEventListener('click', function (event) {
+            if (event.target && event.target.tagName === 'LI') {
+                const selectedUser = event.target.dataset.user;
+                currentPrivateChat = generateChatId(userName, selectedUser);
+                userListContainer.style.display = "none";
+                updateMessages();
+            }
+        });
+
+        function generateChatId(user1, user2) {
+            const sortedUsers = [user1, user2].sort();
+            return sortedUsers.join('_');
+        }
+
+        // Function to handle input field resizing
+        entrada.addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+
+            // Show typing indicator and set timeout
+            set(dbRef(database, `typing/${userName}`), {
+                isTyping: true,
+                nome: userName,
+            });
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                set(dbRef(database, `typing/${userName}`), {
+                    isTyping: false,
+                    nome: userName,
+                });
+            }, 1000);
+        });
+
+
+        function sendMessage() {
+            let date = new Date();
+            let nomeAleatorio = gerarIdAleatorio(10);
+            let conteudo = entrada.value;
+            let nome = localStorage.getItem("nome");
+            let timestamp = date.getTime();
+            let privateChat = currentPrivateChat;
+
+            const dados = {
+                nome: nome,
+                conteudo: conteudo ? `<pe>${conteudo}<pe>` : null,
+                Dia: date.getDate(),
+                Mes: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+                hora: date.getHours(),
+                minutos: date.getMinutes(),
+                timestamp: timestamp,
+                privateChat: privateChat || null,
+                senderName: userName,
+                receiverName: privateChat ? privateChat.split("_").filter(name => name !== userName)[0] : null,
+                admin: adminMode,
+                 userPhoto: localStorage.getItem("userPhoto")
+            };
+          if (conteudo && !conteudo.includes("<")){
+            fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/' + nomeAleatorio + '.json', {
+                method: "PATCH",
+                body: JSON.stringify(dados)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                 .then(() => {
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                         entrada.value = "";
+                    })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Houve um erro no envio da mensagem, verifique sua internet e tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    console.error("Erro on sending message:", error);
+                });
+            } else if (conteudo && conteudo.includes("<")) {
+                  Swal.fire({
+                    title: 'Inválido',
+                    text: 'Seu texto contém caracteres inválidos ou nenhum conteúdo foi inserido. Por favor, revise!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+             }
+             }
+         // Event listener for sending data
+         enviar.addEventListener("click", function (event) {
+              event.preventDefault();
+             sendMessage();
+          });
+        // Properties panel toggle
+        propertiesBtn.addEventListener('click', () => {
+            propertiesPanelContainer.style.display = propertiesPanelContainer.style.display === 'block' ? 'none' : 'block';
+        })
+
+        // Show user list on click on the content
+        content.addEventListener('click', function (event) {
+            if (!userListContainer.contains(event.target) && event.target !== entrada && event.target !== enviar && event.target !== document.querySelector("#file + label") && event.target !== document.querySelector("#audio-btn")) {
+                userListContainer.style.display = 'none';
+            }
+            if (!propertiesPanelContainer.contains(event.target) && event.target !== propertiesBtn && event.target !== entrada && event.target !== enviar) {
+                propertiesPanelContainer.style.display = 'none';
+            }
+        });
+
+        adminOption.addEventListener('click', function (event) {
+            propertiesPanelContainer.style.display = "none"
+            if (!loggedIn) {
+                loginDialog.showModal();
+            } else {
+                adminPanelContainer.style.display = "block";
+                fetchAdminUsers();
+            }
+        })
+        createGroupOption.addEventListener('click', function () {
+            propertiesPanelContainer.style.display = "none";
+            Swal.fire({
+                title: 'Aviso',
+                text: 'Função de criação de grupo em desenvolvimento!',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        })
+
+        // Call initial fetch
+        fetchData();
+        fetchUsers();
+
+        // Admin logic
+        const loginDialog = document.getElementById('login-dialog');
+        const btnLogar = document.getElementById('btnLogar');
+        const btnCancelar = document.getElementById('btnCancelar');
+
+        let loggedIn = false;
+
+        btnCancelar.addEventListener("click", () => {
+            loginDialog.close();
+        });
+
+        btnLogar.addEventListener('click', () => {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            if (username === 'admin' && password === 'admin') {
+                loginDialog.close();
+                loggedIn = true;
+                adminMode = true;
+                updateMessages();
+                Swal.fire({
+                    title: 'Sucesso',
+                    text: 'Logado como administrador!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'Credenciais inválidas, tente novamente!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+
+        logoutAdmin.addEventListener('click', () => {
+            adminPanelContainer.style.display = "none";
+            loggedIn = false;
+            adminMode = false;
+            Swal.fire({
+                title: 'Sucesso',
+                text: 'Deslogado do painel de administrador!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+            updateMessages();
+        });
+
+        adminPanelContainer.addEventListener('click', (e) => {
+            if (e.target === adminPanelContainer) {
+                adminPanelContainer.style.display = "none";
+            }
+        });
+    </script>
+    <script type="module" src="img.js"></script>
+    <script>
+        navigator.storage.persist().then(function (granted) {
+            if (granted) {
+                console.log("Permissão de armazenamento concedida.");
+            } else {
+                console.log("Permissão de armazenamento negada.");
+            }
+        });
+
+        setTimeout(() => {
+            if (!window.matchMedia('(display-mode: fullscreen)').matches && !window.location.href.includes("playbook")) {
+                const dialog = document.getElementById('dialog');
+                dialog.showModal();
+
+                document.getElementById('fechar').addEventListener('click', () => {
+                    dialog.close();
+                });
+            }
+        }, 5000);
+
+        function baixou() {
+            dialog.close();
+        }
+    </script>
+        
+     <script>
+     if ('Notification' in window && 'serviceWorker' in navigator) {
+  // Verifica se o navegador suporta notificações e Service Workers
+
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      // Se a permissão for concedida, envia a notificação
+      navigator.serviceWorker.getRegistration().then(reg => {
+        reg.showNotification('Bem vindo!', {
+          body: 'Aproveite para apreciar um ambiente onde novas pessoas aparecem todos os dias!',
+          icon: 'icone.png',
+          tag: 'notificacao-pwa'
+        });
+      });
+    }
+  });
+}
+    </script>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function (OneSignal) {
+            await OneSignal.init({
+                appId: "446ad07a-0c81-4276-a2ac-e0f899ab81a7",
+            });
+        });
+    </script>
