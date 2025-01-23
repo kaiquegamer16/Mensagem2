@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,92 +9,228 @@
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
-            background-color: #222;
-            color: #fff;
+            background-color: #121b22;
+            color: #e0e0e0;
             overflow: hidden;
         }
 
         .chat-container {
             max-width: 700px;
             margin: 40px auto;
-            background-color: #333;
+            background-color: #1e2a33;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             height: 80vh;
+            position: relative;
+        }
+
+        .settings-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 1.5em;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+            z-index: 1001;
+        }
+
+        .settings-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .messages {
             flex-grow: 1;
-            padding: 20px;
+            padding: 10px 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
+        .date-separator {
+            text-align: center;
+            color: #888;
+            margin: 10px 0;
+            font-size: 0.8em;
+        }
+
         .message {
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            border-radius: 20px;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 10px;
             max-width: 80%;
-            word-break: break-word; /* Prevent long words from breaking layout */
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .message .timestamp {
+            position: absolute;
+            bottom: -15px;
+            font-size: 0.7em;
+            color: #aaa;
         }
 
         .message.sent {
-            background-color: #007bff;
-            color: #fff;
+            background-color: #005c4b;
+            color: #e0e0e0;
             align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.sent .timestamp {
+            right: 0;
         }
 
         .message.received {
-            background-color: #4CAF50;
-            color: #fff;
+            background-color: #202c33;
+            color: #e0e0e0;
             align-self: flex-start;
         }
 
-        .message .sender-name {
+        .message.received .timestamp {
+            left: 0;
+        }
+
+        .message .sender-info {
+            display: flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .message.sent .sender-info {
+            margin-left: 8px;
+            margin-right: 0;
+        }
+
+        .message .sender-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .message .sender-info span {
+            font-weight: bold;
+            color: #fff;
             font-size: 0.8em;
-            color: #ccc;
-            margin-bottom: 3px;
-            display: block;
+            margin-left: 5px;
+        }
+
+        .message .message-text {
+            color: #e0e0e0;
+            word-break: break-word;
         }
 
         .input-area {
             display: flex;
-            padding: 15px;
-            border-top: 1px solid #555;
-            background-color: #444;
+            padding: 8px;
+            border-top: 1px solid #3e4c54;
+            background-color: #1e2731;
+        }
+
+        .input-area .user-info {
+            display: flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .input-area .user-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 5px;
         }
 
         #message-input {
             flex-grow: 1;
-            padding: 10px 12px;
-            border: 1px solid #777;
-            border-radius: 25px;
-            margin-right: 15px;
-            background-color: #555;
-            color: #fff;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 8px;
+            background-color: #2a3942;
+            color: #e0e0e0;
             outline: none;
         }
 
         #send-button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             border: none;
-            background-color: #007bff;
+            background-color: #008069;
             color: white;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
 
         #send-button:hover {
-            background-color: #0056b3;
+            background-color: #006659;
         }
 
-        /* Estilos para o modal de nome de usuário */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .settings-modal .settings-content {
+            background-color: #1e2a33;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            text-align: left;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .settings-modal .settings-content label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .settings-modal .settings-content select,
+        .settings-modal .settings-content input[type="color"],
+        .settings-modal .settings-content input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .settings-modal .settings-content button {
+            padding: 10px 20px;
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -108,25 +245,31 @@
         }
 
         .modal-content {
-            background-color: #333;
+            background-color: #1e2a33;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
             text-align: center;
         }
 
-        .modal-content input {
+        .modal-content input[type="text"],
+        .modal-content input[type="file"] {
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
             border: none;
-            background-color: #444;
-            color: #fff;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            width: 80%;
+            box-sizing: border-box;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .modal-content button {
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #008069;
             color: white;
             border: none;
             border-radius: 5px;
@@ -134,128 +277,439 @@
         }
 
         .modal-content button:hover {
-            background-color: #0056b3;
+            background-color: #006659;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0e0e0;
         }
     </style>
 </head>
+
 <body>
 
-<div class="chat-container">
-    <div class="messages" id="messages">
-        <!-- Mensagens serão inseridas aqui -->
+    <button class="settings-button" id="settingsButton">⚙️</button>
+
+    <div class="chat-container">
+        <div class="messages" id="messages">
+            <!-- Mensagens serão inseridas aqui -->
+        </div>
+        <div class="input-area">
+            <div class="user-info">
+                <img id="currentUserImage" src="" alt="Foto de Perfil">
+            </div>
+            <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+            <button id="send-button">Enviar</button>
+        </div>
     </div>
-    <div class="input-area">
-        <input type="text" id="message-input" placeholder="Digite sua mensagem...">
-        <button id="send-button">Enviar</button>
+
+    <!-- Modal de nome de usuário -->
+    <div class="modal" id="usernameModal">
+        <div class="modal-content">
+            <h2>Crie sua conta</h2>
+            <label for="usernameInput">Nome de Usuário:</label>
+            <input type="text" id="usernameInput" placeholder="Seu nome" required>
+
+            <label for="profileImageInput">Foto de Perfil:</label>
+            <input type="file" id="profileImageInput" accept="image/*" required>
+
+            <button id="setUsernameButton">Confirmar</button>
+        </div>
     </div>
-</div>
 
-<!-- Modal de nome de usuário -->
-<div class="modal" id="usernameModal">
-    <div class="modal-content">
-        <h2>Escolha seu nome de usuário:</h2>
-        <input type="text" id="usernameInput" placeholder="Seu nome">
-        <button id="setUsernameButton">Confirmar</button>
+    <!-- Modal de configurações -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h2>Configurações</h2>
+
+            <label for="themeSelect">Tema:</label>
+            <select id="themeSelect">
+                <option value="dark">Escuro (Padrão)</option>
+                <option value="solarized">Solarized Dark</option>
+                <option value="monokai">Monokai</option>
+                <option value="dracula">Dracula</option>
+                <option value="gruvbox">Gruvbox Dark</option>
+                <option value="nord">Nord</option>
+            </select>
+
+            <label for="textColor">Cor do Texto:</label>
+            <input type="color" id="textColor" value="#e0e0e0">
+
+            <label for="backgroundColor">Cor de Fundo:</label>
+            <input type="color" id="backgroundColor" value="#121b22">
+
+            <label for="messageColor">Cor das Mensagens:</label>
+            <input type="color" id="messageColor" value="#202c33">
+
+            <label for="editProfile">Editar Perfil:</label>
+            <button id="editProfile">Editar Nome e Foto</button>
+
+            <button id="clearChatButton">Apagar Conversas</button>
+        </div>
     </div>
-</div>
 
-<script type="module">
-    // Importando os módulos do Firebase
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-    import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+    <script type="module">
+        // Importando os módulos do Firebase
+        import {
+            initializeApp
+        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import {
+            getDatabase,
+            ref,
+            push,
+            onValue,
+            remove,
+            update,
+            get
+        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
-    // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
-     const firebaseConfig = {
-        apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
-        authDomain: "engine-c02f6.firebaseapp.com",
-        projectId: "engine-c02f6",
-        storageBucket: "engine-c02f6.firebasestorage.app",
-        messagingSenderId: "562488086423",
-        appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
-        measurementId: "G-T81G36LMJG"
-    };
+        // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+            authDomain: "engine-c02f6.firebaseapp.com",
+            projectId: "engine-c02f6",
+            storageBucket: "engine-c02f6.firebasestorage.app",
+            messagingSenderId: "562488086423",
+            appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
+            measurementId: "G-T81G36LMJG"
+        };
 
-    // Inicializando o Firebase
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-    // Referência para a lista de mensagens no Firebase
-    const messagesRef = ref(database, 'messages');
+        // Referência para a lista de mensagens no Firebase
+        const messagesRef = ref(database, 'messages');
 
-    // Elementos do DOM
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const messagesContainer = document.getElementById('messages');
-    const usernameModal = document.getElementById('usernameModal');
-    const usernameInput = document.getElementById('usernameInput');
-    const setUsernameButton = document.getElementById('setUsernameButton');
+        // Elementos do DOM
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const messagesContainer = document.getElementById('messages');
+        const usernameModal = document.getElementById('usernameModal');
+        const usernameInput = document.getElementById('usernameInput');
+        const profileImageInput = document.getElementById('profileImageInput');
+        const setUsernameButton = document.getElementById('setUsernameButton');
+        const currentUserImage = document.getElementById('currentUserImage');
 
-    let username = localStorage.getItem('username');
+        // Botões e Modais
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const clearChatButton = document.getElementById('clearChatButton');
+        const editProfileButton = document.getElementById('editProfile');
 
-    // Exibe o modal de nome de usuário se não estiver definido
-    if (!username) {
-        usernameModal.style.display = 'flex';
-    }
+        // Settings options
+        const themeSelect = document.getElementById('themeSelect');
+        const textColorInput = document.getElementById('textColor');
+        const backgroundColorInput = document.getElementById('backgroundColor');
+        const messageColorInput = document.getElementById('messageColor');
 
-    // Define o nome de usuário
-    setUsernameButton.addEventListener('click', () => {
-        const inputName = usernameInput.value.trim();
-        if (inputName !== '') {
-            username = inputName;
-            localStorage.setItem('username', username);
-            usernameModal.style.display = 'none';
-        }
-    });
+        let username = localStorage.getItem('username');
+        let profileImage = localStorage.getItem('profileImage');
+        let theme = localStorage.getItem('theme') || 'dark'; // Carrega o tema ou usa 'dark' como padrão
+        let textColor = localStorage.getItem('textColor') || '#e0e0e0';
+        let backgroundColor = localStorage.getItem('backgroundColor') || '#121b22';
+        let messageColor = localStorage.getItem('messageColor') || '#202c33';
 
-    // Listener para novas mensagens
-    onValue(messagesRef, (snapshot) => {
-        messagesContainer.innerHTML = ''; // Limpa as mensagens antigas
-        const data = snapshot.val();
-        if (data) {
-            for (const key in data) {
-                const message = data[key];
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-                if (message.sender === username) {
-                    messageElement.classList.add('sent');
-                } else {
-                    messageElement.classList.add('received');
+
+        // Função para converter a imagem em base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => {
+                console.error("Erro no FileReader: ", error); // Adicione esta linha
+                reject(error);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Function to update the username and profile image in the database
+        const updateUsernameAndImage = async (newUsername, newProfileImage) => {
+            try {
+                const snapshot = await get(messagesRef);
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const message = childSnapshot.val();
+                        if (message.sender === username) {
+                            const messageKey = childSnapshot.key;
+                            const updates = {};
+                            updates[`/messages/${messageKey}/sender`] = newUsername;
+                            updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
+                            update(ref(database), updates);
+                        }
+                    });
                 }
+            } catch (error) {
+                console.error("Erro ao atualizar o Firebase: ", error);
+                alert("Erro ao atualizar o perfil. Tente novamente.");
+            }
+        };
 
-                // Exibir o nome do sender acima da mensagem
-                const senderName = document.createElement('span');
-                senderName.classList.add('sender-name');
-                senderName.textContent = message.sender;
-                messageElement.appendChild(senderName);
 
-                messageElement.textContent += message.text; // Concatena o texto da mensagem
-                messagesContainer.appendChild(messageElement);
+        // Exibe o modal de nome de usuário se não estiver definido
+        if (!username || !profileImage) {
+            usernameModal.style.display = 'flex';
+        } else {
+            currentUserImage.src = profileImage;
+        }
 
-                // Rolar para a última mensagem
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Define o nome de usuário e a imagem
+        setUsernameButton.addEventListener('click', async () => {
+            const inputName = usernameInput.value.trim();
+            const imageFile = profileImageInput.files[0];
+
+            if (!imageFile) {
+                alert("Por favor, selecione uma imagem de perfil.");
+                return; // Sai da função se não houver arquivo
+            }
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Tipos permitidos
+            if (!allowedTypes.includes(imageFile.type)) {
+                alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
+                return;
+            }
+
+            if (inputName !== '' && imageFile) {
+                try {
+                    const base64Image = await toBase64(imageFile);
+                    username = inputName;
+                    profileImage = base64Image;
+
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('profileImage', profileImage);
+
+                    usernameModal.style.display = 'none';
+
+                    currentUserImage.src = profileImage;
+
+                    // Update messages with the new username and profile image
+                    await updateUsernameAndImage(username, profileImage).catch(error => {
+                        console.error("Erro ao atualizar o Firebase: ", error);
+                        alert("Erro ao atualizar o perfil. Tente novamente.");
+                    });
+
+
+                } catch (error) {
+                    console.error("Erro ao converter a imagem: ", error);
+                    alert("Erro ao processar a imagem. Tente novamente.");
+                }
+            } else {
+                alert("Por favor, preencha o nome e selecione uma imagem de perfil.");
+            }
+        });
+
+        // Function to format a timestamp
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+
+        // Function to display date separators
+        let lastDisplayedDate = null;
+
+        function displayDateSeparator(dateString) {
+            if (dateString !== lastDisplayedDate) {
+                const separator = document.createElement('div');
+                separator.classList.add('date-separator');
+                separator.textContent = dateString;
+                messagesContainer.appendChild(separator);
+                lastDisplayedDate = dateString;
             }
         }
-    });
 
-    // Função para enviar uma mensagem
-    function sendMessage() {
-        const text = messageInput.value.trim();
-        if (text !== '') {
-            push(messagesRef, { text: text, sender: username }); // Inclui o nome de usuário
-            messageInput.value = '';
+        // Listener para novas mensagens
+        onValue(messagesRef, (snapshot) => {
+            messagesContainer.innerHTML = '';
+            lastDisplayedDate = null; // Reset last displayed date
+
+            const data = snapshot.val();
+            if (data) {
+                const messagesArray = Object.entries(data).sort(([, a], [, b]) => {
+                    // Sort messages by timestamp (assuming each message has a timestamp)
+                    return a.timestamp - b.timestamp;
+                });
+
+                messagesArray.forEach(([key, message]) => {
+                    const messageDate = new Date(message.timestamp).toLocaleDateString();
+                    displayDateSeparator(messageDate);
+
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+
+                    const senderInfo = document.createElement('div');
+                    senderInfo.classList.add('sender-info');
+
+                    const profileImageElement = document.createElement('img');
+                    profileImageElement.src = message.profileImage || 'default-profile.png';
+                    profileImageElement.alt = "Foto de Perfil";
+                    senderInfo.appendChild(profileImageElement);
+
+                    const senderName = document.createElement('span');
+                    senderName.textContent = message.sender;
+                    senderInfo.appendChild(senderName);
+
+                    const messageText = document.createElement('span');
+                    messageText.classList.add('message-text');
+                    messageText.textContent = message.text;
+
+                    const timestampElement = document.createElement('span');
+                    timestampElement.classList.add('timestamp');
+                    timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                    if (message.sender === username) {
+                        messageElement.classList.add('sent');
+                    } else {
+                        messageElement.classList.add('received');
+                    }
+
+                    messageElement.appendChild(senderInfo);
+                    messageElement.appendChild(messageText);
+                    messageElement.appendChild(timestampElement);
+
+                    messagesContainer.appendChild(messageElement);
+                });
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+
+        // Função para enviar uma mensagem
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text !== '') {
+                push(messagesRef, {
+                    text: text,
+                    sender: username,
+                    profileImage: profileImage,
+                    timestamp: Date.now() // Adiciona o timestamp
+                });
+                messageInput.value = '';
+            }
         }
-    }
 
-    // Event listener para o botão de enviar
-    sendButton.addEventListener('click', sendMessage);
+        // Event listener para o botão de enviar
+        sendButton.addEventListener('click', sendMessage);
 
-    // Event listener para a tecla Enter no input
-    messageInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            sendMessage();
+        // Event listener para a tecla Enter no input
+        messageInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Event listeners para os botões de configurações
+        settingsButton.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+
+        clearChatButton.addEventListener('click', () => {
+            if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
+                remove(messagesRef)
+                    .then(() => {
+                        alert("Conversas apagadas com sucesso!");
+                        settingsModal.style.display = 'none';
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao apagar as conversas: ", error);
+                        alert("Erro ao apagar as conversas. Tente novamente.");
+                    });
+            }
+        });
+
+        editProfileButton.addEventListener('click', () => {
+            settingsModal.style.display = 'none'; // Fechar modal de configurações
+            usernameModal.style.display = 'flex'; // Abrir modal de edição de perfil
+        });
+
+        // Function to apply theme settings
+        function applyTheme() {
+            theme = themeSelect.value;
+            textColor = textColorInput.value;
+            backgroundColor = backgroundColorInput.value;
+            messageColor = messageColorInput.value;
+
+            localStorage.setItem('theme', theme);
+            localStorage.setItem('textColor', textColor);
+            localStorage.setItem('backgroundColor', backgroundColor);
+            localStorage.setItem('messageColor', messageColor);
+
+
+            // Apply settings to the DOM
+            document.body.style.backgroundColor = backgroundColor;
+            document.body.style.color = textColor;
+            document.querySelector('.chat-container').style.backgroundColor = messageColor;
+
+            // Change CSS based on the theme
+            switch (theme) {
+                case 'solarized':
+                    document.body.style.backgroundColor = '#002b36';
+                    document.body.style.color = '#839496';
+                    document.querySelector('.chat-container').style.backgroundColor = '#073642';
+                    break;
+                case 'monokai':
+                    document.body.style.backgroundColor = '#272822';
+                    document.body.style.color = '#f8f8f2';
+                    document.querySelector('.chat-container').style.backgroundColor = '#3e3d35';
+                    break;
+                case 'dracula':
+                    document.body.style.backgroundColor = '#282a36';
+                    document.body.style.color = '#f8f8f2';
+                    document.querySelector('.chat-container').style.backgroundColor = '#44475a';
+                    break;
+                case 'gruvbox':
+                    document.body.style.backgroundColor = '#282828';
+                    document.body.style.color = '#ebdbb2';
+                    document.querySelector('.chat-container').style.backgroundColor = '#3c3836';
+                    break;
+                case 'nord':
+                    document.body.style.backgroundColor = '#2e3440';
+                    document.body.style.color = '#d8dee9';
+                    document.querySelector('.chat-container').style.backgroundColor = '#434c5e';
+                    break;
+                default: // dark
+                    document.body.style.backgroundColor = '#121b22';
+                    document.body.style.color = '#e0e0e0';
+                    document.querySelector('.chat-container').style.backgroundColor = '#1e2a33';
+                    break;
+            }
+
+            // Update other styles as needed...
+            const messageElements = document.querySelectorAll('.message');
+            messageElements.forEach(element => {
+                if (element.classList.contains('sent')) {
+                    element.style.backgroundColor = "#005c4b";
+                    element.style.color = "#e0e0e0";
+                } else {
+                    element.style.backgroundColor = "#202c33";
+                    element.style.color = "#e0e0e0";
+                }
+            });
         }
-    });
-</script>
+
+        // Attach event listeners
+        themeSelect.addEventListener('change', applyTheme);
+        textColorInput.addEventListener('input', applyTheme);
+        backgroundColorInput.addEventListener('input', applyTheme);
+        messageColorInput.addEventListener('input', applyTheme);
+
+        // Load and Apply initial theme
+        themeSelect.value = theme;
+        textColorInput.value = textColor;
+        backgroundColorInput.value = backgroundColor;
+        messageColorInput.value = messageColor
+        applyTheme();
+    </script>
 
 </body>
+
 </html>
