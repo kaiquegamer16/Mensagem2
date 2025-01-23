@@ -69,6 +69,7 @@
             display: flex;
             align-items: flex-start;
             position: relative;
+            word-break: break-word;
         }
 
         .message .timestamp {
@@ -125,8 +126,20 @@
         }
 
         .message .message-text {
-            color: #e0e0e0;
             word-break: break-word;
+            color: #e0e0e0;
+        }
+
+        .message .image-message {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .message .audio-message {
+            width: 100%;
+            margin-top: 5px;
         }
 
         .input-area {
@@ -176,6 +189,26 @@
             background-color: #006659;
         }
 
+        #attachment-input {
+            display: none;
+        }
+
+        .attachment-button {
+            padding: 8px 15px;
+            border: none;
+            background-color: transparent;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .attachment-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
         .settings-modal {
             display: none;
             position: fixed;
@@ -207,9 +240,7 @@
             font-weight: bold;
         }
 
-        .settings-modal .settings-content select,
-        .settings-modal .settings-content input[type="color"],
-        .settings-modal .settings-content input[type="text"] {
+        .settings-modal .settings-content select {
             width: 100%;
             padding: 8px;
             margin-bottom: 15px;
@@ -300,6 +331,9 @@
             <div class="user-info">
                 <img id="currentUserImage" src="" alt="Foto de Perfil">
             </div>
+            <button class="attachment-button" id="attachment-button">📎</button>
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, application/pdf"
+                style="display: none;">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
         </div>
@@ -334,15 +368,6 @@
                 <option value="nord">Nord</option>
             </select>
 
-            <label for="textColor">Cor do Texto:</label>
-            <input type="color" id="textColor" value="#e0e0e0">
-
-            <label for="backgroundColor">Cor de Fundo:</label>
-            <input type="color" id="backgroundColor" value="#121b22">
-
-            <label for="messageColor">Cor das Mensagens:</label>
-            <input type="color" id="messageColor" value="#202c33">
-
             <label for="editProfile">Editar Perfil:</label>
             <button id="editProfile">Editar Nome e Foto</button>
 
@@ -350,366 +375,460 @@
         </div>
     </div>
 
-    <script type="module">
-        // Importando os módulos do Firebase
-        import {
-            initializeApp
-        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-        import {
-            getDatabase,
-            ref,
-            push,
-            onValue,
-            remove,
-            update,
-            get
-        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+<script type="module">
+    // Importando os módulos do Firebase
+    import {
+        initializeApp
+    } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+    import {
+        getDatabase,
+        ref,
+        push,
+        onValue,
+        remove,
+        update,
+        get
+    } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
-        // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
-            authDomain: "engine-c02f6.firebaseapp.com",
-            projectId: "engine-c02f6",
-            storageBucket: "engine-c02f6.firebasestorage.app",
-            messagingSenderId: "562488086423",
-            appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
-            measurementId: "G-T81G36LMJG"
+    // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+        authDomain: "engine-c02f6.firebaseapp.com",
+        projectId: "engine-c02f6",
+        storageBucket: "engine-c02f6.firebasestorage.app",
+        messagingSenderId: "562488086423",
+        appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
+        measurementId: "G-T81G36LMJG"
+    };
+
+    // Inicializando o Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Referência para a lista de mensagens no Firebase
+    const messagesRef = ref(database, 'messages');
+
+    // Elementos do DOM
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const messagesContainer = document.getElementById('messages');
+    const usernameModal = document.getElementById('usernameModal');
+    const usernameInput = document.getElementById('usernameInput');
+    const profileImageInput = document.getElementById('profileImageInput');
+    const setUsernameButton = document.getElementById('setUsernameButton');
+    const currentUserImage = document.getElementById('currentUserImage');
+    const attachmentButton = document.getElementById('attachment-button');
+    const attachmentInput = document.getElementById('attachment-input');
+
+    // Botões e Modais
+    const settingsButton = document.getElementById('settingsButton');
+    const settingsModal = document.getElementById('settingsModal');
+    const clearChatButton = document.getElementById('clearChatButton');
+    const editProfileButton = document.getElementById('editProfile');
+
+    // Settings options
+    const themeSelect = document.getElementById('themeSelect');
+
+    let username = localStorage.getItem('username');
+    let profileImage = localStorage.getItem('profileImage');
+    let theme = localStorage.getItem('theme') || 'dark'; // Carrega o tema ou usa 'dark' como padrão
+
+    // Função para converter a imagem em base64
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => {
+            console.error("Erro no FileReader: ", error); // Adicione esta linha
+            reject(error);
         };
+        reader.readAsDataURL(file);
+    });
 
-        // Inicializando o Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Referência para a lista de mensagens no Firebase
-        const messagesRef = ref(database, 'messages');
-
-        // Elementos do DOM
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-        const messagesContainer = document.getElementById('messages');
-        const usernameModal = document.getElementById('usernameModal');
-        const usernameInput = document.getElementById('usernameInput');
-        const profileImageInput = document.getElementById('profileImageInput');
-        const setUsernameButton = document.getElementById('setUsernameButton');
-        const currentUserImage = document.getElementById('currentUserImage');
-
-        // Botões e Modais
-        const settingsButton = document.getElementById('settingsButton');
-        const settingsModal = document.getElementById('settingsModal');
-        const clearChatButton = document.getElementById('clearChatButton');
-        const editProfileButton = document.getElementById('editProfile');
-
-        // Settings options
-        const themeSelect = document.getElementById('themeSelect');
-        const textColorInput = document.getElementById('textColor');
-        const backgroundColorInput = document.getElementById('backgroundColor');
-        const messageColorInput = document.getElementById('messageColor');
-
-        let username = localStorage.getItem('username');
-        let profileImage = localStorage.getItem('profileImage');
-        let theme = localStorage.getItem('theme') || 'dark'; // Carrega o tema ou usa 'dark' como padrão
-        let textColor = localStorage.getItem('textColor') || '#e0e0e0';
-        let backgroundColor = localStorage.getItem('backgroundColor') || '#121b22';
-        let messageColor = localStorage.getItem('messageColor') || '#202c33';
-
-
-        // Função para converter a imagem em base64
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => {
-                console.error("Erro no FileReader: ", error); // Adicione esta linha
-                reject(error);
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Function to update the username and profile image in the database
-        const updateUsernameAndImage = async (newUsername, newProfileImage) => {
-            try {
-                const snapshot = await get(messagesRef);
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const message = childSnapshot.val();
-                        if (message.sender === username) {
-                            const messageKey = childSnapshot.key;
-                            const updates = {};
-                            updates[`/messages/${messageKey}/sender`] = newUsername;
-                            updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
-                            update(ref(database), updates);
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error("Erro ao atualizar o Firebase: ", error);
-                alert("Erro ao atualizar o perfil. Tente novamente.");
-            }
-        };
-
-
-        // Exibe o modal de nome de usuário se não estiver definido
-        if (!username || !profileImage) {
-            usernameModal.style.display = 'flex';
-        } else {
-            currentUserImage.src = profileImage;
-        }
-
-        // Define o nome de usuário e a imagem
-        setUsernameButton.addEventListener('click', async () => {
-            const inputName = usernameInput.value.trim();
-            const imageFile = profileImageInput.files[0];
-
-            if (!imageFile) {
-                alert("Por favor, selecione uma imagem de perfil.");
-                return; // Sai da função se não houver arquivo
-            }
-
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Tipos permitidos
-            if (!allowedTypes.includes(imageFile.type)) {
-                alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
-                return;
-            }
-
-            if (inputName !== '' && imageFile) {
-                try {
-                    const base64Image = await toBase64(imageFile);
-                    username = inputName;
-                    profileImage = base64Image;
-
-                    localStorage.setItem('username', username);
-                    localStorage.setItem('profileImage', profileImage);
-
-                    usernameModal.style.display = 'none';
-
-                    currentUserImage.src = profileImage;
-
-                    // Update messages with the new username and profile image
-                    await updateUsernameAndImage(username, profileImage).catch(error => {
-                        console.error("Erro ao atualizar o Firebase: ", error);
-                        alert("Erro ao atualizar o perfil. Tente novamente.");
-                    });
-
-
-                } catch (error) {
-                    console.error("Erro ao converter a imagem: ", error);
-                    alert("Erro ao processar a imagem. Tente novamente.");
-                }
-            } else {
-                alert("Por favor, preencha o nome e selecione uma imagem de perfil.");
-            }
-        });
-
-        // Function to format a timestamp
-        function formatTimestamp(timestamp) {
-            const date = new Date(timestamp);
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
-
-
-        // Function to display date separators
-        let lastDisplayedDate = null;
-
-        function displayDateSeparator(dateString) {
-            if (dateString !== lastDisplayedDate) {
-                const separator = document.createElement('div');
-                separator.classList.add('date-separator');
-                separator.textContent = dateString;
-                messagesContainer.appendChild(separator);
-                lastDisplayedDate = dateString;
-            }
-        }
-
-        // Listener para novas mensagens
-        onValue(messagesRef, (snapshot) => {
-            messagesContainer.innerHTML = '';
-            lastDisplayedDate = null; // Reset last displayed date
-
-            const data = snapshot.val();
-            if (data) {
-                const messagesArray = Object.entries(data).sort(([, a], [, b]) => {
-                    // Sort messages by timestamp (assuming each message has a timestamp)
-                    return a.timestamp - b.timestamp;
-                });
-
-                messagesArray.forEach(([key, message]) => {
-                    const messageDate = new Date(message.timestamp).toLocaleDateString();
-                    displayDateSeparator(messageDate);
-
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message');
-
-                    const senderInfo = document.createElement('div');
-                    senderInfo.classList.add('sender-info');
-
-                    const profileImageElement = document.createElement('img');
-                    profileImageElement.src = message.profileImage || 'default-profile.png';
-                    profileImageElement.alt = "Foto de Perfil";
-                    senderInfo.appendChild(profileImageElement);
-
-                    const senderName = document.createElement('span');
-                    senderName.textContent = message.sender;
-                    senderInfo.appendChild(senderName);
-
-                    const messageText = document.createElement('span');
-                    messageText.classList.add('message-text');
-                    messageText.textContent = message.text;
-
-                    const timestampElement = document.createElement('span');
-                    timestampElement.classList.add('timestamp');
-                    timestampElement.textContent = formatTimestamp(message.timestamp);
-
+    // Function to update the username and profile image in the database
+    const updateUsernameAndImage = async (newUsername, newProfileImage) => {
+        try {
+            const snapshot = await get(messagesRef);
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const message = childSnapshot.val();
                     if (message.sender === username) {
-                        messageElement.classList.add('sent');
-                    } else {
-                        messageElement.classList.add('received');
+                        const messageKey = childSnapshot.key;
+                        const updates = {};
+                        updates[`/messages/${messageKey}/sender`] = newUsername;
+                        updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
+                        update(ref(database), updates);
                     }
-
-                    messageElement.appendChild(senderInfo);
-                    messageElement.appendChild(messageText);
-                    messageElement.appendChild(timestampElement);
-
-                    messagesContainer.appendChild(messageElement);
                 });
-
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-        });
+        } catch (error) {
+            console.error("Erro ao atualizar o Firebase: ", error);
+            alert("Erro ao atualizar o perfil. Tente novamente.");
+        }
+    };
 
-        // Função para enviar uma mensagem
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            if (text !== '') {
-                push(messagesRef, {
-                    text: text,
-                    sender: username,
-                    profileImage: profileImage,
-                    timestamp: Date.now() // Adiciona o timestamp
-                });
-                messageInput.value = '';
-            }
+
+    // Exibe o modal de nome de usuário se não estiver definido
+    if (!username || !profileImage) {
+        usernameModal.style.display = 'flex';
+    } else {
+        currentUserImage.src = profileImage;
+    }
+
+    // Define o nome de usuário e a imagem
+    setUsernameButton.addEventListener('click', async () => {
+        const inputName = usernameInput.value.trim();
+        const imageFile = profileImageInput.files[0];
+
+        if (!imageFile) {
+            alert("Por favor, selecione uma imagem de perfil.");
+            return; // Sai da função se não houver arquivo
         }
 
-        // Event listener para o botão de enviar
-        sendButton.addEventListener('click', sendMessage);
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Tipos permitidos
+        if (!allowedTypes.includes(imageFile.type)) {
+            alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
+            return;
+        }
 
-        // Event listener para a tecla Enter no input
-        messageInput.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                sendMessage();
+        if (inputName !== '' && imageFile) {
+            try {
+                const base64Image = await toBase64(imageFile);
+                username = inputName;
+                profileImage = base64Image;
+
+                localStorage.setItem('username', username);
+                localStorage.setItem('profileImage', profileImage);
+
+                usernameModal.style.display = 'none';
+
+                currentUserImage.src = profileImage;
+
+                // Update messages with the new username and profile image
+                await updateUsernameAndImage(username, profileImage).catch(error => {
+                    console.error("Erro ao atualizar o Firebase: ", error);
+                    alert("Erro ao atualizar o perfil. Tente novamente.");
+                });
+
+
+            } catch (error) {
+                console.error("Erro ao converter a imagem: ", error);
+                alert("Erro ao processar a imagem. Tente novamente.");
             }
-        });
+        } else {
+            alert("Por favor, preencha o nome e selecione uma imagem de perfil.");
+        }
+    });
 
-        // Event listeners para os botões de configurações
-        settingsButton.addEventListener('click', () => {
-            settingsModal.style.display = 'flex';
-        });
-
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                settingsModal.style.display = 'none';
-            }
-        });
-
-        clearChatButton.addEventListener('click', () => {
-            if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
-                remove(messagesRef)
-                    .then(() => {
-                        alert("Conversas apagadas com sucesso!");
-                        settingsModal.style.display = 'none';
-                    })
-                    .catch((error) => {
-                        console.error("Erro ao apagar as conversas: ", error);
-                        alert("Erro ao apagar as conversas. Tente novamente.");
-                    });
-            }
-        });
-
-        editProfileButton.addEventListener('click', () => {
-            settingsModal.style.display = 'none'; // Fechar modal de configurações
-            usernameModal.style.display = 'flex'; // Abrir modal de edição de perfil
-        });
-
-        // Function to apply theme settings
-        function applyTheme() {
-            theme = themeSelect.value;
-            textColor = textColorInput.value;
-            backgroundColor = backgroundColorInput.value;
-            messageColor = messageColorInput.value;
-
-            localStorage.setItem('theme', theme);
-            localStorage.setItem('textColor', textColor);
-            localStorage.setItem('backgroundColor', backgroundColor);
-            localStorage.setItem('messageColor', messageColor);
+    // Function to format a timestamp
+    function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
 
 
-            // Apply settings to the DOM
-            document.body.style.backgroundColor = backgroundColor;
-            document.body.style.color = textColor;
-            document.querySelector('.chat-container').style.backgroundColor = messageColor;
+    // Function to display date separators
+    let lastDisplayedDate = null;
 
-            // Change CSS based on the theme
-            switch (theme) {
-                case 'solarized':
-                    document.body.style.backgroundColor = '#002b36';
-                    document.body.style.color = '#839496';
-                    document.querySelector('.chat-container').style.backgroundColor = '#073642';
-                    break;
-                case 'monokai':
-                    document.body.style.backgroundColor = '#272822';
-                    document.body.style.color = '#f8f8f2';
-                    document.querySelector('.chat-container').style.backgroundColor = '#3e3d35';
-                    break;
-                case 'dracula':
-                    document.body.style.backgroundColor = '#282a36';
-                    document.body.style.color = '#f8f8f2';
-                    document.querySelector('.chat-container').style.backgroundColor = '#44475a';
-                    break;
-                case 'gruvbox':
-                    document.body.style.backgroundColor = '#282828';
-                    document.body.style.color = '#ebdbb2';
-                    document.querySelector('.chat-container').style.backgroundColor = '#3c3836';
-                    break;
-                case 'nord':
-                    document.body.style.backgroundColor = '#2e3440';
-                    document.body.style.color = '#d8dee9';
-                    document.querySelector('.chat-container').style.backgroundColor = '#434c5e';
-                    break;
-                default: // dark
-                    document.body.style.backgroundColor = '#121b22';
-                    document.body.style.color = '#e0e0e0';
-                    document.querySelector('.chat-container').style.backgroundColor = '#1e2a33';
-                    break;
-            }
+    function displayDateSeparator(dateString) {
+        if (dateString !== lastDisplayedDate) {
+            const separator = document.createElement('div');
+            separator.classList.add('date-separator');
+            separator.textContent = dateString;
+            messagesContainer.appendChild(separator);
+            lastDisplayedDate = dateString;
+        }
+    }
 
-            // Update other styles as needed...
-            const messageElements = document.querySelectorAll('.message');
-            messageElements.forEach(element => {
-                if (element.classList.contains('sent')) {
-                    element.style.backgroundColor = "#005c4b";
-                    element.style.color = "#e0e0e0";
-                } else {
-                    element.style.backgroundColor = "#202c33";
-                    element.style.color = "#e0e0e0";
-                }
+    // Function to display audio messages
+    function displayAudioMessage(base64Audio) {
+        const audio = document.createElement('audio');
+        audio.classList.add('audio-message');
+        audio.controls = true;
+
+        // Set the audio source
+        audio.src = base64Audio;
+
+        return audio;
+    }
+
+    // Listener para novas mensagens
+    onValue(messagesRef, (snapshot) => {
+        messagesContainer.innerHTML = '';
+        lastDisplayedDate = null; // Reset last displayed date
+
+        const data = snapshot.val();
+        if (data) {
+            const messagesArray = Object.entries(data).sort(([, a], [, b]) => {
+                // Sort messages by timestamp (assuming each message has a timestamp)
+                return a.timestamp - b.timestamp;
             });
+
+            messagesArray.forEach(([key, message]) => {
+                const messageDate = new Date(message.timestamp).toLocaleDateString();
+                displayDateSeparator(messageDate);
+
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+
+                const senderInfo = document.createElement('div');
+                senderInfo.classList.add('sender-info');
+
+                const profileImageElement = document.createElement('img');
+                profileImageElement.src = message.profileImage || 'default-profile.png';
+                profileImageElement.alt = "Foto de Perfil";
+                senderInfo.appendChild(profileImageElement);
+
+                let messageContent;
+
+                if (message.type === 'image') {
+                    messageContent = document.createElement('img');
+                    messageContent.src = message.content;
+                    messageContent.alt = "Imagem";
+                    messageContent.classList.add('image-message');
+                } else if (message.type === 'audio') {
+                    // Display the audio message
+                    messageContent = displayAudioMessage(message.content);
+                } else {
+                    messageContent = document.createElement('span');
+                    messageContent.classList.add('message-text');
+                    messageContent.textContent = message.content;
+                }
+
+                const timestampElement = document.createElement('span');
+                timestampElement.classList.add('timestamp');
+                timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                if (message.sender === username) {
+                    messageElement.classList.add('sent');
+                } else {
+                    messageElement.classList.add('received');
+                }
+
+                messageElement.appendChild(senderInfo);
+                messageElement.appendChild(messageContent);
+                messageElement.appendChild(timestampElement);
+
+                messagesContainer.appendChild(messageElement);
+            });
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    });
+
+    // Função para enviar uma mensagem
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (text !== '') {
+            push(messagesRef, {
+                type: 'text',
+                content: text,
+                sender: username,
+                profileImage: profileImage,
+                timestamp: Date.now() // Adiciona o timestamp
+            });
+            messageInput.value = '';
+        }
+    }
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+
+    // Add a button for recording audio
+    const recordButton = document.createElement('button');
+    recordButton.textContent = 'Gravar Áudio';
+    recordButton.id = 'record-button';
+    document.querySelector('.input-area').prepend(recordButton);
+
+    // Function to start recording audio
+    async function startRecording() {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+        });
+
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, {
+                type: 'audio/webm'
+            });
+
+            const base64Audio = await toBase64(audioBlob);
+
+            push(messagesRef, {
+                type: 'audio',
+                content: base64Audio,
+                sender: username,
+                profileImage: profileImage,
+                timestamp: Date.now()
+            });
+
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        recordButton.textContent = 'Parar Gravação';
+
+    }
+    // Function to stop recording audio
+    function stopRecording() {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordButton.textContent = 'Gravar Áudio';
+    }
+
+    // Event listener for the record button
+    recordButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+    // Function to handle sending attachments (images, audio, etc.)
+    async function sendAttachment() {
+        const file = attachmentInput.files[0];
+
+        if (!file) {
+            alert("Por favor, selecione um arquivo para enviar.");
+            return;
         }
 
-        // Attach event listeners
-        themeSelect.addEventListener('change', applyTheme);
-        textColorInput.addEventListener('input', applyTheme);
-        backgroundColorInput.addEventListener('input', applyTheme);
-        messageColorInput.addEventListener('input', applyTheme);
+        try {
+            const base64File = await toBase64(file);
+            let messageType = 'file';
 
-        // Load and Apply initial theme
-        themeSelect.value = theme;
-        textColorInput.value = textColor;
-        backgroundColorInput.value = backgroundColor;
-        messageColorInput.value = messageColor
-        applyTheme();
-    </script>
+            if (file.type.startsWith('image/')) {
+                messageType = 'image';
+            } else if (file.type.startsWith('audio/')) {
+                messageType = 'audio';
+            } else if (file.type === 'application/pdf') {
+                messageType = 'pdf'; // Define o tipo como PDF
+            }
 
+            push(messagesRef, {
+                type: messageType,
+                content: base64File,
+                sender: username,
+                profileImage: profileImage,
+                timestamp: Date.now()
+            });
+
+            attachmentInput.value = ''; // Clear the input
+
+        } catch (error) {
+            console.error("Erro ao enviar o arquivo: ", error);
+            alert("Erro ao processar o arquivo. Tente novamente.");
+        }
+    }
+
+    // Event listener for sending messages
+    sendButton.addEventListener('click', sendMessage);
+
+    messageInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Event listener for attachments
+    attachmentButton.addEventListener('click', () => {
+        attachmentInput.click();
+    });
+
+    attachmentInput.addEventListener('change', sendAttachment);
+
+    // Theme settings
+    settingsButton.addEventListener('click', () => {
+        settingsModal.style.display = 'flex';
+    });
+
+    settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    });
+
+    clearChatButton.addEventListener('click', () => {
+        if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
+            remove(messagesRef)
+                .then(() => {
+                    alert("Conversas apagadas com sucesso!");
+                    settingsModal.style.display = 'none';
+                })
+                .catch((error) => {
+                    console.error("Erro ao apagar as conversas: ", error);
+                    alert("Erro ao apagar as conversas. Tente novamente.");
+                });
+        }
+    });
+
+    editProfileButton.addEventListener('click', () => {
+        settingsModal.style.display = 'none';
+        usernameModal.style.display = 'flex';
+    });
+
+    // Function to apply theme settings
+    function applyTheme() {
+        theme = themeSelect.value;
+        localStorage.setItem('theme', theme);
+
+        // Theme application
+        switch (theme) {
+            case 'solarized':
+                document.body.style.backgroundColor = '#002b36';
+                document.body.style.color = '#839496';
+                document.querySelector('.chat-container').style.backgroundColor = '#073642';
+                break;
+            case 'monokai':
+                document.body.style.backgroundColor = '#272822';
+                document.body.style.color = '#f8f8f2';
+                document.querySelector('.chat-container').style.backgroundColor = '#3e3d35';
+                break;
+            case 'dracula':
+                document.body.style.backgroundColor = '#282a36';
+                document.body.style.color = '#f8f8f2';
+                document.querySelector('.chat-container').style.backgroundColor = '#44475a';
+                break;
+            case 'gruvbox':
+                document.body.style.backgroundColor = '#282828';
+                document.body.style.color = '#ebdbb2';
+                document.querySelector('.chat-container').style.backgroundColor = '#3c3836';
+                break;
+            case 'nord':
+                document.body.style.backgroundColor = '#2e3440';
+                document.body.style.color = '#d8dee9';
+                document.querySelector('.chat-container').style.backgroundColor = '#434c5e';
+                break;
+            default: // dark
+                document.body.style.backgroundColor = '#121b22';
+                document.body.style.color = '#e0e0e0';
+                document.querySelector('.chat-container').style.backgroundColor = '#1e2a33';
+                break;
+        }
+
+        // Message style update
+        const messageElements = document.querySelectorAll('.message');
+        messageElements.forEach(element => {
+            if (element.classList.contains('sent')) {
+                element.style.backgroundColor = "#005c4b";
+                element.style.color = "#e0e0e0";
+            } else {
+                element.style.backgroundColor = "#202c33";
+                element.style.color = "#e0e0e0";
+            }
+        });
+    }
+
+    // Load and apply theme
+    themeSelect.value = theme;
+    applyTheme();
+</script>
 </body>
-
 </html>
