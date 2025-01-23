@@ -1152,15 +1152,16 @@
         })
 
          // Function to fetch and display messages
-         const updateMessages = async () => {
+                 // Function to fetch and display messages
+        const updateMessages = async () => {
             if (blockPanelUpdate) return; // Verifica a flag antes de atualizar
-            try {
+             try {
                 const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
                 if (!response.ok) {
-                     throw new Error(`HTTP error! status: ${response.status}`);
+                      throw new Error(`HTTP error! status: ${response.status}`);
                    }
                 const data = await response.json();
-                if (data === null || typeof data !== 'object') {
+                 if (data === null || typeof data !== 'object') {
                        posters.innerHTML = '';
                         console.warn("Data from Firebase is invalid:", data);
                          return;
@@ -1169,8 +1170,10 @@
                     .map(key => ({ key: key, ...data[key] }))
                     .sort((a, b) => b.timestamp - a.timestamp);
                 posters.innerHTML = '';
+                let lastMessageId = null; // variavel para o id da última mensagem
 
                 itensOrdenados.forEach(item => {
+                    if (item.key !== lastMessageId) {
                     let selected = itemColors[item.key];
                     let itemClass = '';
                     let name = item.nome;
@@ -1206,6 +1209,8 @@
                                 `);
                         }
                     }
+                   lastMessageId = item.key
+                  }
 
                     if (rolar === 1) {
                         rolar = 0;
@@ -1217,14 +1222,19 @@
                         }, 500);
                     }
                 });
-            } catch (error) {
+            }  catch (error) {
                 console.error('Error fetching/displaying data:', error);
             }
         };
-
         // Update messages every 2 seconds
-        setInterval(updateMessages, 2000);
-
+         setInterval(function() {
+               try {
+                   updateMessages();
+                } catch (error) {
+                    console.error("Erro na função de atualizar a mensagem, o problema pode estar com a conexão com o Firebase, ", error);
+                }
+            }, 2000);
+       
         const date = new Date();
         const nomeDoMes = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date);
         let dia = date.getDate();
