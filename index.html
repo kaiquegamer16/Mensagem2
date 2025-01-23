@@ -441,7 +441,7 @@
 </head>
 
 <body>
-    <div class="chat-container">
+   <div class="chat-container">
         <div class="top-buttons">
             <button class="settings-button" id="settingsButton">⚙️</button>
             <button id="new-group-button">👥 Novo Grupo</button>
@@ -541,7 +541,7 @@
     </div>
 
     <script type="module">
-        import {
+      import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -739,6 +739,12 @@
 
         // Function to fetch and display messages for a specific group
         function fetchGroupMessages(groupId) {
+            if (!groupId) {
+                console.warn("fetchGroupMessages called with undefined groupId.");
+                messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
+                return;
+            }
+
             const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
 
             onValue(groupMessagesRef, (snapshot) => {
@@ -788,6 +794,8 @@
                         messagesContainer.appendChild(messageElement);
                     });
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else {
+                    messagesContainer.innerHTML = '<p>Nenhuma mensagem neste grupo.</p>';
                 }
             });
         }
@@ -870,13 +878,13 @@
             });
         }
 
-        // Function to Switch Chat to Group
+        // Function to switch chat to group
         function switchChatToGroup(groupId) {
             currentGroupId = groupId;
+            localStorage.setItem('lastGroupId', groupId); // Save last group ID
             messagesContainer.innerHTML = ''; // Clear current messages
             fetchGroupMessages(groupId);
             console.log(`Switching chat to group: ${groupId}`);
-
         }
 
         // Function to Create a New Group
@@ -1032,10 +1040,13 @@
         //Load the group list when the application starts
         fetchGroupList();
 
-        // Attach event listeners for group list options
+         // Attach event listeners for group list options
         groupList.addEventListener('click', (event) => {
             const target = event.target;
             const groupId = target.dataset.groupId;
+
+            console.log("Target:", target); // Adicionei para Debug
+            console.log("groupId (dataset.groupId):", groupId); // Adicionei para Debug
 
             if (target.tagName === 'BUTTON' && groupId) {
                 event.stopPropagation(); // Prevent the li click event
@@ -1083,14 +1094,40 @@
                 }
 
             } else {
-                const groupId = event.currentTarget.dataset.groupId
-                console.log(groupId)
-                if (groupId)
+                if (groupId) {
+                    console.log("Switching to group:", groupId);
                     switchChatToGroup(groupId);
-                groupListModal.style.display = 'none';
+                    groupListModal.style.display = 'none';
+                } else {
+                    console.log("groupId is undefined, not switching group.");
+                }
             }
 
         });
+
+        let lastGroupId = localStorage.getItem('lastGroupId');
+
+        window.addEventListener('load', () => {
+            if (lastGroupId) {
+                console.log("Loading last group:", lastGroupId);
+                switchChatToGroup(lastGroupId);
+            } else {
+                messagesContainer.innerHTML = '<p>Selecione um grupo para começar.</p>';
+            }
+        });
+
+        // Function to apply the selected theme
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+
+        themeSelect.addEventListener('change', () => {
+            theme = themeSelect.value;
+            localStorage.setItem('theme', theme);
+            applyTheme(); // Aplica o tema imediatamente após a mudança
+        });
+
         // Load and apply theme
         themeSelect.value = theme;
         applyTheme();
