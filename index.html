@@ -1160,89 +1160,90 @@
             });
         })
 
-         // Function to fetch and display messages
-                 // Function to fetch and display messages
-      const updateMessages = async () => {
-    if (blockPanelUpdate) return;
-    try {
-        const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (data === null || typeof data !== 'object') {
-            posters.innerHTML = '';
-            console.warn("Data from Firebase is invalid:", data);
-            return;
-        }
-        let itensOrdenados = Object.keys(data)
-            .map(key => ({ key: key, ...data[key] }))
-            .sort((a, b) => b.timestamp - a.timestamp);
-        posters.innerHTML = '';
-        let lastMessageId = null;
-        let lastMessageDay = null;
+                // Function to fetch and display messages
+        const updateMessages = async () => {
+            if (blockPanelUpdate) return;
+            try {
+                const response = await fetch('https://engine-c02f6-default-rtdb.firebaseio.com/feed/.json');
+                if (!response.ok) {
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                   }
+                const data = await response.json();
+                 if (data === null || typeof data !== 'object') {
+                       posters.innerHTML = '';
+                        console.warn("Data from Firebase is invalid:", data);
+                         return;
+                   }
+                let itensOrdenados = Object.keys(data)
+                    .map(key => ({ key: key, ...data[key] }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
+                 posters.innerHTML = '';
+                let lastMessageId = null;
+                 let lastMessageDay = null;
 
+                itensOrdenados.forEach(item => {
+                    if (item.key !== lastMessageId) {
+                        let selected = itemColors[item.key];
+                        let itemClass = '';
+                        let name = item.nome;
+                         let content = item.conteudo || " "; // verifica se existe conteudo ou adiciona texto
+                       let shouldDisplayDate = false;
+                            if (lastMessageDay !== item.Dia) {
+                                    shouldDisplayDate = true;
+                                      lastMessageDay = item.Dia
+                             }
+                            if (item.privateChat) {
+                                itemClass = 'private';
+                                if (item.senderName != userName) {
+                                    name = `<span class="private-name">${item.senderName}</span>`;
+                                } else {
+                                    name = "Você";
+                                }
+                            }
+                            if (item.admin) {
+                                itemClass = 'admin';
+                            }
+                         if (adminMode || !item.privateChat || (item.privateChat && item.senderName == userName) || (item.privateChat && item.receiverName == userName) || currentPrivateChat === item.privateChat) {
+                            if (!item.nome.includes("gosar") && !item.nome.includes("pau")) {
+                                 posters.insertAdjacentHTML('afterbegin', `
+                                        ${shouldDisplayDate ? `<div style="text-align:center; color: white; margin-bottom: 5px;"> <span>${item.Mes}</span>
+                                                <span>${item.Dia}</span> </div>` : ""}
+                                        <div class="item ${itemClass}" style="max-width: 80%; margin-top: 5px; margin-bottom: 5px;">
+                                          <div class="message-container" style="background: linear-gradient(to right,  #4a00e0, #8e2de2); border-radius: 20% 20% 20% 2%; padding: 10px">
+                                            <div class="info">
+                                                 <div class="user-avatar">
+                                                    <img src="${item.userPhoto || 'icone.png'}" alt="Foto do usuário">
+                                                        <h2 style="color: ${selected}; font-weight: bold;">${name}</h2>
+                                                </div>
+                                                ${content}
+                                                <p style="color:white">${item.hora} : ${item.minutos}</p>
+                                            </div>
+                                        </div>
+                                      </div>
+                                        
+                                `);
+                            }
+                        }
+                          lastMessageId = item.key
+                     }
 
-        itensOrdenados.forEach(item => {
-              let shouldDisplayDate = false;
-                if (item.key !== lastMessageId) {
-                let selected = itemColors[item.key];
-                let itemClass = '';
-                let name = item.nome;
-                 let content = item.conteudo || " "; // verifica se existe conteudo ou adiciona texto
-                  if (lastMessageDay !== item.Dia) {
-                         shouldDisplayDate = true;
-                          lastMessageDay = item.Dia
+                    if (rolar === 1) {
+                        rolar = 0;
+                        setTimeout(() => {
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }, 500);
                     }
-                    if (item.privateChat) {
-                        itemClass = 'private';
-                        if (item.senderName != userName) {
-                            name = `<span class="private-name">${item.senderName}</span>`;
-                        } else {
-                            name = "Você";
-                        }
-                    }
-                    if (item.admin) {
-                        itemClass = 'admin';
-                    }
-                    if (adminMode || !item.privateChat || (item.privateChat && item.senderName == userName) || (item.privateChat && item.receiverName == userName) || currentPrivateChat === item.privateChat) {
-                      if (!item.nome.includes("gosar") && !item.nome.includes("pau")) {
-                           posters.insertAdjacentHTML('afterbegin', `
-                            ${shouldDisplayDate ? `<div style="text-align:center; color: white; margin-bottom: 5px;"> <span>${item.Mes}</span>
-                                            <span>${item.Dia}</span> </div>` : ""}
-                            <div class="item ${itemClass}"  style="max-width: 80%;">
-                            <div class="message-container" style="background: linear-gradient(to right,  #4a00e0, #8e2de2); border-radius: 20% 20% 20% 2%;"> 
-                            <div class="info">
-                            <div class="user-avatar">
-                             <img src="${item.userPhoto || 'icone.png'}" alt="Foto do usuário">
-                                 <h2 style="color: ${selected}; font-weight: bold;">${name}</h2>
-                            </div>
-                            ${content}
-                            <p style="color:white">${item.hora} : ${item.minutos}</p>
-                               </div>
-                            </div>
-                          </div>
-                                    
-                            `);
-                        }
-                    }
-                    lastMessageId = item.key
-                }
-            if (rolar === 1) {
-                rolar = 0;
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: document.body.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }, 500);
+                });
+              cleanDuplicateMessages(); // Limpa as mensagens duplicadas
+            } catch (error) {
+                console.error('Error fetching/displaying data:', error);
             }
-        });
-    } catch (error) {
-        console.error('Error fetching/displaying data:', error);
-    }
-};
-        // Update messages every 2 seconds
+        };
+        
+         // Update messages every 2 seconds
          setInterval(function() {
                try {
                    updateMessages();
@@ -1256,6 +1257,21 @@
         let dia = date.getDate();
         let nomeAleatorio;
 
+         function cleanDuplicateMessages() {
+          const messages = document.querySelectorAll('.item');
+           const messageIds = new Set();
+
+            messages.forEach(message => {
+             const messageId = message.getAttribute('data-id')
+                 if (messageId) {
+                    if (messageIds.has(messageId)){
+                        message.remove();
+                    } else {
+                       messageIds.add(messageId);
+                    }
+                 }
+         })
+}
         // Generate a random ID
         function gerarIdAleatorio(tamanho) {
             const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
