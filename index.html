@@ -27,22 +27,34 @@
             position: relative;
         }
 
-        .settings-button {
-            position: fixed;
-            top: 10px;
-            left: 10px;
+        .top-buttons {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 10px;
+            background-color: #1e2a33;
+            /* Match chat-container */
+            border-bottom: 1px solid #3e4c54;
+            /* Optional border */
+        }
+
+        .settings-button,
+        #new-group-button,
+        #group-list-button {
             background-color: transparent;
             border: none;
             color: #e0e0e0;
             cursor: pointer;
-            font-size: 1.5em;
-            padding: 5px;
-            border-radius: 50%;
+            font-size: 1.2em;
+            padding: 5px 10px;
+            border-radius: 5px;
             transition: background-color 0.3s ease;
-            z-index: 1001;
+            margin-right: 10px;
         }
 
-        .settings-button:hover {
+        .settings-button:hover,
+        #new-group-button:hover,
+        #group-list-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
@@ -96,7 +108,7 @@
             align-self: flex-start;
         }
 
-        .message.received .timestamp {
+        .message .timestamp {
             left: 0;
         }
 
@@ -147,6 +159,7 @@
             padding: 8px;
             border-top: 1px solid #3e4c54;
             background-color: #1e2731;
+            align-items: center;
         }
 
         .input-area .user-info {
@@ -172,6 +185,7 @@
             background-color: #2a3942;
             color: #e0e0e0;
             outline: none;
+            min-width: 0;
         }
 
         #send-button {
@@ -193,7 +207,8 @@
             display: none;
         }
 
-        .attachment-button {
+        .attachment-button,
+        #emoji-button {
             padding: 8px 15px;
             border: none;
             background-color: transparent;
@@ -205,7 +220,8 @@
             margin-right: 8px;
         }
 
-        .attachment-button:hover {
+        .attachment-button:hover,
+        #emoji-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
@@ -316,14 +332,122 @@
             margin-bottom: 5px;
             color: #e0e0e0;
         }
+
+        /* Style for the emoji picker */
+        .emoji-picker {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            background-color: #1e2a33;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            display: none;
+            /* Hidden by default */
+            z-index: 1001;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #e0e0e0;
+        }
+
+        .emoji-picker span {
+            font-size: 1.5em;
+            margin: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .input-area {
+            position: relative;
+            /* Needed for positioning the Emoji picker */
+        }
+
+        #emoji-button {
+            font-size: 20px;
+        }
+
+        .group-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .group-list li {
+            padding: 10px;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-list li:hover {
+            background-color: #3e4c54;
+        }
+
+        .group-list-options {
+            display: flex;
+            align-items: center;
+        }
+
+        .group-list-options button {
+            background-color: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 1em;
+            /* Adjust size as needed */
+        }
+
+        .group-list-options button:hover {
+            color: #bbb;
+            /* Darken on hover */
+        }
+
+        /* Enter Group by ID Styling */
+        .enter-group-by-id {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .enter-group-by-id input[type="text"] {
+            width: 70%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            margin-right: 5px;
+        }
+
+        .enter-group-by-id button {
+            padding: 8px 15px;
+            border: none;
+            background-color: #008069;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .enter-group-by-id button:hover {
+            background-color: #006659;
+        }
     </style>
 </head>
 
 <body>
-
-    <button class="settings-button" id="settingsButton">⚙️</button>
-
     <div class="chat-container">
+        <div class="top-buttons">
+            <button class="settings-button" id="settingsButton">⚙️</button>
+            <button id="new-group-button">👥 Novo Grupo</button>
+            <button id="group-list-button">📁 Lista Grupos</button>
+        </div>
+
         <div class="messages" id="messages">
             <!-- Mensagens serão inseridas aqui -->
         </div>
@@ -331,9 +455,22 @@
             <div class="user-info">
                 <img id="currentUserImage" src="" alt="Foto de Perfil">
             </div>
+            <!-- Emoji picker container -->
+            <div class="emoji-picker" id="emojiPicker">
+                <span>😀</span>
+                <span>😂</span>
+                <span>😊</span>
+                <span>😍</span>
+                <span>🤔</span>
+                <span>👍</span>
+                <span>❤️</span>
+                <span>🙏</span>
+                <span>🎉</span>
+                <span>🔥</span>
+                <!-- Add more emojis as needed -->
+            </div>
             <button class="attachment-button" id="attachment-button">📎</button>
-            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, application/pdf"
-                style="display: none;">
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, application/pdf" style="display: none;">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
         </div>
@@ -375,460 +512,589 @@
         </div>
     </div>
 
-<script type="module">
-    // Importando os módulos do Firebase
-    import {
-        initializeApp
-    } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-    import {
-        getDatabase,
-        ref,
-        push,
-        onValue,
-        remove,
-        update,
-        get
-    } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+    <!-- New Group Modal -->
+    <div class="modal" id="newGroupModal">
+        <div class="modal-content">
+            <h2>Criar Novo Grupo</h2>
+            <label for="groupNameInput">Nome do Grupo:</label>
+            <input type="text" id="groupNameInput" placeholder="Nome do Grupo" required>
 
-    // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
-    const firebaseConfig = {
-        apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
-        authDomain: "engine-c02f6.firebaseapp.com",
-        projectId: "engine-c02f6",
-        storageBucket: "engine-c02f6.firebasestorage.app",
-        messagingSenderId: "562488086423",
-        appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
-        measurementId: "G-T81G36LMJG"
-    };
+            <label for="groupImageInput">Imagem do Grupo:</label>
+            <input type="file" id="groupImageInput" accept="image/*" required>
 
-    // Inicializando o Firebase
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+            <button id="createGroupButton">Criar Grupo</button>
+        </div>
+    </div>
 
-    // Referência para a lista de mensagens no Firebase
-    const messagesRef = ref(database, 'messages');
+    <!-- Group List Modal -->
+    <div class="modal" id="groupListModal">
+        <div class="modal-content">
+            <h2>Lista de Grupos</h2>
+            <ul class="group-list" id="groupList">
+                <!-- Group list items will be dynamically added here -->
+            </ul>
+            <div class="enter-group-by-id">
+                <input type="text" id="groupIdInput" placeholder="Digite o ID do Grupo">
+                <button id="enterGroupIdButton">Entrar</button>
+            </div>
+        </div>
+    </div>
 
-    // Elementos do DOM
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const messagesContainer = document.getElementById('messages');
-    const usernameModal = document.getElementById('usernameModal');
-    const usernameInput = document.getElementById('usernameInput');
-    const profileImageInput = document.getElementById('profileImageInput');
-    const setUsernameButton = document.getElementById('setUsernameButton');
-    const currentUserImage = document.getElementById('currentUserImage');
-    const attachmentButton = document.getElementById('attachment-button');
-    const attachmentInput = document.getElementById('attachment-input');
+    <script type="module">
+        import {
+            initializeApp
+        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import {
+            getDatabase,
+            ref,
+            push,
+            onValue,
+            remove,
+            update,
+            get,
+            query,
+            orderByChild,
+            equalTo
+        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
-    // Botões e Modais
-    const settingsButton = document.getElementById('settingsButton');
-    const settingsModal = document.getElementById('settingsModal');
-    const clearChatButton = document.getElementById('clearChatButton');
-    const editProfileButton = document.getElementById('editProfile');
-
-    // Settings options
-    const themeSelect = document.getElementById('themeSelect');
-
-    let username = localStorage.getItem('username');
-    let profileImage = localStorage.getItem('profileImage');
-    let theme = localStorage.getItem('theme') || 'dark'; // Carrega o tema ou usa 'dark' como padrão
-
-    // Função para converter a imagem em base64
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => {
-            console.error("Erro no FileReader: ", error); // Adicione esta linha
-            reject(error);
+        // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+            authDomain: "engine-c02f6.firebaseapp.com",
+            projectId: "engine-c02f6",
+            storageBucket: "engine-c02f6.firebasestorage.app",
+            messagingSenderId: "562488086423",
+            appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
+            measurementId: "G-T81G36LMJG"
         };
-        reader.readAsDataURL(file);
-    });
 
-    // Function to update the username and profile image in the database
-    const updateUsernameAndImage = async (newUsername, newProfileImage) => {
-        try {
-            const snapshot = await get(messagesRef);
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    const message = childSnapshot.val();
-                    if (message.sender === username) {
-                        const messageKey = childSnapshot.key;
-                        const updates = {};
-                        updates[`/messages/${messageKey}/sender`] = newUsername;
-                        updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
-                        update(ref(database), updates);
-                    }
-                });
-            }
-        } catch (error) {
-            console.error("Erro ao atualizar o Firebase: ", error);
-            alert("Erro ao atualizar o perfil. Tente novamente.");
-        }
-    };
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
+        // Referência para a lista de mensagens no Firebase
+        const messagesRef = ref(database, 'messages');
+        const groupsRef = ref(database, 'groups'); // Add a reference to the 'groups' node
 
-    // Exibe o modal de nome de usuário se não estiver definido
-    if (!username || !profileImage) {
-        usernameModal.style.display = 'flex';
-    } else {
-        currentUserImage.src = profileImage;
-    }
+        // Elementos do DOM
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const messagesContainer = document.getElementById('messages');
+        const usernameModal = document.getElementById('usernameModal');
+        const usernameInput = document.getElementById('usernameInput');
+        const profileImageInput = document.getElementById('profileImageInput');
+        const setUsernameButton = document.getElementById('setUsernameButton');
+        const currentUserImage = document.getElementById('currentUserImage');
+        const attachmentButton = document.getElementById('attachment-button');
+        const attachmentInput = document.getElementById('attachment-input');
 
-    // Define o nome de usuário e a imagem
-    setUsernameButton.addEventListener('click', async () => {
-        const inputName = usernameInput.value.trim();
-        const imageFile = profileImageInput.files[0];
+        // Emoji Picker Elements
+        const emojiPicker = document.getElementById('emojiPicker');
+        let emojiPickerVisible = false;
 
-        if (!imageFile) {
-            alert("Por favor, selecione uma imagem de perfil.");
-            return; // Sai da função se não houver arquivo
-        }
+        // Group-related Elements
+        const newGroupButton = document.getElementById('new-group-button');
+        const groupListButton = document.getElementById('group-list-button');
+        const newGroupModal = document.getElementById('newGroupModal');
+        const groupListModal = document.getElementById('groupListModal');
+        const groupNameInput = document.getElementById('groupNameInput');
+        const groupImageInput = document.getElementById('groupImageInput');
+        const createGroupButton = document.getElementById('createGroupButton');
+        const groupList = document.getElementById('groupList');
+        const groupIdInput = document.getElementById('groupIdInput'); // Input field for group ID
+        const enterGroupIdButton = document.getElementById('enterGroupIdButton'); // Enter Group ID Button
 
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Tipos permitidos
-        if (!allowedTypes.includes(imageFile.type)) {
-            alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
-            return;
-        }
+        //Botões e Modais
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const clearChatButton = document.getElementById('clearChatButton');
+        const editProfileButton = document.getElementById('editProfile');
 
-        if (inputName !== '' && imageFile) {
+        // Settings options
+        const themeSelect = document.getElementById('themeSelect');
+
+        let username = localStorage.getItem('username');
+        let profileImage = localStorage.getItem('profileImage');
+        let theme = localStorage.getItem('theme') || 'dark'; // Carrega o tema ou usa 'dark' como padrão
+
+        //Emoji Button
+        const emojiButton = document.createElement('button');
+        emojiButton.textContent = 'Emoji';
+        emojiButton.id = 'emoji-button';
+        emojiButton.innerHTML = 'Emoji';
+        document.querySelector('.input-area').prepend(emojiButton);
+         emojiButton.addEventListener('click', function() {
+            emojiPickerVisible = !emojiPickerVisible;
+            emojiPicker.style.display = emojiPickerVisible ? 'block' : 'none';
+        });
+
+        let currentGroupId = null; // Track current group ID
+        let groups = []; // Initialize an empty array for groups
+
+        // Função para converter a imagem em base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => {
+                console.error("Erro no FileReader: ", error);
+                reject(error);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Function to update the username and profile image in the database
+        const updateUsernameAndImage = async (newUsername, newProfileImage) => {
             try {
-                const base64Image = await toBase64(imageFile);
-                username = inputName;
-                profileImage = base64Image;
-
-                localStorage.setItem('username', username);
-                localStorage.setItem('profileImage', profileImage);
-
-                usernameModal.style.display = 'none';
-
-                currentUserImage.src = profileImage;
-
-                // Update messages with the new username and profile image
-                await updateUsernameAndImage(username, profileImage).catch(error => {
-                    console.error("Erro ao atualizar o Firebase: ", error);
-                    alert("Erro ao atualizar o perfil. Tente novamente.");
-                });
-
-
+                const snapshot = await get(messagesRef);
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const message = childSnapshot.val();
+                        if (message.sender === username) {
+                            const messageKey = childSnapshot.key;
+                            const updates = {};
+                            updates[`/messages/${messageKey}/sender`] = newUsername;
+                            updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
+                            update(ref(database), updates);
+                        }
+                    });
+                }
             } catch (error) {
-                console.error("Erro ao converter a imagem: ", error);
+                console.error("Erro ao atualizar o Firebase: ", error);
+                alert("Erro ao atualizar o perfil. Tente novamente.");
+            }
+        };
+
+        // Exibe o modal de nome de usuário se não estiver definido
+        if (!username || !profileImage) {
+            usernameModal.style.display = 'flex';
+        } else {
+            currentUserImage.src = profileImage;
+        }
+
+        // Define o nome de usuário e a imagem
+        setUsernameButton.addEventListener('click', async () => {
+            const inputName = usernameInput.value.trim();
+            const imageFile = profileImageInput.files[0];
+
+            if (!imageFile) {
+                alert("Por favor, selecione uma imagem de perfil.");
+                return; // Sai da função se não houver arquivo
+            }
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Tipos permitidos
+            if (!allowedTypes.includes(imageFile.type)) {
+                alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
+                return;
+            }
+
+            if (inputName !== '' && imageFile) {
+                try {
+                    const base64Image = await toBase64(imageFile);
+                    username = inputName;
+                    profileImage = base64Image;
+
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('profileImage', profileImage);
+
+                    usernameModal.style.display = 'none';
+
+                    currentUserImage.src = profileImage;
+
+                    // Update messages with the new username and profile image
+                    await updateUsernameAndImage(username, profileImage).catch(error => {
+                        console.error("Erro ao atualizar o Firebase: ", error);
+                        alert("Erro ao atualizar o perfil. Tente novamente.");
+                    });
+
+
+                } catch (error) {
+                    console.error("Erro ao converter a imagem: ", error);
+                    alert("Erro ao processar a imagem. Tente novamente.");
+                }
+            } else {
+                alert("Por favor, preencha o nome e selecione uma imagem de perfil.");
+            }
+        });
+
+        // Function to format a timestamp
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        // Function to display date separators
+        let lastDisplayedDate = null;
+
+        function displayDateSeparator(dateString) {
+            if (dateString !== lastDisplayedDate) {
+                const separator = document.createElement('div');
+                separator.classList.add('date-separator');
+                separator.textContent = dateString;
+                messagesContainer.appendChild(separator);
+                lastDisplayedDate = dateString;
+            }
+        }
+
+        // Function to fetch and display messages for a specific group
+        function fetchGroupMessages(groupId) {
+            const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
+
+            onValue(groupMessagesRef, (snapshot) => {
+                messagesContainer.innerHTML = ''; // Clear existing messages
+
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, message]) => {
+                        const messageElement = document.createElement('div');
+                        messageElement.classList.add('message');
+
+                        const senderInfo = document.createElement('div');
+                        senderInfo.classList.add('sender-info');
+
+                        const profileImageElement = document.createElement('img');
+                        profileImageElement.src = message.profileImage || 'default-profile.png';
+                        profileImageElement.alt = "Foto de Perfil";
+                        senderInfo.appendChild(profileImageElement);
+
+                        let messageContent;
+
+                        if (message.type === 'image') {
+                            messageContent = document.createElement('img');
+                            messageContent.src = message.content;
+                            messageContent.alt = "Imagem";
+                            messageContent.classList.add('image-message');
+                        } else {
+                            messageContent = document.createElement('span');
+                            messageContent.classList.add('message-text');
+                            messageContent.textContent = message.content;
+                        }
+
+                        const timestampElement = document.createElement('span');
+                        timestampElement.classList.add('timestamp');
+                        timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                        if (message.sender === username) {
+                            messageElement.classList.add('sent');
+                        } else {
+                            messageElement.classList.add('received');
+                        }
+
+                        messageElement.appendChild(senderInfo);
+                        messageElement.appendChild(messageContent);
+                        messageElement.appendChild(timestampElement);
+
+                        messagesContainer.appendChild(messageElement);
+                    });
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            });
+        }
+
+        // Function to fetch group list from firebase
+        function fetchGroupList() {
+            onValue(groupsRef, (snapshot) => {
+                groups = [];
+                const data = snapshot.val();
+
+                if (data) {
+                    Object.entries(data).forEach(([key, group]) => {
+                        groups.push({
+                            id: key,
+                            name: group.name,
+                            image: group.image,
+                            members: group.members
+                        });
+                    });
+                }
+                populateGroupList();
+            });
+        }
+
+        //Listen para novas mensagens (Removido a leitura de mensagem e será implementado com group)
+
+        // Função para enviar uma mensagem
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text !== '') {
+                push(messagesRef, {
+                    type: 'text',
+                    content: text,
+                    sender: username,
+                    profileImage: profileImage,
+                    timestamp: Date.now(),
+                    groupId: currentGroupId
+                });
+                messageInput.value = '';
+            }
+        }
+
+        // Handle Emoji Selection
+        emojiPicker.addEventListener('click', function(event) {
+            if (event.target.tagName === 'SPAN') {
+                const selectedEmoji = event.target.textContent;
+                messageInput.value += selectedEmoji;
+                emojiPicker.style.display = 'none'; // Hide the picker after selection
+                emojiPickerVisible = false;
+            }
+        });
+
+        // New Group Button Event Listener
+        newGroupButton.addEventListener('click', () => {
+            newGroupModal.style.display = 'flex';
+        });
+
+        // Group List Button Event Listener
+        groupListButton.addEventListener('click', () => {
+            populateGroupList();
+            groupListModal.style.display = 'flex';
+        });
+
+        // Function to Populate Group List
+        function populateGroupList() {
+            groupList.innerHTML = ''; // Clear the list
+
+            groups.forEach(group => {
+                const listItem = document.createElement('li');
+                listItem.dataset.groupId = group.id; // Set group ID on the list item
+                listItem.innerHTML = `
+                    ${group.name}
+                    <div class="group-list-options">
+                        <button title="Editar Nome" data-group-id="${group.id}">✏️</button>
+                        <button title="Ver ID do Grupo" data-group-id="${group.id}">#</button>
+                        <button title="Deletar Grupo" data-group-id="${group.id}">🗑️</button>
+                    </div>
+                `;
+                groupList.appendChild(listItem);
+            });
+        }
+
+        // Function to Switch Chat to Group
+        function switchChatToGroup(groupId) {
+            currentGroupId = groupId;
+            messagesContainer.innerHTML = ''; // Clear current messages
+            fetchGroupMessages(groupId);
+            console.log(`Switching chat to group: ${groupId}`);
+
+        }
+
+        // Function to Create a New Group
+        createGroupButton.addEventListener('click', async () => {
+            const groupName = groupNameInput.value.trim();
+            const groupImageFile = groupImageInput.files[0];
+
+            if (!groupName || !groupImageFile) {
+                alert("Por favor, preencha o nome e selecione uma imagem para o grupo.");
+                return;
+            }
+
+            try {
+                const base64Image = await toBase64(groupImageFile);
+                const newGroup = {
+                    name: groupName,
+                    image: base64Image,
+                    members: [username] // The creator is automatically a member
+                };
+                //Add new group to Firebase
+                push(groupsRef, newGroup).then((snapshot) => {
+                    groupNameInput.value = '';
+                    groupImageInput.value = null;
+                    newGroupModal.style.display = 'none';
+                    fetchGroupList();
+                     switchChatToGroup(snapshot.key);
+                })
+            } catch (error) {
+                console.error("Erro ao processar a imagem: ", error);
                 alert("Erro ao processar a imagem. Tente novamente.");
             }
-        } else {
-            alert("Por favor, preencha o nome e selecione uma imagem de perfil.");
-        }
-    });
-
-    // Function to format a timestamp
-    function formatTimestamp(timestamp) {
-        const date = new Date(timestamp);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
-
-
-    // Function to display date separators
-    let lastDisplayedDate = null;
-
-    function displayDateSeparator(dateString) {
-        if (dateString !== lastDisplayedDate) {
-            const separator = document.createElement('div');
-            separator.classList.add('date-separator');
-            separator.textContent = dateString;
-            messagesContainer.appendChild(separator);
-            lastDisplayedDate = dateString;
-        }
-    }
-
-    // Function to display audio messages
-    function displayAudioMessage(base64Audio) {
-        const audio = document.createElement('audio');
-        audio.classList.add('audio-message');
-        audio.controls = true;
-
-        // Set the audio source
-        audio.src = base64Audio;
-
-        return audio;
-    }
-
-    // Listener para novas mensagens
-    onValue(messagesRef, (snapshot) => {
-        messagesContainer.innerHTML = '';
-        lastDisplayedDate = null; // Reset last displayed date
-
-        const data = snapshot.val();
-        if (data) {
-            const messagesArray = Object.entries(data).sort(([, a], [, b]) => {
-                // Sort messages by timestamp (assuming each message has a timestamp)
-                return a.timestamp - b.timestamp;
-            });
-
-            messagesArray.forEach(([key, message]) => {
-                const messageDate = new Date(message.timestamp).toLocaleDateString();
-                displayDateSeparator(messageDate);
-
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-
-                const senderInfo = document.createElement('div');
-                senderInfo.classList.add('sender-info');
-
-                const profileImageElement = document.createElement('img');
-                profileImageElement.src = message.profileImage || 'default-profile.png';
-                profileImageElement.alt = "Foto de Perfil";
-                senderInfo.appendChild(profileImageElement);
-
-                let messageContent;
-
-                if (message.type === 'image') {
-                    messageContent = document.createElement('img');
-                    messageContent.src = message.content;
-                    messageContent.alt = "Imagem";
-                    messageContent.classList.add('image-message');
-                } else if (message.type === 'audio') {
-                    // Display the audio message
-                    messageContent = displayAudioMessage(message.content);
-                } else {
-                    messageContent = document.createElement('span');
-                    messageContent.classList.add('message-text');
-                    messageContent.textContent = message.content;
-                }
-
-                const timestampElement = document.createElement('span');
-                timestampElement.classList.add('timestamp');
-                timestampElement.textContent = formatTimestamp(message.timestamp);
-
-                if (message.sender === username) {
-                    messageElement.classList.add('sent');
-                } else {
-                    messageElement.classList.add('received');
-                }
-
-                messageElement.appendChild(senderInfo);
-                messageElement.appendChild(messageContent);
-                messageElement.appendChild(timestampElement);
-
-                messagesContainer.appendChild(messageElement);
-            });
-
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-    });
-
-    // Função para enviar uma mensagem
-    function sendMessage() {
-        const text = messageInput.value.trim();
-        if (text !== '') {
-            push(messagesRef, {
-                type: 'text',
-                content: text,
-                sender: username,
-                profileImage: profileImage,
-                timestamp: Date.now() // Adiciona o timestamp
-            });
-            messageInput.value = '';
-        }
-    }
-
-    let mediaRecorder;
-    let audioChunks = [];
-    let isRecording = false;
-
-    // Add a button for recording audio
-    const recordButton = document.createElement('button');
-    recordButton.textContent = 'Gravar Áudio';
-    recordButton.id = 'record-button';
-    document.querySelector('.input-area').prepend(recordButton);
-
-    // Function to start recording audio
-    async function startRecording() {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true
         });
 
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-
-        mediaRecorder.ondataavailable = event => {
-            audioChunks.push(event.data);
-        };
-
-        mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, {
-                type: 'audio/webm'
-            });
-
-            const base64Audio = await toBase64(audioBlob);
-
-            push(messagesRef, {
-                type: 'audio',
-                content: base64Audio,
-                sender: username,
-                profileImage: profileImage,
-                timestamp: Date.now()
-            });
-
-        };
-        mediaRecorder.start();
-        isRecording = true;
-        recordButton.textContent = 'Parar Gravação';
-
-    }
-    // Function to stop recording audio
-    function stopRecording() {
-        mediaRecorder.stop();
-        isRecording = false;
-        recordButton.textContent = 'Gravar Áudio';
-    }
-
-    // Event listener for the record button
-    recordButton.addEventListener('click', () => {
-        if (isRecording) {
-            stopRecording();
-        } else {
-            startRecording();
-        }
-    });
-    // Function to handle sending attachments (images, audio, etc.)
-    async function sendAttachment() {
-        const file = attachmentInput.files[0];
-
-        if (!file) {
-            alert("Por favor, selecione um arquivo para enviar.");
-            return;
+        function generateGroupId() {
+            return Math.random().toString(36).substring(2, 15); // Generate a random string to serve as an ID
         }
 
-        try {
-            const base64File = await toBase64(file);
-            let messageType = 'file';
+        // Attaching Click Handlers to the Modals
+        usernameModal.addEventListener('click', (e) => {
+            if (e.target === usernameModal) {
+                usernameModal.style.display = 'none';
+            }
+        });
 
-            if (file.type.startsWith('image/')) {
-                messageType = 'image';
-            } else if (file.type.startsWith('audio/')) {
-                messageType = 'audio';
-            } else if (file.type === 'application/pdf') {
-                messageType = 'pdf'; // Define o tipo como PDF
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+
+        newGroupModal.addEventListener('click', (e) => {
+            if (e.target === newGroupModal) {
+                newGroupModal.style.display = 'none';
+            }
+        });
+
+        groupListModal.addEventListener('click', (e) => {
+            if (e.target === groupListModal) {
+                groupListModal.style.display = 'none';
+            }
+        });
+        // Function to handle sending attachments (images, audio, etc.)
+        async function sendAttachment() {
+            const file = attachmentInput.files[0];
+
+            if (!file) {
+                alert("Por favor, selecione um arquivo para enviar.");
+                return;
             }
 
-            push(messagesRef, {
-                type: messageType,
-                content: base64File,
-                sender: username,
-                profileImage: profileImage,
-                timestamp: Date.now()
-            });
+            try {
+                const base64File = await toBase64(file);
+                let messageType = 'file';
 
-            attachmentInput.value = ''; // Clear the input
+                if (file.type.startsWith('image/')) {
+                    messageType = 'image';
+                } else if (file.type.startsWith('audio/')) {
+                    messageType = 'audio';
+                } else {
+                    messageType = 'file';
+                }
 
-        } catch (error) {
-            console.error("Erro ao enviar o arquivo: ", error);
-            alert("Erro ao processar o arquivo. Tente novamente.");
-        }
-    }
-
-    // Event listener for sending messages
-    sendButton.addEventListener('click', sendMessage);
-
-    messageInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            sendMessage();
-        }
-    });
-
-    // Event listener for attachments
-    attachmentButton.addEventListener('click', () => {
-        attachmentInput.click();
-    });
-
-    attachmentInput.addEventListener('change', sendAttachment);
-
-    // Theme settings
-    settingsButton.addEventListener('click', () => {
-        settingsModal.style.display = 'flex';
-    });
-
-    settingsModal.addEventListener('click', (e) => {
-        if (e.target === settingsModal) {
-            settingsModal.style.display = 'none';
-        }
-    });
-
-    clearChatButton.addEventListener('click', () => {
-        if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
-            remove(messagesRef)
-                .then(() => {
-                    alert("Conversas apagadas com sucesso!");
-                    settingsModal.style.display = 'none';
-                })
-                .catch((error) => {
-                    console.error("Erro ao apagar as conversas: ", error);
-                    alert("Erro ao apagar as conversas. Tente novamente.");
+                push(messagesRef, {
+                    type: messageType,
+                    content: base64File,
+                    sender: username,
+                    profileImage: profileImage,
+                    timestamp:Date.now(),
+                    groupId: currentGroupId
                 });
-        }
-    });
 
-    editProfileButton.addEventListener('click', () => {
-        settingsModal.style.display = 'none';
-        usernameModal.style.display = 'flex';
-    });
+                attachmentInput.value = ''; // Clear the input
 
-    // Function to apply theme settings
-    function applyTheme() {
-        theme = themeSelect.value;
-        localStorage.setItem('theme', theme);
-
-        // Theme application
-        switch (theme) {
-            case 'solarized':
-                document.body.style.backgroundColor = '#002b36';
-                document.body.style.color = '#839496';
-                document.querySelector('.chat-container').style.backgroundColor = '#073642';
-                break;
-            case 'monokai':
-                document.body.style.backgroundColor = '#272822';
-                document.body.style.color = '#f8f8f2';
-                document.querySelector('.chat-container').style.backgroundColor = '#3e3d35';
-                break;
-            case 'dracula':
-                document.body.style.backgroundColor = '#282a36';
-                document.body.style.color = '#f8f8f2';
-                document.querySelector('.chat-container').style.backgroundColor = '#44475a';
-                break;
-            case 'gruvbox':
-                document.body.style.backgroundColor = '#282828';
-                document.body.style.color = '#ebdbb2';
-                document.querySelector('.chat-container').style.backgroundColor = '#3c3836';
-                break;
-            case 'nord':
-                document.body.style.backgroundColor = '#2e3440';
-                document.body.style.color = '#d8dee9';
-                document.querySelector('.chat-container').style.backgroundColor = '#434c5e';
-                break;
-            default: // dark
-                document.body.style.backgroundColor = '#121b22';
-                document.body.style.color = '#e0e0e0';
-                document.querySelector('.chat-container').style.backgroundColor = '#1e2a33';
-                break;
+            } catch (error) {
+                console.error("Erro ao enviar o arquivo: ", error);
+                alert("Erro ao processar o arquivo. Tente novamente.");
+            }
         }
 
-        // Message style update
-        const messageElements = document.querySelectorAll('.message');
-        messageElements.forEach(element => {
-            if (element.classList.contains('sent')) {
-                element.style.backgroundColor = "#005c4b";
-                element.style.color = "#e0e0e0";
-            } else {
-                element.style.backgroundColor = "#202c33";
-                element.style.color = "#e0e0e0";
+        // Event listener for sending messages
+        sendButton.addEventListener('click', sendMessage);
+        
+                messageInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         });
-    }
 
-    // Load and apply theme
-    themeSelect.value = theme;
-    applyTheme();
-</script>
+        // Event listener for attachments
+        attachmentButton.addEventListener('click', () => {
+            attachmentInput.click();
+        });
+
+        attachmentInput.addEventListener('change', sendAttachment);
+
+        // Theme settings
+        settingsButton.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+
+        clearChatButton.addEventListener('click', () => {
+            if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
+                remove(messagesRef)
+                    .then(() => {
+                        alert("Conversas apagadas com sucesso!");
+                        settingsModal.style.display = 'none';
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao apagar as conversas: ", error);
+                        alert("Erro ao apagar as conversas. Tente novamente.");
+                    });
+            }
+        });
+
+        editProfileButton.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+            usernameModal.style.display = 'flex';
+        });
+
+
+
+        // Function to handle Enter Group by ID
+        enterGroupIdButton.addEventListener('click', () => {
+            const groupId = groupIdInput.value.trim();
+            if (groupId) {
+                switchChatToGroup(groupId);
+                groupListModal.style.display = 'none';
+            } else {
+                alert('Por favor, digite o ID do grupo.');
+            }
+        });
+
+        //Load the group list when the application starts
+        fetchGroupList();
+
+        // Attach event listeners for group list options
+        groupList.addEventListener('click', (event) => {
+            const target = event.target;
+            const groupId = target.dataset.groupId;
+
+            if (target.tagName === 'BUTTON' && groupId) {
+                event.stopPropagation(); // Prevent the li click event
+
+                switch (target.title) {
+                    case 'Editar Nome':
+                        // Implement edit name functionality (e.g., show a prompt)
+                        const newName = prompt('Novo nome para o grupo:');
+                        if (newName) {
+                            //Implement Firebase update to update
+                            const groupRef = ref(database, `groups/${groupId}`);
+                            update(groupRef, {
+                                    name: newName
+                                })
+                                .then(() => {
+                                    alert("Nome do grupo atualizado com sucesso!");
+                                    fetchGroupList()
+                                })
+                                .catch((error) => {
+                                    console.error("Erro ao atualizar o nome do grupo: ", error);
+                                    alert("Erro ao atualizar o nome do grupo. Tente novamente.");
+                                });
+                        }
+                        break;
+                    case 'Ver ID do Grupo':
+                        alert(`ID do Grupo: ${groupId}`);
+                        break;
+                    case 'Deletar Grupo':
+                        if (confirm('Tem certeza que deseja deletar este grupo?')) {
+                            //Implement Firebase delete function
+                            const groupRef = ref(database, `groups/${groupId}`);
+                            remove(groupRef)
+                                .then(() => {
+                                    alert("Grupo deletado com sucesso!");
+                                    fetchGroupList()
+                                })
+                                .catch((error) => {
+                                    console.error("Erro ao deletar o grupo: ", error);
+                                    alert("Erro ao deletar o grupo. Tente novamente.");
+                                });
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+            } else {
+                const groupId = event.currentTarget.dataset.groupId
+                console.log(groupId)
+                if (groupId)
+                    switchChatToGroup(groupId);
+                groupListModal.style.display = 'none';
+            }
+
+        });
+        // Load and apply theme
+        themeSelect.value = theme;
+        applyTheme();
+    </script>
 </body>
+
 </html>
