@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Top</title>
+    <title>Chat</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -437,11 +437,27 @@
         .enter-group-by-id button:hover {
             background-color: #006659;
         }
+
+        /* ADMIN INPUT */
+
+        .modal-content input[type="admname"] {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            width: 80%;
+            box-sizing: border-box;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 
 <body>
-   <div class="chat-container">
+    <div class="chat-container">
         <div class="top-buttons">
             <button class="settings-button" id="settingsButton">⚙️</button>
             <button id="new-group-button">👥 Novo Grupo</button>
@@ -470,7 +486,8 @@
                 <!-- Add more emojis as needed -->
             </div>
             <button class="attachment-button" id="attachment-button">📎</button>
-            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, application/pdf" style="display: none;">
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, application/pdf"
+                style="display: none;">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
         </div>
@@ -516,6 +533,12 @@
     <div class="modal" id="newGroupModal">
         <div class="modal-content">
             <h2>Criar Novo Grupo</h2>
+
+            <!-- Adicionando um campo para o nome do ADM -->
+
+            <label for="admNameInput">Nome do ADM:</label>
+            <input type="admname" id="admNameInput" placeholder="Nome ADM" required>
+
             <label for="groupNameInput">Nome do Grupo:</label>
             <input type="text" id="groupNameInput" placeholder="Nome do Grupo" required>
 
@@ -540,8 +563,18 @@
         </div>
     </div>
 
-    <script type="module">
-      import {
+    <!-- Modal para Definir ADM -->
+    <div class="modal" id="defineAdminModal">
+        <div class="modal-content">
+            <h2>Definir Administrador</h2>
+            <label for="newAdminNameInput">Nome de Usuário para ADM:</label>
+            <input type="text" id="newAdminNameInput" placeholder="Nome de Usuário" required>
+            <button id="setAdminButton">Definir ADM</button>
+        </div>
+    </div>
+
+       <script type="module">
+        import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -603,6 +636,16 @@
         const groupList = document.getElementById('groupList');
         const groupIdInput = document.getElementById('groupIdInput'); // Input field for group ID
         const enterGroupIdButton = document.getElementById('enterGroupIdButton'); // Enter Group ID Button
+        const admNameInput = document.getElementById('admNameInput'); //ADM name input
+
+        //Modais
+        const defineAdminModal = document.getElementById('defineAdminModal');
+
+        //Inputs
+        const newAdminNameInput = document.getElementById('newAdminNameInput');
+
+        //Buttons
+        const setAdminButton = document.getElementById('setAdminButton');
 
         //Botões e Modais
         const settingsButton = document.getElementById('settingsButton');
@@ -623,13 +666,16 @@
         emojiButton.id = 'emoji-button';
         emojiButton.innerHTML = 'Emoji';
         document.querySelector('.input-area').prepend(emojiButton);
-         emojiButton.addEventListener('click', function() {
+        emojiButton.addEventListener('click', function () {
             emojiPickerVisible = !emojiPickerVisible;
             emojiPicker.style.display = emojiPickerVisible ? 'block' : 'none';
         });
 
         let currentGroupId = null; // Track current group ID
         let groups = []; // Initialize an empty array for groups
+        let currentGroupAdmin = null; // Variable para rastrear o ADM do grupo atual
+        let currentGroupIdToUpdate = null;
+
 
         // Função para converter a imagem em base64
         const toBase64 = file => new Promise((resolve, reject) => {
@@ -812,7 +858,8 @@
                             id: key,
                             name: group.name,
                             image: group.image,
-                            members: group.members
+                            members: group.members,
+                            admin: group.admin // incluir o adm no objeto do grupo
                         });
                     });
                 }
@@ -839,7 +886,7 @@
         }
 
         // Handle Emoji Selection
-        emojiPicker.addEventListener('click', function(event) {
+        emojiPicker.addEventListener('click', function (event) {
             if (event.target.tagName === 'SPAN') {
                 const selectedEmoji = event.target.textContent;
                 messageInput.value += selectedEmoji;
@@ -861,17 +908,34 @@
 
         // Function to Populate Group List
         function populateGroupList() {
-            groupList.innerHTML = ''; // Clear the list
+            groupList.innerHTML = '';
 
             groups.forEach(group => {
                 const listItem = document.createElement('li');
-                listItem.dataset.groupId = group.id; // Set group ID on the list item
+                listItem.dataset.groupId = group.id;
+
+                // Debugging:
+                console.log("Username:", username);
+                console.log("Group Admin:", group.admin);
+
+                let isAdmin = false; // Inicializa isAdmin como falso por padrão
+                let adminMessage = '';
+
+                if (!group.admin) {
+                    adminMessage = ' (Grupo sem ADM. Atualize!)';
+                } else {
+                    isAdmin = group.admin.toLowerCase() === username.toLowerCase();
+                }
+
+                console.log("Is Admin:", isAdmin);
+
                 listItem.innerHTML = `
-                    ${group.name}
+                    ${group.name}${adminMessage}
                     <div class="group-list-options">
-                        <button title="Editar Nome" data-group-id="${group.id}">✏️</button>
+                        <button title="Editar Nome" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>✏️</button>
                         <button title="Ver ID do Grupo" data-group-id="${group.id}">#</button>
-                        <button title="Deletar Grupo" data-group-id="${group.id}">🗑️</button>
+                        <button title="Deletar Grupo" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🗑️</button>
+                        ${adminMessage !== '' ? `<button title="Definir ADM" data-group-id="${group.id}">👑</button>` : ''}
                     </div>
                 `;
                 groupList.appendChild(listItem);
@@ -881,9 +945,19 @@
         // Function to switch chat to group
         function switchChatToGroup(groupId) {
             currentGroupId = groupId;
-            localStorage.setItem('lastGroupId', groupId); // Save last group ID
-            messagesContainer.innerHTML = ''; // Clear current messages
-            fetchGroupMessages(groupId);
+            localStorage.setItem('lastGroupId', groupId);
+
+            // Buscar informações do grupo, incluindo o ADM
+            get(ref(database, `groups/${groupId}`)).then(snapshot => {
+                const group = snapshot.val();
+                if (group) {
+                    currentGroupAdmin = group.admin;
+                    console.log("Current Group Admin:", currentGroupAdmin);
+                } else {
+                    currentGroupAdmin = null;
+                }
+                fetchGroupMessages(groupId);
+            });
             console.log(`Switching chat to group: ${groupId}`);
         }
 
@@ -891,9 +965,10 @@
         createGroupButton.addEventListener('click', async () => {
             const groupName = groupNameInput.value.trim();
             const groupImageFile = groupImageInput.files[0];
+            const admNameInputVal = admNameInput.value.trim(); //Get the ADM name
 
-            if (!groupName || !groupImageFile) {
-                alert("Por favor, preencha o nome e selecione uma imagem para o grupo.");
+            if (!groupName || !groupImageFile || !admNameInputVal) {
+                alert("Por favor, preencha o nome, selecione uma imagem e insira o nome do ADM para o grupo.");
                 return;
             }
 
@@ -902,15 +977,18 @@
                 const newGroup = {
                     name: groupName,
                     image: base64Image,
-                    members: [username] // The creator is automatically a member
+                    members: [username], // The creator is automatically a member
+                    admin: admNameInputVal //Defina o ADM
+
                 };
                 //Add new group to Firebase
                 push(groupsRef, newGroup).then((snapshot) => {
                     groupNameInput.value = '';
                     groupImageInput.value = null;
+                    admNameInput.value = '';
                     newGroupModal.style.display = 'none';
                     fetchGroupList();
-                     switchChatToGroup(snapshot.key);
+                    switchChatToGroup(snapshot.key);
                 })
             } catch (error) {
                 console.error("Erro ao processar a imagem: ", error);
@@ -972,7 +1050,7 @@
                     content: base64File,
                     sender: username,
                     profileImage: profileImage,
-                    timestamp:Date.now(),
+                    timestamp: Date.now(),
                     groupId: currentGroupId
                 });
 
@@ -986,8 +1064,8 @@
 
         // Event listener for sending messages
         sendButton.addEventListener('click', sendMessage);
-        
-                messageInput.addEventListener('keyup', (event) => {
+
+        messageInput.addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
                 sendMessage();
             }
@@ -1005,17 +1083,48 @@
             settingsModal.style.display = 'flex';
         });
 
+        // Função para determinar se o usuário é o administrador do grupo atual
+        function isCurrentUserAdmin() {
+            return currentGroupAdmin === username;
+        }
+
+         // Função para enviar uma mensagem de ADM
+        function sendAdminMessage(messageText) {
+            push(messagesRef, {
+                type: 'admin',
+                content: messageText,
+                sender: 'Sistema', // Use a system user or similar
+                profileImage: '',
+                timestamp: Date.now(),
+                groupId: currentGroupId
+            });
+        }
+
+        // Clear Chat Button Event Listener (agora condicional)
         clearChatButton.addEventListener('click', () => {
-            if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
-                remove(messagesRef)
-                    .then(() => {
-                        alert("Conversas apagadas com sucesso!");
-                        settingsModal.style.display = 'none';
-                    })
-                    .catch((error) => {
-                        console.error("Erro ao apagar as conversas: ", error);
-                        alert("Erro ao apagar as conversas. Tente novamente.");
-                    });
+            if (isCurrentUserAdmin()) { // Verifica se o usuário é o ADM
+                if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
+                    //Remover as mensagens de acordo com o group id
+                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
+
+                    get(groupMessagesRef).then((snapshot) => {
+                            const updates = {};
+                            snapshot.forEach(child => {
+                                updates[child.key] = null; // Define o valor como null para remover
+                            });
+                            return update(ref(database, 'messages'), updates);
+                        })
+                        .then(() => {
+                            alert("Conversas apagadas com sucesso!");
+                            settingsModal.style.display = 'none';
+                        })
+                        .catch((error) => {
+                            console.error("Erro ao apagar as conversas: ", error);
+                            alert("Erro ao apagar as conversas. Tente novamente.");
+                        });
+                }
+            } else {
+                alert("Você não tem permissão para apagar as mensagens deste grupo.");
             }
         });
 
@@ -1040,7 +1149,7 @@
         //Load the group list when the application starts
         fetchGroupList();
 
-         // Attach event listeners for group list options
+        // Attach event listeners for group list options
         groupList.addEventListener('click', (event) => {
             const target = event.target;
             const groupId = target.dataset.groupId;
@@ -1074,21 +1183,47 @@
                     case 'Ver ID do Grupo':
                         alert(`ID do Grupo: ${groupId}`);
                         break;
-                    case 'Deletar Grupo':
+                     case 'Deletar Grupo':
                         if (confirm('Tem certeza que deseja deletar este grupo?')) {
-                            //Implement Firebase delete function
                             const groupRef = ref(database, `groups/${groupId}`);
                             remove(groupRef)
                                 .then(() => {
-                                    alert("Grupo deletado com sucesso!");
-                                    fetchGroupList()
+                                  // Remover as mensagens associadas a este grupo
+                                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
+
+                                    get(groupMessagesRef).then((snapshot) => {
+                                            const updates = {};
+                                            snapshot.forEach(child => {
+                                                updates[child.key] = null; // Define o valor como null para remover
+                                            });
+                                            return update(ref(database, 'messages'), updates);
+                                        })
+                                        .then(() => {
+                                            alert("Grupo deletado com sucesso!");
+                                            fetchGroupList();
+                                            if(currentGroupId === groupId){
+                                                messagesContainer.innerHTML = '';
+                                                currentGroupId = null;
+                                                currentGroupAdmin = null;
+                                            }
+
+                                        })
+                                    .catch((error) => {
+                                            console.error("Erro ao apagar as conversas: ", error);
+                                            alert("Erro ao apagar as conversas. Tente novamente.");
+                                        });
                                 })
                                 .catch((error) => {
                                     console.error("Erro ao deletar o grupo: ", error);
                                     alert("Erro ao deletar o grupo. Tente novamente.");
                                 });
-                        }
-                        break;
+                         }
+                         break;
+                      case 'Definir ADM':
+                             defineAdminModal.style.display = 'flex';
+                              currentGroupIdToUpdate = groupId;
+                            break;
+
                     default:
                         break;
                 }
@@ -1104,6 +1239,49 @@
             }
 
         });
+
+
+       setAdminButton.addEventListener('click', async () => {
+            const newAdminName = newAdminNameInput.value.trim();
+                if(!newAdminName){
+                    alert("Por favor insira o nome de usuário para o ADM!");
+                    return;
+                }
+
+            if (currentGroupIdToUpdate) {
+                const groupRef = ref(database, `groups/${currentGroupIdToUpdate}`);
+
+            get(groupRef).then(snapshot => {
+                const group = snapshot.val();
+                if (group && group.admin && group.admin.toLowerCase() !== username.toLowerCase()) {
+                    alert("Este grupo já possui um administrador definido.");
+                     defineAdminModal.style.display = 'none';
+                    return;
+                }
+
+                 update(groupRef, { admin: newAdminName })
+                    .then(() => {
+                         sendAdminMessage(`${newAdminName} se tornou o novo ADM do grupo.`);
+                         alert("ADM Definido com Sucesso!");
+                         fetchGroupList()
+                         defineAdminModal.style.display = 'none';
+                    }).catch((error) => {
+                        console.error("Erro ao definir o ADM: ", error);
+                        alert("Erro ao definir o ADM. Tente novamente!");
+                    });
+
+
+                });
+            }
+        });
+
+
+      defineAdminModal.addEventListener('click', (e) => {
+        if(e.target === defineAdminModal){
+            defineAdminModal.style.display = 'none';
+        }
+      });
+
 
         let lastGroupId = localStorage.getItem('lastGroupId');
 
@@ -1131,6 +1309,7 @@
         // Load and apply theme
         themeSelect.value = theme;
         applyTheme();
+   
     </script>
 </body>
 
