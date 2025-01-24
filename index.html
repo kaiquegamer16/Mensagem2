@@ -1,43 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+    <title>Chat FCM + Realtime DB</title>
     <style>
-         body {
+        body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             background-color: #121b22;
             color: #e0e0e0;
-            overflow-x: hidden; /* Prevent horizontal scrollbar due to input repositioning */
-             overflow-y: auto;
+            overflow-x: hidden;
+            /* Prevent horizontal scrollbar due to input repositioning */
+            overflow-y: auto;
             height: 100vh;
 
         }
+
         .chat-container {
             max-width: 700px;
-             margin: 40px auto;
+            margin: 40px auto;
             background-color: #1e2a33;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            position: relative; /* Make chat-container relative for absolute positioning of input area */
-            height: calc(100vh - 80px); /* Adjust height considering the fixed input area */
+            position: relative;
+            /* Make chat-container relative for absolute positioning of input area */
+            height: calc(100vh - 80px);
+            /* Adjust height considering the fixed input area */
 
         }
 
-
-    .messages {
+        .messages {
             flex-grow: 1;
             padding: 10px 15px;
             overflow-y: auto;
-             display: flex;
+            display: flex;
             flex-direction: column;
-             height: auto;
+            height: auto;
         }
 
         .date-separator {
@@ -129,20 +132,24 @@
         }
 
         .input-area {
-             display: flex;
+            display: flex;
             padding: 8px;
             border-top: 1px solid #3e4c54;
             background-color: #1e2731;
             align-items: center;
-            position: fixed; /* Make input-area fixed to stay above the keyboard */
-             bottom: 0; /* Position at the bottom of the screen */
+            position: fixed;
+            /* Make input-area fixed to stay above the keyboard */
+            bottom: 0;
+            /* Position at the bottom of the screen */
             left: 0;
             right: 0;
-            z-index: 100; /* Make sure the input is above the messages */
-             max-height: 150px; /* Adjust the maximum height as needed */
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            z-index: 100;
+            /* Make sure the input is above the messages */
+            max-height: 150px;
+            /* Adjust the maximum height as needed */
+            box-sizing: border-box;
+            /* Include padding and border in element's total width and height */
         }
-
 
         .input-area .user-info {
             display: flex;
@@ -216,7 +223,7 @@
             margin-right: 10px;
         }
 
-         .settings-button:hover,
+        .settings-button:hover,
         #new-group-button:hover,
         #group-list-button:hover,
         #console-button:hover {
@@ -476,7 +483,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: 200px; /* Ajuste conforme necessário */
+            height: 200px;
+            /* Ajuste conforme necessário */
             background-color: #1e2a33;
             border-top: 1px solid #3e4c54;
             padding: 10px;
@@ -502,7 +510,8 @@
             justify-content: space-between;
             align-items: center;
         }
-        .console-panel li .group-copy-button{
+
+        .console-panel li .group-copy-button {
             padding: 4px 8px;
             border: none;
             background-color: #008069;
@@ -513,7 +522,7 @@
         }
 
         .console-panel li .group-copy-button:hover {
-             background-color: #006659;
+            background-color: #006659;
         }
 
         .console-panel .no-groups-message {
@@ -532,7 +541,7 @@
         </div>
 
         <div class="messages" id="messages">
-            <!-- Mensagens serão inseridas aqui -->
+            <!-- Messages will be inserted here -->
         </div>
         <div class="input-area">
             <div class="user-info">
@@ -569,7 +578,7 @@
         <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
     </div>
 
-    <!-- Modal de nome de usuário -->
+    <!-- Username Modal -->
     <div class="modal" id="usernameModal">
         <div class="modal-content">
             <h2>Crie sua conta</h2>
@@ -583,7 +592,7 @@
         </div>
     </div>
 
-    <!-- Modal de configurações -->
+    <!-- Settings Modal -->
     <div class="settings-modal" id="settingsModal">
         <div class="settings-content">
             <h2>Configurações</h2>
@@ -610,7 +619,7 @@
         <div class="modal-content">
             <h2>Criar Novo Grupo</h2>
 
-            <!-- Adicionando um campo para o nome do ADM -->
+            <!-- Adding a field for the ADM name -->
 
             <label for="admNameInput">Nome do ADM:</label>
             <input type="admname" id="admNameInput" placeholder="Nome ADM" required>
@@ -639,7 +648,7 @@
         </div>
     </div>
 
-    <!-- Modal para Definir ADM -->
+    <!-- Modal to Define ADM -->
     <div class="modal" id="defineAdminModal">
         <div class="modal-content">
             <h2>Definir Administrador</h2>
@@ -650,7 +659,7 @@
     </div>
 
     <script type="module">
-        import {
+             import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -665,8 +674,14 @@
             orderByChild,
             equalTo
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+      
+        import {
+            getMessaging,
+            getToken,
+            onMessage
+        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js';
 
-        // Configurações do Firebase (SUBSTITUA COM SUAS CREDENCIAIS)
+        // Firebase configurations (REPLACE WITH YOUR CREDENTIALS)
         const firebaseConfig = {
             apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
             authDomain: "engine-c02f6.firebaseapp.com",
@@ -677,15 +692,16 @@
             measurementId: "G-T81G36LMJG"
         };
 
-        // Inicializando o Firebase
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        const messaging = getMessaging(app);
 
-        // Referência para a lista de mensagens no Firebase
+        // References to the Firebase database
         const messagesRef = ref(database, 'messages');
-        const groupsRef = ref(database, 'groups'); // Add a reference to the 'groups' node
+        const groupsRef = ref(database, 'groups');
 
-        // Elementos do DOM
+        // Get elements from the DOM
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const messagesContainer = document.getElementById('messages');
@@ -701,7 +717,7 @@
         const emojiPicker = document.getElementById('emojiPicker');
         let emojiPickerVisible = false;
 
-        // Group-related Elements
+        // Group-related elements
         const newGroupButton = document.getElementById('new-group-button');
         const groupListButton = document.getElementById('group-list-button');
         const newGroupModal = document.getElementById('newGroupModal');
@@ -710,35 +726,35 @@
         const groupImageInput = document.getElementById('groupImageInput');
         const createGroupButton = document.getElementById('createGroupButton');
         const groupList = document.getElementById('groupList');
-        const groupIdInput = document.getElementById('groupIdInput'); // Input field for group ID
-        const enterGroupIdButton = document.getElementById('enterGroupIdButton'); // Enter Group ID Button
-        const admNameInput = document.getElementById('admNameInput'); //ADM name input
+        const groupIdInput = document.getElementById('groupIdInput');
+        const enterGroupIdButton = document.getElementById('enterGroupIdButton');
+        const admNameInput = document.getElementById('admNameInput');
 
-        //Modais
+        // Modals
         const defineAdminModal = document.getElementById('defineAdminModal');
 
-        //Inputs
+        // Inputs
         const newAdminNameInput = document.getElementById('newAdminNameInput');
 
-        //Buttons
+        // Buttons
         const setAdminButton = document.getElementById('setAdminButton');
 
-        //Botões e Modais
+        // Buttons and Modals
         const settingsButton = document.getElementById('settingsButton');
         const settingsModal = document.getElementById('settingsModal');
         const clearChatButton = document.getElementById('clearChatButton');
         const editProfileButton = document.getElementById('editProfile');
-         const consoleButton = document.getElementById('console-button');
+        const consoleButton = document.getElementById('console-button');
         const consolePanel = document.getElementById('consolePanel');
-         const consoleGroupList = document.getElementById('consoleGroupList');
-         const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
+        const consoleGroupList = document.getElementById('consoleGroupList');
+        const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
         let consoleVisible = false;
         // Settings options
         const themeSelect = document.getElementById('themeSelect');
 
         let username = localStorage.getItem('username');
         let profileImage = localStorage.getItem('profileImage');
-        let theme = localStorage.getItem('theme') || 'dark'; // Carrega o tema ou usa 'dark' como padrão
+        let theme = localStorage.getItem('theme') || 'dark'; // Load theme or use 'dark' by default
 
         //Emoji Button
         const emojiButton = document.createElement('button');
@@ -746,20 +762,20 @@
         emojiButton.id = 'emoji-button';
         emojiButton.innerHTML = 'Emoji';
         document.querySelector('.input-area').prepend(emojiButton);
-        emojiButton.addEventListener('click', function () {
+        emojiButton.addEventListener('click', function() {
             emojiPickerVisible = !emojiPickerVisible;
             emojiPicker.style.display = emojiPickerVisible ? 'block' : 'none';
         });
 
         let currentGroupId = null; // Track current group ID
         let groups = []; // Initialize an empty array for groups
-        let currentGroupAdmin = null; // Variable para rastrear o ADM do grupo atual
+        let currentGroupAdmin = null; // Variable to track the ADM of the current group
         let currentGroupIdToUpdate = null;
-         const chatContainer = document.querySelector('.chat-container');
+        const chatContainer = document.querySelector('.chat-container');
         const inputArea = document.querySelector('.input-area');
 
 
-        // Função para converter a imagem em base64
+        // Function to convert image to base64
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
@@ -792,24 +808,24 @@
             }
         };
 
-        // Exibe o modal de nome de usuário se não estiver definido
+        // Display the username modal if not defined
         if (!username || !profileImage) {
             usernameModal.style.display = 'flex';
         } else {
             currentUserImage.src = profileImage;
         }
 
-        // Define o nome de usuário e a imagem
+        // Set the username and image
         setUsernameButton.addEventListener('click', async () => {
             const inputName = usernameInput.value.trim();
             const imageFile = profileImageInput.files[0];
 
             if (!imageFile) {
                 alert("Por favor, selecione uma imagem de perfil.");
-                return; // Sai da função se não houver arquivo
+                return; // Exit function if no file
             }
 
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Tipos permitidos
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Allowed file types
             if (!allowedTypes.includes(imageFile.type)) {
                 alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
                 return;
@@ -828,7 +844,7 @@
 
                     currentUserImage.src = profileImage;
 
-                    // Update messages with the new username and profile image
+                    // Update messages with new username and profile image
                     await updateUsernameAndImage(username, profileImage).catch(error => {
                         console.error("Erro ao atualizar o Firebase: ", error);
                         alert("Erro ao atualizar o perfil. Tente novamente.");
@@ -881,7 +897,7 @@
                 const data = snapshot.val();
                 if (data) {
                     Object.entries(data).forEach(([key, message]) => {
-                        const messageElement = document.createElement('div');
+                      const messageElement = document.createElement('div');
                         messageElement.classList.add('message');
 
                         const senderInfo = document.createElement('div');
@@ -893,7 +909,6 @@
                         senderInfo.appendChild(profileImageElement);
 
                         let messageContent;
-
                         if (message.type === 'image') {
                             messageContent = document.createElement('img');
                             messageContent.src = message.content;
@@ -902,33 +917,35 @@
                         } else {
                             messageContent = document.createElement('span');
                             messageContent.classList.add('message-text');
-                            messageContent.textContent = message.content;
+                             messageContent.textContent = message.content;
                         }
+                        
+                         const timestampElement = document.createElement('span');
+                            timestampElement.classList.add('timestamp');
+                            timestampElement.textContent = formatTimestamp(message.timestamp);
 
-                        const timestampElement = document.createElement('span');
-                        timestampElement.classList.add('timestamp');
-                        timestampElement.textContent = formatTimestamp(message.timestamp);
-
-                        if (message.sender === username) {
+                          if (message.sender === username) {
                             messageElement.classList.add('sent');
-                        } else {
-                            messageElement.classList.add('received');
+                         } else {
+                           messageElement.classList.add('received');
+                           showGroupMessageNotification(message.sender, message.content, message.profileImage, groupId);
                         }
 
-                        messageElement.appendChild(senderInfo);
-                        messageElement.appendChild(messageContent);
-                        messageElement.appendChild(timestampElement);
+                      messageElement.appendChild(senderInfo);
+                       messageElement.appendChild(messageContent);
+                       messageElement.appendChild(timestampElement);
+                         messagesContainer.appendChild(messageElement);
 
-                        messagesContainer.appendChild(messageElement);
                     });
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 } else {
                     messagesContainer.innerHTML = '<p>Nenhuma mensagem neste grupo.</p>';
-                }
+                 }
+
             });
         }
 
-        // Function to fetch group list from firebase
+        // Function to fetch group list from Firebase
         function fetchGroupList() {
             onValue(groupsRef, (snapshot) => {
                 groups = [];
@@ -941,7 +958,8 @@
                             name: group.name,
                             image: group.image,
                             members: group.members,
-                            admin: group.admin // incluir o adm no objeto do grupo
+                            admin: group.admin
+                            // Include admin in the group object
                         });
                     });
                 }
@@ -950,9 +968,7 @@
             });
         }
 
-        //Listen para novas mensagens (Removido a leitura de mensagem e será implementado com group)
-
-        // Função para enviar uma mensagem
+               // Function to send a message
         function sendMessage() {
             const text = messageInput.value.trim();
             if (text !== '') {
@@ -962,13 +978,14 @@
                     sender: username,
                     profileImage: profileImage,
                     timestamp: Date.now(),
-                    groupId: currentGroupId                });
+                    groupId: currentGroupId
+                });
                 messageInput.value = '';
             }
         }
 
         // Handle Emoji Selection
-        emojiPicker.addEventListener('click', function (event) {
+        emojiPicker.addEventListener('click', function(event) {
             if (event.target.tagName === 'SPAN') {
                 const selectedEmoji = event.target.textContent;
                 messageInput.value += selectedEmoji;
@@ -988,13 +1005,12 @@
             groupListModal.style.display = 'flex';
         });
 
-           // Console Button Event Listener
-         consoleButton.addEventListener('click', () => {
-                consoleVisible = !consoleVisible;
-                consolePanel.style.display = consoleVisible ? 'block' : 'none';
-                updateConsoleGroupList(); // Ensure the console list is up to date when opened
-            });
-
+        // Console Button Event Listener
+        consoleButton.addEventListener('click', () => {
+            consoleVisible = !consoleVisible;
+            consolePanel.style.display = consoleVisible ? 'block' : 'none';
+            updateConsoleGroupList(); // Ensure the console list is up to date when opened
+        });
 
         // Function to Populate Group List
         function populateGroupList() {
@@ -1008,7 +1024,7 @@
                 console.log("Username:", username);
                 console.log("Group Admin:", group.admin);
 
-                let isAdmin = false; // Inicializa isAdmin como falso por padrão
+                let isAdmin = false; // Initialize isAdmin as false by default
                 let adminMessage = '';
 
                 if (!group.admin) {
@@ -1031,30 +1047,29 @@
                 groupList.appendChild(listItem);
             });
         }
-         // Function to update the console group list
+        // Function to update the console group list
         function updateConsoleGroupList() {
             consoleGroupList.innerHTML = '';
-            if(groups.length === 0){
-                 noGroupsMessage.style.display = 'block';
+            if (groups.length === 0) {
+                noGroupsMessage.style.display = 'block';
             } else {
                 noGroupsMessage.style.display = 'none';
-                 groups.forEach(group => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `<span>${group.name} - ID: ${group.id}</span>
+                groups.forEach(group => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<span>${group.name} - ID: ${group.id}</span>
                 <button class="group-copy-button" data-group-id="${group.id}">Copiar ID</button>`;
-                consoleGroupList.appendChild(listItem);
+                    consoleGroupList.appendChild(listItem);
                 });
             }
 
         }
-
 
         // Function to switch chat to group
         function switchChatToGroup(groupId) {
             currentGroupId = groupId;
             localStorage.setItem('lastGroupId', groupId);
 
-            // Buscar informações do grupo, incluindo o ADM
+            // Fetch group info, including the ADM
             get(ref(database, `groups/${groupId}`)).then(snapshot => {
                 const group = snapshot.val();
                 if (group) {
@@ -1085,8 +1100,7 @@
                     name: groupName,
                     image: base64Image,
                     members: [username], // The creator is automatically a member
-                    admin: admNameInputVal //Defina o ADM
-
+                    admin: admNameInputVal //Define ADM
                 };
                 //Add new group to Firebase
                 push(groupsRef, newGroup).then((snapshot) => {
@@ -1137,6 +1151,7 @@
                   consoleVisible = false;
             }
         });
+
         // Function to handle sending attachments (images, audio, etc.)
         async function sendAttachment() {
             const file = attachmentInput.files[0];
@@ -1196,12 +1211,12 @@
             settingsModal.style.display = 'flex';
         });
 
-        // Função para determinar se o usuário é o administrador do grupo atual
+        // Function to determine if user is admin of current group
         function isCurrentUserAdmin() {
             return currentGroupAdmin === username;
         }
 
-         // Função para enviar uma mensagem de ADM
+         // Function to send an ADM message
         function sendAdminMessage(messageText) {
             push(messagesRef, {
                 type: 'admin',
@@ -1213,17 +1228,16 @@
             });
         }
 
-        // Clear Chat Button Event Listener (agora condicional)
+        // Clear Chat Button Event Listener (now conditional)
         clearChatButton.addEventListener('click', () => {
-            if (isCurrentUserAdmin()) { // Verifica se o usuário é o ADM
+            if (isCurrentUserAdmin()) {
                 if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
-                    //Remover as mensagens de acordo com o group id
-                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
+                   const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
 
                     get(groupMessagesRef).then((snapshot) => {
                             const updates = {};
                             snapshot.forEach(child => {
-                                updates[child.key] = null; // Define o valor como null para remover
+                                updates[child.key] = null; // Set value as null to remove
                             });
                             return update(ref(database, 'messages'), updates);
                         })
@@ -1267,19 +1281,17 @@
             const target = event.target;
             const groupId = target.dataset.groupId;
 
-            console.log("Target:", target); // Adicionei para Debug
-            console.log("groupId (dataset.groupId):", groupId); // Adicionei para Debug
+            console.log("Target:", target); // Added for Debug
+            console.log("groupId (dataset.groupId):", groupId); // Added for Debug
 
             if (target.tagName === 'BUTTON' && groupId) {
                 event.stopPropagation(); // Prevent the li click event
 
                 switch (target.title) {
                     case 'Editar Nome':
-                        // Implement edit name functionality (e.g., show a prompt)
-                        const newName = prompt('Novo nome para o grupo:');
+                       const newName = prompt('Novo nome para o grupo:');
                         if (newName) {
-                            //Implement Firebase update to update
-                            const groupRef = ref(database, `groups/${groupId}`);
+                          const groupRef = ref(database, `groups/${groupId}`);
                             update(groupRef, {
                                     name: newName
                                 })
@@ -1296,25 +1308,24 @@
                     case 'Ver ID do Grupo':
                         alert(`ID do Grupo: ${groupId}`);
                         break;
-                     case 'Deletar Grupo':
+                    case 'Deletar Grupo':
                         if (confirm('Tem certeza que deseja deletar este grupo?')) {
                             const groupRef = ref(database, `groups/${groupId}`);
                             remove(groupRef)
                                 .then(() => {
-                                  // Remover as mensagens associadas a este grupo
                                     const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
 
                                     get(groupMessagesRef).then((snapshot) => {
                                             const updates = {};
                                             snapshot.forEach(child => {
-                                                updates[child.key] = null; // Define o valor como null para remover
+                                                updates[child.key] = null; // Set value as null to remove
                                             });
                                             return update(ref(database, 'messages'), updates);
                                         })
                                         .then(() => {
                                             alert("Grupo deletado com sucesso!");
                                             fetchGroupList();
-                                            if(currentGroupId === groupId){
+                                           if(currentGroupId === groupId){
                                                 messagesContainer.innerHTML = '';
                                                 currentGroupId = null;
                                                 currentGroupAdmin = null;
@@ -1331,12 +1342,11 @@
                                     alert("Erro ao deletar o grupo. Tente novamente.");
                                 });
                          }
-                         break;
-                      case 'Definir ADM':
+                        break;
+                    case 'Definir ADM':
                              defineAdminModal.style.display = 'flex';
                               currentGroupIdToUpdate = groupId;
                             break;
-
                     default:
                         break;
                 }
@@ -1389,7 +1399,7 @@
         });
 
 
-      defineAdminModal.addEventListener('click', (e) => {
+       defineAdminModal.addEventListener('click', (e) => {
         if(e.target === defineAdminModal){
             defineAdminModal.style.display = 'none';
         }
@@ -1410,8 +1420,7 @@
                     });
                  }
         });
-
-        let lastGroupId = localStorage.getItem('lastGroupId');
+           let lastGroupId = localStorage.getItem('lastGroupId');
 
         window.addEventListener('load', () => {
             if (lastGroupId) {
@@ -1421,19 +1430,17 @@
                 messagesContainer.innerHTML = '<p>Selecione um grupo para começar.</p>';
             }
         });
+
            function adjustInputArea() {
             const chatContainerHeight = chatContainer.offsetHeight;
               const inputAreaHeight = inputArea.offsetHeight;
             chatContainer.style.height = `calc(100vh - ${inputAreaHeight}px)`;
-
         }
 
         // Call on startup and on window resize
         window.addEventListener('load', adjustInputArea);
         window.addEventListener('resize', adjustInputArea);
-
-
-        // Function to apply the selected theme
+         // Function to apply the selected theme
         function applyTheme() {
             document.documentElement.setAttribute('data-theme', theme);
         }
@@ -1442,13 +1449,85 @@
         themeSelect.addEventListener('change', () => {
             theme = themeSelect.value;
             localStorage.setItem('theme', theme);
-            applyTheme(); // Aplica o tema imediatamente após a mudança
+            applyTheme(); // Apply the theme immediately upon change
         });
 
         // Load and apply theme
         themeSelect.value = theme;
         applyTheme();
-        </script>
+         function showGroupMessageNotification(sender, message, profileImage, groupId) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification(`Nova Mensagem de ${sender} no grupo ${groupId}`, {
+                    body: message,
+                    icon: profileImage,
+                });
+            });
+        }
+
+        onMessage(messaging, (payload) => {
+            console.log('Mensagem recebida no frontend: ', payload);
+        });
+
+         // Injected Service Worker code
+    if ('serviceWorker' in navigator) {
+    
+         
+          navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
+         importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js');
+        importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js');
+
+
+        const firebaseConfig = {
+           apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+            authDomain: "engine-c02f6.firebaseapp.com",
+            projectId: "engine-c02f6",
+            storageBucket: "engine-c02f6.firebasestorage.app",
+            messagingSenderId: "562488086423",
+            appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
+            measurementId: "G-T81G36LMJG"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const messaging = firebase.messaging();
+
+        self.addEventListener('push', function(event) {
+            const options = {
+                body: 'Nova mensagem no chat!',
+                icon: 'img/seuSirigueijo.jpeg',
+                image: 'img/lulu.png',
+                badge: 'img/xamuel.png',
+            };
+
+            event.waitUntil(
+                self.registration.showNotification('Chat Notificação', options)
+            );
+        });
+
+        self.addEventListener('notificationclick', function(event) {
+            event.notification.close();
+            event.waitUntil(
+                clients.openWindow('/')
+            );
+        });
+
+        messaging.onBackgroundMessage(function(payload){
+           console.log('Mensagem recebida no SW:', payload);
+
+           const options = {
+              body: payload.notification.body,
+              icon: payload.notification.icon,
+              image: payload.notification.image,
+            };
+            self.registration.showNotification(payload.notification.title, options)
+        });
+         `])), {type: 'text/javascript'}).then(function(registration) {
+           console.log('Service worker registrado com sucesso:', registration);
+         }, function(error) {
+           console.error('Falha ao registrar o service worker:', error);
+         });
+    }
+    </script>
 </body>
 
 </html>
