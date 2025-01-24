@@ -254,7 +254,8 @@
         .settings-button,
         #new-group-button,
         #group-list-button,
-        #console-button {
+        #console-button,
+          #pv-button {
             background-color: transparent;
             border: none;
             color: #e0e0e0;
@@ -269,7 +270,8 @@
         .settings-button:hover,
         #new-group-button:hover,
         #group-list-button:hover,
-        #console-button:hover {
+        #console-button:hover,
+          #pv-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
@@ -614,6 +616,91 @@
         .modal#clearChatModal .modal-content{
             text-align: center;
         }
+         /* New PV Panel */
+        .pv-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1e2a33;
+            border-top: 1px solid #3e4c54;
+            padding: 10px;
+            overflow-y: auto;
+            display: none;
+            z-index: 999;
+            max-height: 70vh;
+            box-sizing: border-box;
+        }
+        .pv-panel h2 {
+                    margin-top: 0;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid #3e4c54;
+                }
+
+                .pv-panel input[type="text"] {
+                   width: 90%;
+                    padding: 8px;
+                    border-radius: 5px;
+                    border: none;
+                    background-color: #2a3942;
+                    color: #e0e0e0;
+                    margin-right: 5px;
+                   margin-bottom: 10px;
+                }
+
+                .pv-panel label{
+                    display: block;
+                    margin-bottom: 5px;
+                    color: #e0e0e0;
+                    display: flex;
+                    align-items: center;
+                }
+                .pv-panel label input[type="checkbox"]{
+                    margin-right: 5px;
+                }
+
+                .pv-panel button {
+                     padding: 8px 15px;
+                    border: none;
+                    background-color: #008069;
+                    color: white;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-bottom: 10px;
+
+                }
+
+            .pv-panel button:hover {
+                background-color: #006659;
+            }
+             .pv-panel ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    margin-bottom: 10px;
+                }
+
+                .pv-panel li {
+                    padding: 10px;
+                    border-bottom: 1px solid #3e4c54;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                     cursor: pointer;
+                }
+
+            .pv-panel li:hover {
+                 background-color: #3e4c54;
+            }
+
+                .pv-panel li span {
+                    flex-grow: 1;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin-right: 5px;
+                }
+
     </style>
 </head>
 
@@ -624,6 +711,7 @@
             <button id="new-group-button">👥 Novo Grupo</button>
             <button id="group-list-button">📁 Lista Grupos</button>
             <button id="console-button">⚙️ Console</button>
+              <button id="pv-button">PV</button> <!-- New Button -->
         </div>
 
         <div class="messages" id="messages">
@@ -658,12 +746,26 @@
         <ul id="consoleGroupList">
             <!-- Group list items will be dynamically added here -->
         </ul>
-        <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
+         <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
         <div class="console-footer">
             <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
         </div>
     </div>
-
+    <!-- New PV Panel -->
+    <div class="pv-panel" id="pvPanel">
+        <h2>Conversas Privadas</h2>
+         <input type="text" id="pvUserSearch" placeholder="Digite o nome do usuário">
+        <label>
+            <input type="checkbox" id="pvTermsCheckbox"> Aceito os termos e condições
+         </label>
+        <button id="createPvButton">Criar Conversa</button>
+          <ul id="pvChatList">
+              <!-- List of Private Chats -->
+            </ul>
+          <div class="console-footer">
+              <button class="console-cancel-button" id="closePvPanelButton">Cancelar</button>
+            </div>
+    </div>
     <div class="modal" id="usernameModal">
         <div class="modal-content">
             <h2>Crie sua conta</h2>
@@ -856,7 +958,7 @@
         let currentGroupAdmin = null;
        let currentGroupIdToUpdate = null;
          const chatContainer = document.querySelector('.chat-container');
-          const inputArea = document.querySelector('.input-area');
+          const inputArea =document.querySelector('.input-area');
 
 
             let currentPlayingAudio = null;
@@ -947,7 +1049,8 @@
             if (dateString !== lastDisplayedDate) {
                 const separator = document.createElement('div');
                 separator.classList.add('date-separator');
-                separator.textContent = dateString;                messagesContainer.appendChild(separator);
+                separator.textContent = dateString;
+                messagesContainer.appendChild(separator);
                 lastDisplayedDate = dateString;
             }
         }
@@ -1234,13 +1337,21 @@
        function sendMessage() {
             const text = messageInput.value.trim();
             if (text !== '') {
+                 let messageGroupId;
+
+              if(currentGroupId){
+                    messageGroupId = currentGroupId;
+                } else if(currentPvChatId){
+                    messageGroupId = currentPvChatId;
+                }
+
                 push(messagesRef, {
                     type: 'text',
                     content: text,
                     sender: username,
                      profileImage: profileImage,
                     timestamp: Date.now(),
-                    groupId: currentGroupId
+                    groupId: messageGroupId
                 });
                 messageInput.value = '';
             }
@@ -1311,6 +1422,7 @@
 
           function switchChatToGroup(groupId) {
             currentGroupId = groupId;
+              currentPvChatId = null;
              localStorage.setItem('lastGroupId', groupId);
             get(ref(database, `groups/${groupId}`)).then(snapshot => {
                 const group = snapshot.val();
@@ -1412,13 +1524,21 @@
                  else {
                     messageType = 'file';
                 }
+
+                 let messageGroupId;
+
+              if(currentGroupId){
+                    messageGroupId = currentGroupId;
+                } else if(currentPvChatId){
+                    messageGroupId = currentPvChatId;
+                }
                 push(messagesRef, {
                     type: messageType,
                     content: base64File,
                     sender: username,
                     profileImage: profileImage,
                     timestamp: Date.now(),
-                    groupId: currentGroupId
+                    groupId: messageGroupId
                 });
                 attachmentInput.value = '';
             }  catch(error){
@@ -1755,7 +1875,183 @@
            console.error('Falha ao registrar o service worker:', error);
          });
     }
-      </script>
-</body>
 
+
+        // New variables
+        const pvButton = document.getElementById('pv-button');
+        const pvPanel = document.getElementById('pvPanel');
+        const pvUserSearch = document.getElementById('pvUserSearch');
+        const pvTermsCheckbox = document.getElementById('pvTermsCheckbox');
+        const createPvButton = document.getElementById('createPvButton');
+          const pvChatList = document.getElementById('pvChatList');
+         const closePvPanelButton = document.getElementById('closePvPanelButton');
+        let pvPanelVisible = false;
+           const privateChatsRef = ref(database, 'privateChats');
+            let currentPvChatId = null;
+
+
+
+         function createPrivateChatId(user1, user2) {
+            const sortedUsers = [user1, user2].sort();
+            return `${sortedUsers[0]}_${sortedUsers[1]}`;
+        }
+          function fetchPrivateChats() {
+            onValue(privateChatsRef, (snapshot) => {
+                const data = snapshot.val();
+                pvChatList.innerHTML = '';
+                 if(data)
+                {
+                 Object.entries(data).forEach(([key, chat]) => {
+                        if(chat.participants && (chat.participants[0] === username || chat.participants[1] === username))
+                        {
+                            let otherUser = chat.participants[0] === username ? chat.participants[1] : chat.participants[0];
+
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `<span>${otherUser}</span>`;
+                             listItem.dataset.pvChatId = key;
+                            pvChatList.appendChild(listItem);
+                        }
+
+                 });
+                }
+            });
+        }
+           function fetchPvMessages(pvChatId) {
+                        if (!pvChatId) {
+                console.warn("fetchPvMessages called with undefined pvChatId.");
+                messagesContainer.innerHTML = '<p>Nenhuma conversa privada selecionada.</p>';
+                return;
+            }
+
+              const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
+                lastDisplayedDate = null;
+            onValue(pvMessagesRef, (snapshot) => {
+                messagesContainer.innerHTML = '';
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, message]) => {
+                         displayDateSeparator(message.timestamp);
+                         const messageElement = document.createElement('div');
+                        messageElement.classList.add('message');
+
+                        const senderInfo = document.createElement('div');
+                        senderInfo.classList.add('sender-info');
+
+                        const profileImageElement = document.createElement('img');
+                        profileImageElement.src = message.profileImage || 'default-profile.png';
+                        profileImageElement.alt = "Foto de Perfil";
+                        senderInfo.appendChild(profileImageElement);
+
+                        let messageContent;
+                         if (message.type === 'image') {
+                            messageContent = document.createElement('img');
+                            messageContent.src = message.content;
+                            messageContent.alt = "Imagem";
+                            messageContent.classList.add('image-message');
+                        } else if (message.type === 'audio') {
+                             messageContent = createAudioDisplay(message.content);
+
+                         } else  if (message.type === 'video') {
+                            messageContent = createVideoDisplay(message.content);
+                        }else {
+                            messageContent = document.createElement('span');
+                            messageContent.classList.add('message-text');
+                             messageContent.textContent = message.content;
+                        }
+
+                        const timestampElement = document.createElement('span');
+                        timestampElement.classList.add('timestamp');
+                        timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                        if (message.sender === username) {
+                            messageElement.classList.add('sent');
+                        } else {
+                            messageElement.classList.add('received');
+                                showGroupMessageNotification(message.sender, message.content, message.profileImage, pvChatId);
+
+                        }
+
+                        messageElement.appendChild(senderInfo);
+                        messageElement.appendChild(messageContent);
+                        messageElement.appendChild(timestampElement);
+                        messagesContainer.appendChild(messageElement);
+                    });
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else {
+                    messagesContainer.innerHTML = '<p>Nenhuma mensagem nesta conversa.</p>';
+                }
+
+            });
+        }
+        pvButton.addEventListener('click', () => {
+            pvPanelVisible = !pvPanelVisible;
+            pvPanel.style.display = pvPanelVisible ? 'block' : 'none';
+             fetchPrivateChats();
+        });
+          pvPanel.addEventListener('click', (e) => {
+            if (e.target === pvPanel) {
+                pvPanel.style.display = 'none';
+                pvPanelVisible = false;
+            }
+        });
+
+        closePvPanelButton.addEventListener('click', () => {
+                 pvPanel.style.display = 'none';
+                pvPanelVisible = false;
+            });
+        createPvButton.addEventListener('click', async() => {
+              const otherUsername = pvUserSearch.value.trim();
+            if (!otherUsername) {
+                alert("Por favor, digite o nome do usuário para iniciar a conversa privada.");
+                return;
+            }
+             if (otherUsername === username) {
+                alert("Você não pode criar uma conversa privada consigo mesmo.");
+                  return;
+            }
+             if (!pvTermsCheckbox.checked) {
+                alert("Por favor, aceite os termos e condições.");
+                 return;
+            }
+
+               const pvChatId = createPrivateChatId(username, otherUsername);
+               const existingPvChat = await get(ref(database, `privateChats/${pvChatId}`));
+                 if (existingPvChat.exists()) {
+                alert("Conversa já existe com esse usuário, clique no usuário na lista abaixo.");
+                     return;
+            }
+
+            push(privateChatsRef,{
+                id:pvChatId,
+               participants: [username, otherUsername]
+
+            }).then(() => {
+                 pvPanel.style.display = 'none';
+                   pvPanelVisible = false;
+                   switchChatToPv(pvChatId);
+                   pvUserSearch.value = '';
+                    pvTermsCheckbox.checked = false;
+            });
+
+        });
+         function switchChatToPv(pvChatId)
+        {
+            currentGroupId = null;
+            currentPvChatId = pvChatId;
+              localStorage.setItem('lastGroupId', null);
+              fetchPvMessages(pvChatId);
+        }
+       pvChatList.addEventListener('click', (event) => {
+                const target = event.target;
+              const pvChatId = target.closest('li')?.dataset.pvChatId;
+               if(pvChatId){
+                 switchChatToPv(pvChatId);
+                pvPanel.style.display = 'none';
+                pvPanelVisible = false;
+             }
+
+        });
+        // Existing JavaScript code remains
+   </script>
+</body>
 </html>
