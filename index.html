@@ -958,6 +958,7 @@
                  <button class="console-delete-button" id="confirmEditPvNick" style="margin-right:5px;">Salvar</button>
                  <button class="console-cancel-button" id="cancelEditPvNick">Cancelar</button>
             </div>
+            <audio id="notificationSound" src="notifica.mp3" preload="auto"></audio>
         </div>
     </div>
     <script type="module">
@@ -1199,7 +1200,7 @@
             }
         }
            
-             function fetchGroupMessages(groupId) {
+ function fetchGroupMessages(groupId) {
                         if (!groupId) {
                 console.warn("fetchGroupMessages called with undefined groupId.");
                 messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
@@ -1267,9 +1268,9 @@
                             messageElement.classList.add('sent');
                         } else {
                             messageElement.classList.add('received');
-                              if (message.sender !== userNick)
+                             if (message.sender !== userNick)
                                  {
-                                    messageSound.play();
+                                       notificationSound.play();
                                  }
                         }
 
@@ -1285,6 +1286,93 @@
 
             });
         }
+         function fetchPvMessages(pvChatId, otherUserAlias) {
+                        if (!pvChatId) {
+                console.warn("fetchPvMessages called with undefined pvChatId.");
+                messagesContainer.innerHTML = `<p>Nenhuma conversa privada selecionada com ${otherUserAlias}.</p>`;
+                return;
+            }
+
+              const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
+                lastDisplayedDate = null;
+            onValue(pvMessagesRef, (snapshot) => {
+                messagesContainer.innerHTML = '';
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, message]) => {
+                         displayDateSeparator(message.timestamp);
+                         const messageElement = document.createElement('div');
+                        messageElement.classList.add('message');
+                        messageElement.dataset.messageId = key;
+                        const senderInfo = document.createElement('div');
+                        senderInfo.classList.add('sender-info');
+
+                        const profileImageElement = document.createElement('img');
+                        profileImageElement.src = message.profileImage || 'default-profile.png';
+                        profileImageElement.alt = "Foto de Perfil";
+                        senderInfo.appendChild(profileImageElement);
+
+                        let messageContent;
+                         if (message.type === 'image') {
+                            messageContent = document.createElement('img');
+                            messageContent.src = message.content;
+                            messageContent.alt = "Imagem";
+                            messageContent.classList.add('image-message');
+                        } else if (message.type === 'audio') {
+                             messageContent = createAudioDisplay(message.content);
+
+                         } else  if (message.type === 'video') {
+                            messageContent = createVideoDisplay(message.content);
+                        } else if (message.type === 'text'){
+                            messageContent = document.createElement('span');
+                            messageContent.classList.add('message-text');
+                              if (message.replyId) {
+                                const replyMessage = data[message.replyId];
+                                   if(replyMessage)
+                                  {
+                                const replyText = document.createElement('span');
+                                 replyText.style.color = '#aaa';
+                                  replyText.style.display = 'block';
+                                  replyText.style.fontStyle = 'italic';
+                                  replyText.style.marginBottom = '5px';
+                                  replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                                 messageContent.appendChild(replyText);
+                                 }
+
+                              }
+                             messageContent.textContent += message.content;
+                        }
+                        else {
+                           messageContent = createFileDisplay(message.content, message.fileType);
+                        }
+
+                        const timestampElement = document.createElement('span');
+                        timestampElement.classList.add('timestamp');
+                        timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                        if (message.sender === userNick) {
+                            messageElement.classList.add('sent');
+                        } else {
+                            messageElement.classList.add('received');
+                               if (message.sender !== userNick)
+                                 {
+                                    notificationSound.play();
+                                 }
+                        }
+
+                        messageElement.appendChild(senderInfo);
+                        messageElement.appendChild(messageContent);
+                        messageElement.appendChild(timestampElement);
+                        messagesContainer.appendChild(messageElement);
+                    });
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else {
+                    messagesContainer.innerHTML = `<p>Nenhuma mensagem nesta conversa com ${otherUserAlias}.</p>`;
+                }
+
+            });
+        }
+    
          function createFileDisplay(fileContent, fileType) {
                  let fileDisplay = document.createElement('div');
                    fileDisplay.classList.add('message-content-link');
@@ -2142,14 +2230,7 @@
                  });
                 }
             });
-        }
-           function fetchPvMessages(pvChatId, otherUserAlias) {
-                        if (!pvChatId) {
-                console.warn("fetchPvMessages called with undefined pvChatId.");
-                messagesContainer.innerHTML = `<p>Nenhuma conversa privada selecionada com ${otherUserAlias}.</p>`;
-                return;
-            }
-
+        
               const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
                 lastDisplayedDate = null;
             onValue(pvMessagesRef, (snapshot) => {
