@@ -930,7 +930,7 @@
      <div class="context-menu" id="messageContextMenu">
         <button id="replyMessageButton">Responder</button>
         <button id="shareMessageButton">Compartilhar</button>
-        <        <button id="reportMessageButton">Reportar</button>
+        <button id="reportMessageButton">Reportar</button>
     </div>
        <div class="modal" id="leaveChatModal">
         <div class="modal-content">
@@ -947,6 +947,16 @@
             <div style="display:flex; justify-content: center;">
                  <button class="console-delete-button" id="confirmClearPvChatButton" style="margin-right:5px;">Sim</button>
                  <button class="console-cancel-button"  id="cancelClearPvChatButton">Não</button>
+            </div>
+        </div>
+    </div>
+     <div class="modal" id="editPvNickModal">
+        <div class="modal-content">
+             <h2>Editar Apelido</h2>
+            <input type="text" id="newPvNickInput" placeholder="Digite o novo apelido" required>
+             <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmEditPvNick" style="margin-right:5px;">Salvar</button>
+                 <button class="console-cancel-button" id="cancelEditPvNick">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1083,8 +1093,13 @@
               let mediaRecorder;
             let audioChunks = [];
            let isRecording = false;
-
-           function generateRandomNick() {
+              let pvNicknames = JSON.parse(localStorage.getItem('pvNicknames') || '{}');
+               const editPvNickModal = document.getElementById('editPvNickModal');
+         const newPvNickInput = document.getElementById('newPvNickInput');
+        const confirmEditPvNick = document.getElementById('confirmEditPvNick');
+           const cancelEditPvNick = document.getElementById('cancelEditPvNick');
+            let currentPvUserToUpdate = null;
+            function generateRandomNick() {
             const randomNumber = Math.floor(1000 + Math.random() * 9000);
               return `User-${randomNumber}`;
             }
@@ -1316,7 +1331,8 @@
             return fileDisplay;
 
          }
-             function createAudioDisplay(audioSrc) {
+                
+        function createAudioDisplay(audioSrc) {
             const audioDisplay = document.createElement('div');
             audioDisplay.classList.add('audio-message');
 
@@ -1334,10 +1350,11 @@
            timeDisplay.style.marginLeft = '5px';
            timeDisplay.style.whiteSpace = 'nowrap';
 
-            const audio = new Audio(audioSrc);
-            let isPlaying = false;
+           let audio = new Audio(audioSrc);
+           let isPlaying = false;
+            let currentSrc = audioSrc;
             playButton.addEventListener('click', function() {
-                if (currentPlayingAudio && currentPlayingAudio !== audio) {
+                  if (currentPlayingAudio && currentPlayingAudio !== audio) {
                     currentPlayingAudio.pause();
                     const prevAudioDisplay = currentPlayingAudio.parentNode.parentNode;
                       if(prevAudioDisplay){
@@ -1783,7 +1800,7 @@
             push(messagesRef, {
                 type: 'admin',
                 content: messageText,
-                sender:'Sistema',
+                sender: 'Sistema',
                 profileImage: '',
                 timestamp: Date.now(),
                 groupId: currentGroupId
@@ -2110,12 +2127,16 @@
                         if(chat.participants && (chat.participants[0] === username || chat.participants[1] === username))
                         {
                             let otherUser = chat.participants[0] === username ? chat.participants[1] : chat.participants[0];
-
-                            const listItem = document.createElement('li');
-                             listItem.innerHTML = `<span>${otherUser}</span>`;
-                             listItem.dataset.pvChatId = key;
-                             listItem.dataset.otherUser = otherUser;
-                            pvChatList.appendChild(listItem);
+                              const li = document.createElement('li');
+                            const alias = pvNicknames[otherUser] || otherUser;
+                              li.innerHTML = `<span>${alias}</span>
+                                <div class="group-list-options">
+                                    <button title="Editar Apelido" class="edit-pv-nick-button" data-other-user="${otherUser}">✏️</button>
+                                     <button title="Limpar Conversa" class="clear-pv-chat-button" data-other-user="${otherUser}">🗑️</button>
+                                </div>`;
+                                 li.dataset.pvChatId = key;
+                             li.dataset.otherUser = otherUser;
+                            pvChatList.appendChild(li);
                         }
 
                  });
@@ -2323,16 +2344,51 @@
              }
 
         });
-           pvChatList.addEventListener('contextmenu', (event) => {
-            const target = event.target.closest('li');
-             const pvChatId = target.dataset.pvChatId;
-                if(target){
-                     event.preventDefault();
-                         if(currentPvChatId == pvChatId){
-                            showClearPvConfirmation(pvChatId);
-                         }
+            pvChatList.addEventListener('click', async (event) => {
+                const target = event.target;
+                const li = target.closest('li');
+                if (!li) return;
+
+                const pvChatId = li.dataset.pvChatId;
+                const otherUser = li.dataset.otherUser;
+                  if(target.classList.contains('edit-pv-nick-button')){
+                      event.stopPropagation();
+                    currentPvUserToUpdate = otherUser;
+                      editPvNickModal.style.display = 'flex';
+                  } else if(target.classList.contains('clear-pv-chat-button')){
+                        event.stopPropagation();
+                      if(currentPvChatId == pvChatId){
+                        showClearPvConfirmation(pvChatId);
+                     }
+                  }else if (pvChatId) {
+                      switchChatToPv(pvChatId, otherUser);
+                      pvPanel.style.display = 'none';
+                      pvPanelVisible = false;
+                   }
+             });
+        confirmEditPvNick.addEventListener('click', () => {
+            const newNick = newPvNickInput.value.trim();
+              if(newNick && currentPvUserToUpdate){
+                 pvNicknames[currentPvUserToUpdate] = newNick;
+                localStorage.setItem('pvNicknames', JSON.stringify(pvNicknames));
+                  editPvNickModal.style.display = 'none';
+                   fetchPrivateChats();
+                  currentPvUserToUpdate = null;
+                  newPvNickInput.value = '';
+              }
+            });
+             cancelEditPvNick.addEventListener('click', ()=>{
+                 editPvNickModal.style.display = 'none';
+               currentPvUserToUpdate = null;
+                  newPvNickInput.value = '';
+            });
+              editPvNickModal.addEventListener('click', (e)=>{
+                 if (e.target === editPvNickModal){
+                     editPvNickModal.style.display = 'none';
+                     currentPvUserToUpdate = null;
+                  newPvNickInput.value = '';
                   }
-           });
+             });
          messagesContainer.addEventListener('click', (event) => {
             const target = event.target.closest('.message');
             if(target){
@@ -2441,6 +2497,6 @@
         }
 
         // Existing JavaScript code remains
-      </script>
+          </script>
 </body>
 </html>
