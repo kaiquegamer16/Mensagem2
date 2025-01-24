@@ -13,7 +13,6 @@
             color: #e0e0e0;
             overflow-x: hidden;
             overflow-y: hidden;
-            /* Prevent page scroll */
             height: 100vh;
         }
 
@@ -34,7 +33,6 @@
             flex-grow: 1;
             padding: 10px 15px;
             overflow-y: auto;
-            /* Enable scroll within the message area */
             display: flex;
             flex-direction: column;
             height: auto;
@@ -56,7 +54,11 @@
             align-items: flex-start;
             position: relative;
             word-break: break-word;
+            cursor: pointer; /* Added for the context menu*/
         }
+        .message:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+           }
 
         .message .timestamp {
             position: absolute;
@@ -82,7 +84,7 @@
             align-self: flex-start;
         }
 
-        .message .timestamp {
+        .message.received .timestamp {
             left: 0;
         }
 
@@ -129,12 +131,12 @@
         }
         
         .message .video-message-container {
-            position: relative; /* Container for positioning controls */
-            display: flex; /* Use flexbox to center content */
-            justify-content: center; /* Center content horizontally */
-             align-items: center; /* Center content vertically */
-            margin-top: 5px; /* Add some margin */
-            max-height: 300px; /* Match height of image */
+            position: relative;
+            display: flex;
+            justify-content: center;
+             align-items: center;
+            margin-top: 5px;
+            max-height: 300px;
         }
          .message .video-message {
             max-width: 100%;
@@ -180,6 +182,38 @@
                 font-size: 0.9em;
 
             }
+            .message-content-link{
+                cursor: pointer;
+            }
+
+           .context-menu {
+            position: absolute;
+                background-color: #1e2a33;
+                border: 1px solid #3e4c54;
+                border-radius: 5px;
+                padding: 5px 0;
+               z-index: 1002;
+            display: none; /* Initially hidden */
+        }
+        .context-menu button{
+            display: block;
+                width: 100%;
+                 text-align: left;
+             padding: 8px 15px;
+           background-color: transparent;
+             color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+              transition: background-color 0.3s ease;
+             font-size: 1em;
+             white-space: nowrap;
+              overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .context-menu button:hover{
+            background-color: rgba(255, 255, 255, 0.1);
+         }
+
 
         .input-area {
             display: flex;
@@ -401,7 +435,6 @@
             color: #e0e0e0;
         }
 
-        /* Style for the emoji picker */
         .emoji-picker {
             position: absolute;
             bottom: 50px;
@@ -616,8 +649,7 @@
         .modal#clearChatModal .modal-content{
             text-align: center;
         }
-          /* New PV Panel */
-        .modal#pvPanel .modal-content {
+          .modal#pvPanel .modal-content {
         position: relative;
         }
             #pvPanel .modal-content input[type="text"] {
@@ -709,17 +741,24 @@
             .settings-modal .settings-content button#copy-nick-button:hover{
                 background-color: #006659;
             }
+           /* Style for file links */
+            .file-link {
+                color: #008069;
+                 text-decoration: underline;
+                cursor: pointer;
+            }
     </style>
 </head>
 
 <body>
+    <audio id="messageSound" src="som.mp3" preload="auto"></audio>
     <div class="chat-container">
         <div class="top-buttons">
             <button class="settings-button" id="settingsButton">⚙️</button>
             <button id="new-group-button">👥 Novo Grupo</button>
             <button id="group-list-button">📁 Lista Grupos</button>
             <button id="console-button">⚙️ Console</button>
-              <button id="pv-button">PV</button> <!-- New Button -->
+              <button id="pv-button">PV</button>
         </div>
 
         <div class="messages" id="messages">
@@ -742,7 +781,7 @@
                 <span>🔥</span>
             </div>
             <button class="attachment-button" id="attachment-button">📎</button>
-            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, video/*, application/pdf"
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, video/*, application/pdf, text/*, .html"
                 style="display: none;">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
@@ -752,14 +791,12 @@
     <div class="console-panel" id="consolePanel">
         <h2>Console de Grupos</h2>
         <ul id="consoleGroupList">
-            <!-- Group list items will be dynamically added here -->
         </ul>
          <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
         <div class="console-footer">
             <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
         </div>
     </div>
-    <!-- New PV Panel -->
     <div class="modal" id="pvPanel">
         <div class="modal-content">
             <h2>Conversas Privadas</h2>
@@ -769,7 +806,6 @@
             </label>
             <button id="createPvButton">Criar Conversa</button>
             <ul class="group-list" id="pvChatList">
-                <!-- List of Private Chats -->
             </ul>
         </div>
     </div>
@@ -831,7 +867,6 @@
         <div class="modal-content">
             <h2>Lista de Grupos</h2>
             <ul class="group-list" id="groupList">
-                <!-- Group list items will be dynamically added here -->
             </ul>
             <div class="enter-group-by-id">
                 <input type="text" id="groupIdInput" placeholder="Digite o ID do Grupo">
@@ -866,8 +901,20 @@
             </div>
         </div>
     </div>
-    
-    
+    <div class="modal" id="reportGroupModal">
+        <div class="modal-content">
+             <h2>Tem certeza que deseja denunciar este grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmReportGroupButton" style="margin-right:5px;">Sim</button>
+                 <button class="console-cancel-button" id="cancelReportGroupButton">Não</button>
+            </div>
+        </div>
+    </div>
+     <div class="context-menu" id="messageContextMenu">
+        <button id="replyMessageButton">Responder</button>
+        <button id="shareMessageButton">Compartilhar</button>
+        <button id="reportMessageButton">Reportar</button>
+    </div>
     
     <script type="module">
        import {
@@ -881,16 +928,10 @@
             remove,
             update,
             get,
-            query,
+            query            ,
             orderByChild,
             equalTo
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
-
-        import {
-            getMessaging,
-            getToken,
-            onMessage
-        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js';
 
 
         const firebaseConfig = {
@@ -905,10 +946,10 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const messaging = getMessaging(app);
-
+        
         const messagesRef = ref(database, 'messages');
         const groupsRef = ref(database, 'groups');
+        const reportsRef = ref(database, 'reports');
 
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
@@ -963,6 +1004,8 @@
            const privateChatsRef = ref(database, 'privateChats');
             let currentPvChatId = null;
 
+            const messageSound = document.getElementById('messageSound');
+
 
         let username = localStorage.getItem('username');
         let profileImage = localStorage.getItem('profileImage');
@@ -991,8 +1034,19 @@
          let currentPlayingVideo = null;
           const userNickDisplay = document.getElementById('user-nick-display');
             const copyNickButton = document.getElementById('copy-nick-button');
+             let currentSelectedMessage = null;
+            const messageContextMenu = document.getElementById('messageContextMenu');
+        const replyMessageButton = document.getElementById('replyMessageButton');
+        const shareMessageButton = document.getElementById('shareMessageButton');
+         const reportMessageButton = document.getElementById('reportMessageButton');
+         const reportGroupModal = document.getElementById('reportGroupModal');
+           const confirmReportGroupButton = document.getElementById('confirmReportGroupButton');
+         const cancelReportGroupButton = document.getElementById('cancelReportGroupButton');
+           let reportingGroup = false;
+           let currentMessage = null;
+            let currentReplyId = null;
 
-            function generateRandomNick() {
+           function generateRandomNick() {
             const randomNumber = Math.floor(1000 + Math.random() * 9000);
               return `User-${randomNumber}`;
             }
@@ -1109,6 +1163,7 @@
                         displayDateSeparator(message.timestamp);
                          const messageElement = document.createElement('div');
                         messageElement.classList.add('message');
+                         messageElement.dataset.messageId = key;
 
                         const senderInfo = document.createElement('div');
                         senderInfo.classList.add('sender-info');
@@ -1129,10 +1184,26 @@
 
                          } else  if (message.type === 'video') {
                             messageContent = createVideoDisplay(message.content);
-                        }else {
+                        }else if (message.type === 'text'){
                             messageContent = document.createElement('span');
                             messageContent.classList.add('message-text');
-                             messageContent.textContent = message.content;
+                              if (message.replyId) {
+                                const replyMessage = data[message.replyId];
+                                   if(replyMessage)
+                                  {
+                                const replyText = document.createElement('span');
+                                 replyText.style.color = '#aaa';
+                                  replyText.style.display = 'block';
+                                  replyText.style.fontStyle = 'italic';
+                                  replyText.style.marginBottom = '5px';
+                                  replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                                 messageContent.appendChild(replyText);
+                                 }
+
+                              }
+                             messageContent.textContent += message.content;
+                        } else {
+                           messageContent = createFileDisplay(message.content, message.fileType);
                         }
 
                         const timestampElement = document.createElement('span');
@@ -1143,7 +1214,10 @@
                             messageElement.classList.add('sent');
                         } else {
                             messageElement.classList.add('received');
-                            showGroupMessageNotification(message.sender, message.content, message.profileImage, groupId);
+                              if (message.sender !== userNick)
+                                 {
+                                    messageSound.play();
+                                 }
                         }
 
                         messageElement.appendChild(senderInfo);
@@ -1158,6 +1232,52 @@
 
             });
         }
+         function createFileDisplay(fileContent, fileType) {
+                 let fileDisplay = document.createElement('div');
+                   fileDisplay.classList.add('message-content-link');
+             let link;
+            if (fileType.startsWith('image/')) {
+                 link = document.createElement('img');
+                link.src = fileContent;
+                link.alt = "Imagem";
+                 link.classList.add('image-message');
+
+            } else if (fileType === 'text/plain') {
+                  link = document.createElement('a');
+                    link.href = fileContent;
+                   link.textContent = "Abrir Texto";
+                     link.target = "_blank";
+                      link.rel = "noopener noreferrer"
+                     link.classList.add('file-link');
+
+            } else if (fileType === 'text/html'){
+                  link = document.createElement('a');
+                   link.href = fileContent;
+                   link.textContent = "Abrir HTML";
+                   link.target = "_blank";
+                       link.rel = "noopener noreferrer"
+                     link.classList.add('file-link');
+
+            } else if (fileType === 'application/pdf'){
+               link = document.createElement('a');
+                   link.href = fileContent;
+                   link.textContent = "Abrir PDF";
+                   link.target = "_blank";
+                        link.rel = "noopener noreferrer"
+                   link.classList.add('file-link');
+            } else{
+                 link = document.createElement('a');
+                     link.href = fileContent;
+                   link.textContent = "Download";
+                   link.download = 'download';
+                    link.target = "_blank";
+                         link.rel = "noopener noreferrer"
+                  link.classList.add('file-link');
+            }
+           fileDisplay.appendChild(link);
+            return fileDisplay;
+
+         }
              function createAudioDisplay(audioSrc) {
             const audioDisplay = document.createElement('div');
             audioDisplay.classList.add('audio-message');
@@ -1373,7 +1493,7 @@
         }
        function sendMessage() {
             const text = messageInput.value.trim();
-            if (text !== '') {
+              if (text !== '') {
                  let messageGroupId;
 
               if(currentGroupId){
@@ -1381,15 +1501,22 @@
                 } else if(currentPvChatId){
                     messageGroupId = currentPvChatId;
                 }
-
-                push(messagesRef, {
+               let messageData = {
                     type: 'text',
                     content: text,
                     sender: userNick,
                      profileImage: profileImage,
                     timestamp: Date.now(),
-                    groupId: messageGroupId
-                });
+                    groupId: messageGroupId,
+                  };
+                  if(currentReplyId)
+                  {
+                    messageData.replyId = currentReplyId;
+                    currentReplyId = null;
+                    messageInput.placeholder = "Digite sua mensagem...";
+                  }
+                push(messagesRef, messageData);
+
                 messageInput.value = '';
             }
         }
@@ -1436,6 +1563,7 @@
                         <button title="Ver ID do Grupo" data-group-id="${group.id}">#</button>
                         <button title="Deletar Grupo" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🗑️</button>
                          ${adminMessage !== '' ? `<button title="Definir ADM" data-group-id="${group.id}">👑</button>` : ''}
+                          <button title="Reportar Grupo" data-group-id="${group.id}">🚩</button>
                     </div>
                 `;
                 groupList.appendChild(listItem);
@@ -1542,11 +1670,16 @@
                 alert("Por favor, selecione um arquivo para enviar.");
                 return;
             }
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif','audio/mpeg', 'audio/ogg', 'video/mp4', 'video/webm','video/ogg', 'application/pdf', 'text/plain', 'text/html'];
+            if (!allowedTypes.includes(file.type)) {
+                alert("Por favor, selecione um arquivo suportado.");
+                return;
+            }
 
             try {
                 const base64File = await toBase64(file);
                 let messageType = 'file';
-
+                let fileType = file.type;
                  if (file.type.startsWith('image/')) {
                     messageType = 'image';
                 } else if (file.type.startsWith('audio/')) {
@@ -1558,7 +1691,7 @@
                    messageType = 'audio';
                 }
 
-                 else {
+                else {
                     messageType = 'file';
                 }
 
@@ -1575,7 +1708,8 @@
                     sender: userNick,
                     profileImage: profileImage,
                     timestamp: Date.now(),
-                    groupId: messageGroupId
+                    groupId: messageGroupId,
+                    fileType: fileType
                 });
                 attachmentInput.value = '';
             }  catch(error){
@@ -1747,7 +1881,11 @@
                   break;
                 case 'Deletar Grupo':
                    showDeleteConfirmation(groupId)
-                  break; case 'Definir ADM':
+                  break;
+                  case 'Reportar Grupo':
+                    showReportConfirmation(groupId);
+                   break;
+                    case 'Definir ADM':
                                      defineAdminModal.style.display = 'flex';
                                       currentGroupIdToUpdate = groupId;
                                     break;
@@ -1766,7 +1904,33 @@
             }
 
           });
-
+           function showReportConfirmation(groupId) {
+                reportGroupModal.style.display = 'flex';
+                currentGroupIdToDelete = groupId;
+            }
+              cancelReportGroupButton.addEventListener('click', () => {
+                reportGroupModal.style.display = 'none';
+                  currentGroupIdToDelete = null;
+              })
+          confirmReportGroupButton.addEventListener('click', ()=>{
+                 if(!reportingGroup){
+                   reportingGroup = true;
+                       const reportData = {
+                            groupId: currentGroupIdToDelete,
+                            reporter: username,
+                            timestamp: Date.now(),
+                        };
+                       push(reportsRef, reportData).then(()=>{
+                         alert("Grupo reportado com sucesso!")
+                            reportGroupModal.style.display = 'none';
+                           currentGroupIdToDelete = null;
+                          reportingGroup = false;
+                     }).catch(()=>{
+                           alert("Erro ao reportar o grupo, tente novamente.")
+                           reportingGroup = false;
+                    })
+                 }
+          });
             setAdminButton.addEventListener('click', async () => {
             const newAdminName = newAdminNameInput.value.trim();
                 if(!newAdminName){
@@ -1848,74 +2012,7 @@
         });
         themeSelect.value = theme;
         applyTheme();
-           function showGroupMessageNotification(sender, message, profileImage, groupId) {
-            navigator.serviceWorker.ready.then(registration => {
-                registration.showNotification(`Nova Mensagem de ${sender} no grupo ${groupId}`, {
-                    body: message,
-                    icon: profileImage,
-                });
-            });
-        }
-
-           onMessage(messaging, (payload) => {
-            console.log('Mensagem recebida no frontend: ', payload);
-        });
-           if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
-         importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js');
-        importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js');
-
-
-        const firebaseConfig = {
-           apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
-            authDomain: "engine-c02f6.firebaseapp.com",
-            projectId: "engine-c02f6",
-            storageBucket: "engine-c02f6.firebasestorage.app",
-            messagingSenderId: "562488086423",
-            appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
-            measurementId: "G-T81G36LMJG"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-
-        const messaging = firebase.messaging();
-
-        self.addEventListener('push', function(event) {
-            const options = {
-                body: 'Nova mensagem no chat!',
-                icon: 'img/seuSirigueijo.jpeg',
-                image: 'img/lulu.png',
-                badge: 'img/xamuel.png',
-            };
-
-            event.waitUntil(
-                self.registration.showNotification('Chat Notificação', options)
-            );
-        });
-
-        self.addEventListener('notificationclick', function(event) {
-            event.notification.close();
-            event.waitUntil(
-                clients.openWindow('/')
-            );
-        });
-
-        messaging.onBackgroundMessage(function(payload){
-           console.log('Mensagem recebida no SW:', payload);
-
-           const options = {
-              body: payload.notification.body,
-              icon: payload.notification.icon,
-              image: payload.notification.image,
-            };
-            self.registration.showNotification(payload.notification.title, options)
-        });
-         `])), {type: 'text/javascript'}).then(function(registration) {
-           console.log('Service worker registrado com sucesso:', registration);
-         }, function(error) {
-           console.error('Falha ao registrar o service worker:', error);
-         });
-    }
+          
       function createPrivateChatId(user1, user2) {
             const sortedUsers = [user1, user2].sort();
             return `${sortedUsers[0]}_${sortedUsers[1]}`;
@@ -1959,7 +2056,7 @@
                          displayDateSeparator(message.timestamp);
                          const messageElement = document.createElement('div');
                         messageElement.classList.add('message');
-
+                        messageElement.dataset.messageId = key;
                         const senderInfo = document.createElement('div');
                         senderInfo.classList.add('sender-info');
 
@@ -1979,10 +2076,27 @@
 
                          } else  if (message.type === 'video') {
                             messageContent = createVideoDisplay(message.content);
-                        }else {
+                        } else if (message.type === 'text'){
                             messageContent = document.createElement('span');
                             messageContent.classList.add('message-text');
-                             messageContent.textContent = message.content;
+                              if (message.replyId) {
+                                const replyMessage = data[message.replyId];
+                                   if(replyMessage)
+                                  {
+                                const replyText = document.createElement('span');
+                                 replyText.style.color = '#aaa';
+                                  replyText.style.display = 'block';
+                                  replyText.style.fontStyle = 'italic';
+                                  replyText.style.marginBottom = '5px';
+                                  replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                                 messageContent.appendChild(replyText);
+                                 }
+
+                              }
+                             messageContent.textContent += message.content;
+                        }
+                        else {
+                           messageContent = createFileDisplay(message.content, message.fileType);
                         }
 
                         const timestampElement = document.createElement('span');
@@ -1993,7 +2107,10 @@
                             messageElement.classList.add('sent');
                         } else {
                             messageElement.classList.add('received');
-                            showGroupMessageNotification(message.sender, message.content, message.profileImage, pvChatId);
+                               if (message.sender !== userNick)
+                                 {
+                                    messageSound.play();
+                                 }
                         }
 
                         messageElement.appendChild(senderInfo);
@@ -2084,8 +2201,58 @@
              }
 
         });
-        
+         messagesContainer.addEventListener('click', (event) => {
+            const target = event.target.closest('.message');
+            if(target){
+                  event.preventDefault(); // Prevent default behavior
+                  currentSelectedMessage = target;
+                    messageContextMenu.style.display = 'block';
+                   messageContextMenu.style.left = `${event.clientX}px`;
+                messageContextMenu.style.top = `${event.clientY}px`;
+                   currentMessage = target;
+            } else {
+                 messageContextMenu.style.display = 'none';
+                currentSelectedMessage = null;
+            }
+
+         });
+         document.addEventListener('click', (event) => {
+             if (event.target !== currentSelectedMessage && event.target !== messageContextMenu && !messageContextMenu.contains(event.target)) {
+              messageContextMenu.style.display = 'none';
+                 currentSelectedMessage = null;
+             }
+        });
+
+        replyMessageButton.addEventListener('click', () => {
+            const selectedMessageId = currentSelectedMessage.dataset.messageId;
+           currentReplyId = selectedMessageId;
+             messageInput.placeholder = "Respondendo a mensagem";
+            messageContextMenu.style.display = 'none';
+            currentSelectedMessage = null;
+         });
+        shareMessageButton.addEventListener('click', () => {
+           alert("Função de Compartilhar está sendo construída!");
+           messageContextMenu.style.display = 'none';
+            currentSelectedMessage = null;
+        });
+        reportMessageButton.addEventListener('click', () => {
+            const selectedMessageId = currentSelectedMessage.dataset.messageId;
+             const reportData = {
+                messageId: selectedMessageId,
+               reporter: userNick,
+                 timestamp: Date.now(),
+            };
+          push(reportsRef, reportData).then(()=>{
+                alert("Mensagem reportada com sucesso");
+          }).catch(()=>{
+                 alert("Erro ao reportar mensagem.")
+            })
+
+              messageContextMenu.style.display = 'none';
+             currentSelectedMessage = null;
+        });
+
         // Existing JavaScript code remains
-  </script>
+    </script>
 </body>
 </html>
