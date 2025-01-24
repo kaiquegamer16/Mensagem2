@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Reprodutor de Música</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -128,6 +130,23 @@
             width: 100%;
             margin-top: 5px;
         }
+        .audio-controls{
+            display: flex;
+           align-items: center;
+
+        }
+           .audio-controls select{
+                 background-color: #2a3942;
+                color: #e0e0e0;
+                border: none;
+               margin-left: 5px;
+                 border-radius: 5px;
+                padding: 2px;
+                cursor: pointer;
+              outline: none;
+                font-size: 0.9em;
+
+            }
 
         .input-area {
             display: flex;
@@ -481,49 +500,117 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: 200px;
-            /* Ajuste conforme necessário */
+            /* Increased height for better visibility */
             background-color: #1e2a33;
             border-top: 1px solid #3e4c54;
             padding: 10px;
             overflow-y: auto;
+            /* Allow scrolling if content overflows */
             display: none;
-            /* Initially hidden */
             z-index: 999;
+            max-height: 70vh;
+            /* Sets a maximum height */
+            box-sizing: border-box;
         }
 
+        /* Panel Header Style */
         .console-panel h2 {
             margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3e4c54;
         }
 
+        /* Styling for list inside the console */
         .console-panel ul {
             list-style: none;
             padding: 0;
+            margin: 0;
+            margin-bottom: 10px;
+            /* Adds spacing before the buttons */
         }
 
+        /* List item styling with spacing */
         .console-panel li {
-            padding: 5px;
+            padding: 10px;
             border-bottom: 1px solid #3e4c54;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+        /* Style for group name and ID */
+        .console-panel li span {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 5px;
+        }
+
+        /* Style for the group copy button */
         .console-panel li .group-copy-button {
-            padding: 4px 8px;
+            padding: 5px 10px;
             border: none;
             background-color: #008069;
             color: white;
             border-radius: 5px;
             cursor: pointer;
             margin-left: 5px;
+            font-size: 0.9em;
         }
 
+        /* Hover effect for the group copy button */
         .console-panel li .group-copy-button:hover {
             background-color: #006659;
         }
 
+        /* Console panel footer */
+        .console-panel .console-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 10px;
+            border-top: 1px solid #3e4c54;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Style for the console's cancel and delete buttons */
+        .console-panel .console-footer button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            color: white;
+        }
+
+        .console-panel .console-footer .console-cancel-button {
+            background-color: #888;
+            /* A more neutral color for cancel */
+        }
+
+        .console-panel .console-footer .console-cancel-button:hover {
+            background-color: #666;
+            /* Darken on hover */
+        }
+
+        .console-panel .console-footer .console-delete-button {
+            background-color: #d32f2f;
+        }
+
+        .console-panel .console-footer .console-delete-button:hover {
+            background-color: #b71c1c;
+            /* Darken on hover */
+        }
+
+        /* Message for when there are no groups */
         .console-panel .no-groups-message {
+            text-align: center;
+        }
+
+        /* Clear Chat Modal */
+        .modal#clearChatModal .modal-content{
             text-align: center;
         }
     </style>
@@ -573,6 +660,9 @@
             <!-- Group list items will be dynamically added here -->
         </ul>
         <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
+        <div class="console-footer">
+           <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
+        </div>
     </div>
 
     <!-- Username Modal -->
@@ -654,7 +744,26 @@
             <button id="setAdminButton">Definir ADM</button>
         </div>
     </div>
-
+    <!-- Group Delete Confirmation Modal -->
+    <div class="modal" id="deleteGroupModal">
+        <div class="modal-content">
+            <h2>Tem certeza que deseja deletar este grupo?</h2>
+           <div style="display:flex; justify-content: center;">
+                <button class="console-delete-button" id="confirmDeleteButton" style="margin-right:5px;">Deletar</button>
+                <button class="console-cancel-button"  id="cancelDeleteButton">Cancelar</button>
+           </div>
+        </div>
+    </div>
+       <!-- Clear Chat Modal -->
+    <div class="modal" id="clearChatModal">
+        <div class="modal-content">
+              <h2>Deseja limpar o chat deste grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmClearChatButton" style="margin-right:5px;">Sim</button>
+                 <button class="console-cancel-button"  id="cancelClearChatButton">Não</button>
+            </div>
+        </div>
+    </div>
     <script type="module">
                 import {
             initializeApp
@@ -744,6 +853,7 @@
         const consoleButton = document.getElementById('console-button');
         const consolePanel = document.getElementById('consolePanel');
         const consoleGroupList = document.getElementById('consoleGroupList');
+         const closeConsoleButton = document.getElementById('closeConsoleButton');
         const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
         let consoleVisible = false;
         // Settings options
@@ -770,6 +880,9 @@
         let currentGroupIdToUpdate = null;
         const chatContainer = document.querySelector('.chat-container');
         const inputArea = document.querySelector('.input-area');
+
+        // Variable to control which audio is playing
+        let currentPlayingAudio = null;
 
 
         // Function to convert image to base64
@@ -814,7 +927,7 @@
 
         // Set the username and image
         setUsernameButton.addEventListener('click', async () => {
-            const inputName = usernameInput.value.trim();
+                        const inputName = usernameInput.value.trim();
             const imageFile = profileImageInput.files[0];
 
             if (!imageFile) {
@@ -859,7 +972,7 @@
 
         // Function to format a timestamp
         function formatTimestamp(timestamp) {
-            const date = new Date(timestamp);
+                        const date = new Date(timestamp);
             const hours = date.getHours().toString().padStart(2, '0');
             const minutes = date.getMinutes().toString().padStart(2, '0');
             return `${hours}:${minutes}`;
@@ -880,7 +993,7 @@
 
         // Function to fetch and display messages for a specific group
         function fetchGroupMessages(groupId) {
-            if (!groupId) {
+                        if (!groupId) {
                 console.warn("fetchGroupMessages called with undefined groupId.");
                 messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
                 return;
@@ -946,8 +1059,11 @@
 
          // Function to create an audio display element
        function createAudioDisplay(audioSrc) {
-           const audioDisplay = document.createElement('div');
-           audioDisplay.classList.add('audio-message');
+            const audioDisplay = document.createElement('div');
+            audioDisplay.classList.add('audio-message');
+
+            const audioControls = document.createElement('div');
+            audioControls.classList.add('audio-controls');
 
            const playButton = document.createElement('button');
            playButton.innerHTML = '▶';
@@ -963,14 +1079,28 @@
             const audio = new Audio(audioSrc);
             let isPlaying = false;
             playButton.addEventListener('click', function() {
+               if (currentPlayingAudio && currentPlayingAudio !== audio) {
+                    currentPlayingAudio.pause();
+                    const prevAudioDisplay = currentPlayingAudio.parentNode.parentNode;
+                    if(prevAudioDisplay)
+                    {
+                       const prevPlayButton = prevAudioDisplay.querySelector('.audio-controls button');
+                        if(prevPlayButton){
+                             prevPlayButton.innerHTML = '▶';
+                        }
+                    }
+
+                   }
                if (isPlaying) {
                   audio.pause();
                    playButton.innerHTML = '▶';
                   isPlaying = false;
+                   currentPlayingAudio = null;
                 } else {
                    audio.play();
                     playButton.innerHTML = '⏸';
                   isPlaying = true;
+                    currentPlayingAudio = audio;
                 }
               });
            audio.addEventListener('loadedmetadata', () => {
@@ -984,10 +1114,28 @@
               audio.addEventListener('ended', function() {
                   playButton.innerHTML = '▶';
                   isPlaying = false;
+                    currentPlayingAudio = null;
               });
 
-           audioDisplay.appendChild(playButton);
-           audioDisplay.appendChild(timeDisplay);
+            const playbackSpeedSelect = document.createElement('select');
+            const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+            speeds.forEach(speed => {
+            const option = document.createElement('option');
+            option.value = speed;
+            option.textContent = `${speed}x`;
+            if(speed == 1)
+              option.selected = true;
+            playbackSpeedSelect.appendChild(option);
+        });
+
+            playbackSpeedSelect.addEventListener('change', function() {
+             audio.playbackRate = parseFloat(this.value);
+             });
+
+             audioControls.appendChild(playButton);
+             audioControls.appendChild(timeDisplay);
+             audioControls.appendChild(playbackSpeedSelect);
+           audioDisplay.appendChild(audioControls)
 
 
             return audioDisplay;
@@ -1282,12 +1430,29 @@
             });
         }
 
+        // Get Clear Chat Modal and its buttons
+        const clearChatModal = document.getElementById('clearChatModal');
+        const confirmClearChatButton = document.getElementById('confirmClearChatButton');
+        const cancelClearChatButton = document.getElementById('cancelClearChatButton');
+       let clearingMessages = false;
         // Clear Chat Button Event Listener (now conditional)
         clearChatButton.addEventListener('click', () => {
-            if (isCurrentUserAdmin()) {
-                if (confirm("Tem certeza que deseja apagar todas as mensagens?")) {
-                   const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
-
+             if (isCurrentUserAdmin()) {
+                clearChatModal.style.display = 'flex';
+            } else {
+                alert("Você não tem permissão para apagar as mensagens deste grupo.");
+            }
+        });
+          // Event listener for cancelling clear chat modal
+        cancelClearChatButton.addEventListener('click', () => {
+            clearChatModal.style.display = 'none';
+            clearingMessages = false;
+        });
+        // Event listener for confirming clear chat
+        confirmClearChatButton.addEventListener('click', () => {
+                if(!clearingMessages){
+                    clearingMessages = true;
+                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
                     get(groupMessagesRef).then((snapshot) => {
                             const updates = {};
                             snapshot.forEach(child => {
@@ -1296,17 +1461,17 @@
                             return update(ref(database, 'messages'), updates);
                         })
                         .then(() => {
-                            alert("Conversas apagadas com sucesso!");
-                            settingsModal.style.display = 'none';
+                             clearChatModal.style.display = 'none';
+                             alert("Conversas apagadas com sucesso!");
+                            clearingMessages = false;
                         })
                         .catch((error) => {
                             console.error("Erro ao apagar as conversas: ", error);
                             alert("Erro ao apagar as conversas. Tente novamente.");
+                             clearingMessages = false;
                         });
                 }
-            } else {
-                alert("Você não tem permissão para apagar as mensagens deste grupo.");
-            }
+
         });
 
         editProfileButton.addEventListener('click', () => {
@@ -1330,92 +1495,114 @@
         //Load the group list when the application starts
         fetchGroupList();
 
-        // Attach event listeners for group list options
-        groupList.addEventListener('click', (event) => {
+         // Get the new modal and buttons
+        const deleteGroupModal = document.getElementById('deleteGroupModal');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+        let currentGroupIdToDelete = null; // Variable to store the group ID to delete
+        
+        // Function to show the delete confirmation modal
+            function showDeleteConfirmation(groupId) {
+                currentGroupIdToDelete = groupId;
+                deleteGroupModal.style.display = 'flex';
+                
+            }
+          // Handle the cancel button
+            cancelDeleteButton.addEventListener('click', () => {
+                deleteGroupModal.style.display = 'none';
+                currentGroupIdToDelete = null; // Clear the stored group ID
+            });
+
+            // Function to handle delete group
+            function handleGroupDeletion(){
+                if (currentGroupIdToDelete) {
+                    const groupRef = ref(database, `groups/${currentGroupIdToDelete}`);
+                    remove(groupRef)
+                        .then(() => {
+                            const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupIdToDelete));
+
+                            get(groupMessagesRef).then((snapshot) => {
+                                    const updates = {};
+                                    snapshot.forEach(child => {
+                                        updates[child.key] = null; // Set value as null to remove
+                                    });
+                                    return update(ref(database, 'messages'), updates);
+                                })
+                                .then(() => {
+                                    alert("Grupo deletado com sucesso!");
+                                    fetchGroupList();
+                                   if(currentGroupId === currentGroupIdToDelete){
+                                        messagesContainer.innerHTML = '';
+                                        currentGroupId = null;
+                                        currentGroupAdmin = null;
+                                    }
+
+                                 deleteGroupModal.style.display = 'none';
+                                 currentGroupIdToDelete = null;
+                                })
+                            .catch((error) => {
+                                    console.error("Erro ao apagar as conversas: ", error);
+                                    alert("Erro ao apagar as conversas. Tente novamente.");
+                             });
+                        })
+                        .catch((error) => {
+                            console.error("Erro ao deletar o grupo: ", error);
+                            alert("Erro ao deletar o grupo. Tente novamente.");
+                        });
+                 }
+            }
+           confirmDeleteButton.addEventListener('click', () => {
+                handleGroupDeletion();
+            });
+
+        // Modified groupList event listener to use the modal for group deletion
+          groupList.addEventListener('click', (event) => {
             const target = event.target;
             const groupId = target.dataset.groupId;
-
-            console.log("Target:", target); // Added for Debug
-            console.log("groupId (dataset.groupId):", groupId); // Added for Debug
-
             if (target.tagName === 'BUTTON' && groupId) {
-                event.stopPropagation(); // Prevent the li click event
+              event.stopPropagation(); // Prevent the li click event
 
-                switch (target.title) {
-                    case 'Editar Nome':
-                       const newName = prompt('Novo nome para o grupo:');
-                        if (newName) {
-                          const groupRef = ref(database, `groups/${groupId}`);
-                            update(groupRef, {
-                                    name: newName
-                                })
-                                .then(() => {
-                                    alert("Nome do grupo atualizado com sucesso!");
-                                    fetchGroupList()
-                                })
-                                .catch((error) => {
-                                    console.error("Erro ao atualizar o nome do grupo: ", error);
-                                    alert("Erro ao atualizar o nome do grupo. Tente novamente.");
-                                });
-                        }
-                        break;
-                    case 'Ver ID do Grupo':
-                        alert(`ID do Grupo: ${groupId}`);
-                        break;
-                    case 'Deletar Grupo':
-                        if (confirm('Tem certeza que deseja deletar este grupo?')) {
-                            const groupRef = ref(database, `groups/${groupId}`);
-                            remove(groupRef)
-                                .then(() => {
-                                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
-
-                                    get(groupMessagesRef).then((snapshot) => {
-                                            const updates = {};
-                                            snapshot.forEach(child => {
-                                                updates[child.key] = null; // Set value as null to remove
-                                            });
-                                            return update(ref(database, 'messages'), updates);
-                                        })
-                                        .then(() => {
-                                            alert("Grupo deletado com sucesso!");
-                                            fetchGroupList();
-                                           if(currentGroupId === groupId){
-                                                messagesContainer.innerHTML = '';
-                                                currentGroupId = null;
-                                                currentGroupAdmin = null;
-                                            }
-
-                                        })
-                                    .catch((error) => {
-                                            console.error("Erro ao apagar as conversas: ", error);
-                                            alert("Erro ao apagar as conversas. Tente novamente.");
-                                        });
-                                })
-                                .catch((error) => {
-                                    console.error("Erro ao deletar o grupo: ", error);
-                                    alert("Erro ao deletar o grupo. Tente novamente.");
-                                });
-                         }
-                        break;
-                    case 'Definir ADM':
-                             defineAdminModal.style.display = 'flex';
-                              currentGroupIdToUpdate = groupId;
-                            break;
-                    default:
-                        break;
-                }
+              switch (target.title) {
+                case 'Editar Nome':
+                  const newName = prompt('Novo nome para o grupo:');
+                  if (newName) {
+                    const groupRef = ref(database, `groups/${groupId}`);
+                    update(groupRef, { name: newName })
+                      .then(() => {
+                        alert("Nome do grupo atualizado com sucesso!");
+                         fetchGroupList()
+                      })
+                      .catch((error) => {
+                        console.error("Erro ao atualizar o nome do grupo: ", error);
+                        alert("Erro ao atualizar o nome do grupo. Tente novamente.");
+                      });
+                  }
+                  break;
+                case 'Ver ID do Grupo':
+                  alert(`ID do Grupo: ${groupId}`);
+                  break;
+                case 'Deletar Grupo':
+                    showDeleteConfirmation(groupId)
+                  break;
+                   case 'Definir ADM':
+                                     defineAdminModal.style.display = 'flex';
+                                      currentGroupIdToUpdate = groupId;
+                                    break;
+                default:
+                  break;
+              }
 
             } else {
-                if (groupId) {
-                    console.log("Switching to group:", groupId);
-                    switchChatToGroup(groupId);
-                    groupListModal.style.display = 'none';
-                } else {
-                    console.log("groupId is undefined, not switching group.");
-                }
+              if (groupId) {
+                console.log("Switching to group:", groupId);
+                switchChatToGroup(groupId);
+                groupListModal.style.display = 'none';
+              } else {
+                console.log("groupId is undefined, not switching group.");
+              }
             }
 
-        });
+          });
 
 
        setAdminButton.addEventListener('click', async () => {
@@ -1474,6 +1661,13 @@
                     });
                  }
         });
+        
+          // Event listener to close the console panel
+            closeConsoleButton.addEventListener('click', () => {
+                consolePanel.style.display = 'none';
+                consoleVisible = false;
+            });
+
            let lastGroupId = localStorage.getItem('lastGroupId');
 
         window.addEventListener('load', () => {
@@ -1581,8 +1775,7 @@
            console.error('Falha ao registrar o service worker:', error);
          });
     }
-    
-    </script>
+              </script>
 </body>
 
 </html>
