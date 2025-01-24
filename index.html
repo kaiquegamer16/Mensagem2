@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
@@ -12,10 +12,9 @@
             background-color: #121b22;
             color: #e0e0e0;
             overflow-x: hidden;
-            /* Prevent horizontal scrollbar due to input repositioning */
-            overflow-y: auto;
+            overflow-y: hidden;
+            /* Prevent page scroll */
             height: 100vh;
-
         }
 
         .chat-container {
@@ -28,16 +27,14 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            /* Make chat-container relative for absolute positioning of input area */
             height: calc(100vh - 80px);
-            /* Adjust height considering the fixed input area */
-
         }
 
         .messages {
             flex-grow: 1;
             padding: 10px 15px;
             overflow-y: auto;
+            /* Enable scroll within the message area */
             display: flex;
             flex-direction: column;
             height: auto;
@@ -130,7 +127,43 @@
             width: 100%;
             margin-top: 5px;
         }
-        .audio-controls{
+        
+        .message .video-message-container {
+            position: relative; /* Container for positioning controls */
+            display: flex; /* Use flexbox to center content */
+            justify-content: center; /* Center content horizontally */
+             align-items: center; /* Center content vertically */
+            margin-top: 5px; /* Add some margin */
+            max-height: 300px; /* Match height of image */
+        }
+         .message .video-message {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        .video-controls{
+            display: flex;
+           align-items: center;
+           position: absolute;
+             bottom: '5px';
+           right: '5px';
+         z-index: 1;
+
+        }
+           .video-controls select{
+                 background-color: #2a3942;
+                color: #e0e0e0;
+                border: none;
+               margin-left: 5px;
+                 border-radius: 5px;
+                padding: 2px;
+                cursor: pointer;
+              outline: none;
+                font-size: 0.9em;
+
+            }
+          .audio-controls{
             display: flex;
            align-items: center;
 
@@ -155,17 +188,12 @@
             background-color: #1e2731;
             align-items: center;
             position: fixed;
-            /* Make input-area fixed to stay above the keyboard */
             bottom: 0;
-            /* Position at the bottom of the screen */
             left: 0;
             right: 0;
             z-index: 100;
-            /* Make sure the input is above the messages */
             max-height: 150px;
-            /* Adjust the maximum height as needed */
             box-sizing: border-box;
-            /* Include padding and border in element's total width and height */
         }
 
         .input-area .user-info {
@@ -219,9 +247,7 @@
             align-items: center;
             padding: 10px;
             background-color: #1e2a33;
-            /* Match chat-container */
             border-bottom: 1px solid #3e4c54;
-            /* Optional border */
         }
 
 
@@ -383,7 +409,6 @@
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
             padding: 10px;
             display: none;
-            /* Hidden by default */
             z-index: 1001;
             max-height: 200px;
             overflow-y: auto;
@@ -399,7 +424,6 @@
 
         .input-area {
             position: relative;
-            /* Needed for positioning the Emoji picker */
         }
 
         #emoji-button {
@@ -441,15 +465,12 @@
             cursor: pointer;
             margin-left: 5px;
             font-size: 1em;
-            /* Adjust size as needed */
         }
 
         .group-list-options button:hover {
             color: #bbb;
-            /* Darken on hover */
         }
 
-        /* Enter Group by ID Styling */
         .enter-group-by-id {
             margin-top: 10px;
             text-align: center;
@@ -478,8 +499,6 @@
             background-color: #006659;
         }
 
-        /* ADMIN INPUT */
-
         .modal-content input[type="admname"] {
             margin: 10px 0;
             padding: 10px;
@@ -494,42 +513,34 @@
             margin-right: auto;
         }
 
-        /* Style for the Console Panel */
         .console-panel {
             position: absolute;
             left: 0;
             right: 0;
             bottom: 0;
-            /* Increased height for better visibility */
             background-color: #1e2a33;
             border-top: 1px solid #3e4c54;
             padding: 10px;
             overflow-y: auto;
-            /* Allow scrolling if content overflows */
             display: none;
             z-index: 999;
             max-height: 70vh;
-            /* Sets a maximum height */
             box-sizing: border-box;
         }
 
-        /* Panel Header Style */
         .console-panel h2 {
             margin-top: 0;
             padding-bottom: 10px;
             border-bottom: 1px solid #3e4c54;
         }
 
-        /* Styling for list inside the console */
         .console-panel ul {
             list-style: none;
             padding: 0;
             margin: 0;
             margin-bottom: 10px;
-            /* Adds spacing before the buttons */
         }
 
-        /* List item styling with spacing */
         .console-panel li {
             padding: 10px;
             border-bottom: 1px solid #3e4c54;
@@ -538,7 +549,6 @@
             align-items: center;
         }
 
-        /* Style for group name and ID */
         .console-panel li span {
             flex-grow: 1;
             white-space: nowrap;
@@ -547,7 +557,6 @@
             margin-right: 5px;
         }
 
-        /* Style for the group copy button */
         .console-panel li .group-copy-button {
             padding: 5px 10px;
             border: none;
@@ -559,12 +568,10 @@
             font-size: 0.9em;
         }
 
-        /* Hover effect for the group copy button */
         .console-panel li .group-copy-button:hover {
             background-color: #006659;
         }
 
-        /* Console panel footer */
         .console-panel .console-footer {
             display: flex;
             justify-content: flex-end;
@@ -574,7 +581,6 @@
             gap: 8px;
         }
 
-        /* Style for the console's cancel and delete buttons */
         .console-panel .console-footer button {
             padding: 8px 15px;
             border: none;
@@ -587,12 +593,10 @@
 
         .console-panel .console-footer .console-cancel-button {
             background-color: #888;
-            /* A more neutral color for cancel */
         }
 
         .console-panel .console-footer .console-cancel-button:hover {
             background-color: #666;
-            /* Darken on hover */
         }
 
         .console-panel .console-footer .console-delete-button {
@@ -601,15 +605,12 @@
 
         .console-panel .console-footer .console-delete-button:hover {
             background-color: #b71c1c;
-            /* Darken on hover */
         }
 
-        /* Message for when there are no groups */
         .console-panel .no-groups-message {
             text-align: center;
         }
-
-        /* Clear Chat Modal */
+        
         .modal#clearChatModal .modal-content{
             text-align: center;
         }
@@ -632,7 +633,6 @@
             <div class="user-info">
                 <img id="currentUserImage" src="" alt="Foto de Perfil">
             </div>
-            <!-- Emoji picker container -->
             <div class="emoji-picker" id="emojiPicker">
                 <span>😀</span>
                 <span>😂</span>
@@ -644,16 +644,15 @@
                 <span>🙏</span>
                 <span>🎉</span>
                 <span>🔥</span>
-                <!-- Add more emojis as needed -->
             </div>
             <button class="attachment-button" id="attachment-button">📎</button>
-          <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, application/pdf" style="display: none;">
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, video/*, application/pdf"
+                style="display: none;">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
         </div>
     </div>
 
-    <!-- Console Panel -->
     <div class="console-panel" id="consolePanel">
         <h2>Console de Grupos</h2>
         <ul id="consoleGroupList">
@@ -661,11 +660,10 @@
         </ul>
         <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
         <div class="console-footer">
-           <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
+            <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
         </div>
     </div>
 
-    <!-- Username Modal -->
     <div class="modal" id="usernameModal">
         <div class="modal-content">
             <h2>Crie sua conta</h2>
@@ -679,7 +677,6 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div class="settings-modal" id="settingsModal">
         <div class="settings-content">
             <h2>Configurações</h2>
@@ -701,12 +698,9 @@
         </div>
     </div>
 
-    <!-- New Group Modal -->
     <div class="modal" id="newGroupModal">
         <div class="modal-content">
             <h2>Criar Novo Grupo</h2>
-
-            <!-- Adding a field for the ADM name -->
 
             <label for="admNameInput">Nome do ADM:</label>
             <input type="admname" id="admNameInput" placeholder="Nome ADM" required>
@@ -721,7 +715,6 @@
         </div>
     </div>
 
-    <!-- Group List Modal -->
     <div class="modal" id="groupListModal">
         <div class="modal-content">
             <h2>Lista de Grupos</h2>
@@ -735,7 +728,6 @@
         </div>
     </div>
 
-    <!-- Modal to Define ADM -->
     <div class="modal" id="defineAdminModal">
         <div class="modal-content">
             <h2>Definir Administrador</h2>
@@ -744,7 +736,6 @@
             <button id="setAdminButton">Definir ADM</button>
         </div>
     </div>
-    <!-- Group Delete Confirmation Modal -->
     <div class="modal" id="deleteGroupModal">
         <div class="modal-content">
             <h2>Tem certeza que deseja deletar este grupo?</h2>
@@ -754,8 +745,7 @@
            </div>
         </div>
     </div>
-       <!-- Clear Chat Modal -->
-    <div class="modal" id="clearChatModal">
+        <div class="modal" id="clearChatModal">
         <div class="modal-content">
               <h2>Deseja limpar o chat deste grupo?</h2>
             <div style="display:flex; justify-content: center;">
@@ -765,7 +755,7 @@
         </div>
     </div>
     <script type="module">
-                import {
+        import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -780,16 +770,16 @@
             orderByChild,
             equalTo
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
-      
+
         import {
             getMessaging,
             getToken,
             onMessage
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js';
 
-        // Firebase configurations (REPLACE WITH YOUR CREDENTIALS)
+
         const firebaseConfig = {
-            apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+           apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
             authDomain: "engine-c02f6.firebaseapp.com",
             projectId: "engine-c02f6",
             storageBucket: "engine-c02f6.firebasestorage.app",
@@ -798,16 +788,13 @@
             measurementId: "G-T81G36LMJG"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const messaging = getMessaging(app);
 
-        // References to the Firebase database
         const messagesRef = ref(database, 'messages');
         const groupsRef = ref(database, 'groups');
 
-        // Get elements from the DOM
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const messagesContainer = document.getElementById('messages');
@@ -819,11 +806,9 @@
         const attachmentButton = document.getElementById('attachment-button');
         const attachmentInput = document.getElementById('attachment-input');
 
-        // Emoji Picker Elements
         const emojiPicker = document.getElementById('emojiPicker');
         let emojiPickerVisible = false;
 
-        // Group-related elements
         const newGroupButton = document.getElementById('new-group-button');
         const groupListButton = document.getElementById('group-list-button');
         const newGroupModal = document.getElementById('newGroupModal');
@@ -834,38 +819,29 @@
         const groupList = document.getElementById('groupList');
         const groupIdInput = document.getElementById('groupIdInput');
         const enterGroupIdButton = document.getElementById('enterGroupIdButton');
-        const admNameInput = document.getElementById('admNameInput');
+          const admNameInput = document.getElementById('admNameInput');
 
-        // Modals
-        const defineAdminModal = document.getElementById('defineAdminModal');
-
-        // Inputs
-        const newAdminNameInput = document.getElementById('newAdminNameInput');
-
-        // Buttons
-        const setAdminButton = document.getElementById('setAdminButton');
-
-        // Buttons and Modals
+          const defineAdminModal = document.getElementById('defineAdminModal');
+          const newAdminNameInput = document.getElementById('newAdminNameInput');
+           const setAdminButton = document.getElementById('setAdminButton');
         const settingsButton = document.getElementById('settingsButton');
         const settingsModal = document.getElementById('settingsModal');
         const clearChatButton = document.getElementById('clearChatButton');
         const editProfileButton = document.getElementById('editProfile');
-        const consoleButton = document.getElementById('console-button');
+           const consoleButton = document.getElementById('console-button');
         const consolePanel = document.getElementById('consolePanel');
         const consoleGroupList = document.getElementById('consoleGroupList');
-         const closeConsoleButton = document.getElementById('closeConsoleButton');
+          const closeConsoleButton = document.getElementById('closeConsoleButton');
         const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
-        let consoleVisible = false;
-        // Settings options
+         let consoleVisible = false;
         const themeSelect = document.getElementById('themeSelect');
+
 
         let username = localStorage.getItem('username');
         let profileImage = localStorage.getItem('profileImage');
-        let theme = localStorage.getItem('theme') || 'dark'; // Load theme or use 'dark' by default
-
-        //Emoji Button
+       let theme = localStorage.getItem('theme') || 'dark';
         const emojiButton = document.createElement('button');
-        emojiButton.textContent = 'Emoji';
+         emojiButton.textContent = 'Emoji';
         emojiButton.id = 'emoji-button';
         emojiButton.innerHTML = 'Emoji';
         document.querySelector('.input-area').prepend(emojiButton);
@@ -874,18 +850,18 @@
             emojiPicker.style.display = emojiPickerVisible ? 'block' : 'none';
         });
 
-        let currentGroupId = null; // Track current group ID
-        let groups = []; // Initialize an empty array for groups
-        let currentGroupAdmin = null; // Variable to track the ADM of the current group
-        let currentGroupIdToUpdate = null;
-        const chatContainer = document.querySelector('.chat-container');
-        const inputArea = document.querySelector('.input-area');
 
-        // Variable to control which audio is playing
-        let currentPlayingAudio = null;
+        let currentGroupId = null;
+         let groups = [];
+        let currentGroupAdmin = null;
+       let currentGroupIdToUpdate = null;
+         const chatContainer = document.querySelector('.chat-container');
+          const inputArea = document.querySelector('.input-area');
 
 
-        // Function to convert image to base64
+            let currentPlayingAudio = null;
+         let currentPlayingVideo = null;
+
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
@@ -896,8 +872,7 @@
             reader.readAsDataURL(file);
         });
 
-        // Function to update the username and profile image in the database
-        const updateUsernameAndImage = async (newUsername, newProfileImage) => {
+           const updateUsernameAndImage = async (newUsername, newProfileImage) => {
             try {
                 const snapshot = await get(messagesRef);
                 if (snapshot.exists()) {
@@ -917,50 +892,38 @@
                 alert("Erro ao atualizar o perfil. Tente novamente.");
             }
         };
-
-        // Display the username modal if not defined
-        if (!username || !profileImage) {
+           if (!username || !profileImage) {
             usernameModal.style.display = 'flex';
         } else {
             currentUserImage.src = profileImage;
         }
 
-        // Set the username and image
-        setUsernameButton.addEventListener('click', async () => {
-                        const inputName = usernameInput.value.trim();
+          setUsernameButton.addEventListener('click', async () => {
+            const inputName = usernameInput.value.trim();
             const imageFile = profileImageInput.files[0];
-
-            if (!imageFile) {
+              if (!imageFile) {
                 alert("Por favor, selecione uma imagem de perfil.");
-                return; // Exit function if no file
+                return;
             }
-
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Allowed file types
+              const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
             if (!allowedTypes.includes(imageFile.type)) {
                 alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
                 return;
             }
-
             if (inputName !== '' && imageFile) {
                 try {
                     const base64Image = await toBase64(imageFile);
                     username = inputName;
                     profileImage = base64Image;
-
-                    localStorage.setItem('username', username);
+                      localStorage.setItem('username', username);
                     localStorage.setItem('profileImage', profileImage);
+                      usernameModal.style.display = 'none';
+                        currentUserImage.src = profileImage;
 
-                    usernameModal.style.display = 'none';
-
-                    currentUserImage.src = profileImage;
-
-                    // Update messages with new username and profile image
                     await updateUsernameAndImage(username, profileImage).catch(error => {
                         console.error("Erro ao atualizar o Firebase: ", error);
                         alert("Erro ao atualizar o perfil. Tente novamente.");
                     });
-
-
                 } catch (error) {
                     console.error("Erro ao converter a imagem: ", error);
                     alert("Erro ao processar a imagem. Tente novamente.");
@@ -970,29 +933,26 @@
             }
         });
 
-        // Function to format a timestamp
+
         function formatTimestamp(timestamp) {
-                        const date = new Date(timestamp);
+             const date = new Date(timestamp);
             const hours = date.getHours().toString().padStart(2, '0');
             const minutes = date.getMinutes().toString().padStart(2, '0');
             return `${hours}:${minutes}`;
         }
-
-        // Function to display date separators
         let lastDisplayedDate = null;
-
-        function displayDateSeparator(dateString) {
+         function displayDateSeparator(timestamp) {
+             const date = new Date(timestamp);
+            const dateString = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
             if (dateString !== lastDisplayedDate) {
                 const separator = document.createElement('div');
                 separator.classList.add('date-separator');
-                separator.textContent = dateString;
-                messagesContainer.appendChild(separator);
+                separator.textContent = dateString;                messagesContainer.appendChild(separator);
                 lastDisplayedDate = dateString;
             }
         }
-
-        // Function to fetch and display messages for a specific group
-        function fetchGroupMessages(groupId) {
+           
+             function fetchGroupMessages(groupId) {
                         if (!groupId) {
                 console.warn("fetchGroupMessages called with undefined groupId.");
                 messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
@@ -1000,14 +960,14 @@
             }
 
             const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
-
+            lastDisplayedDate = null;
             onValue(groupMessagesRef, (snapshot) => {
-                messagesContainer.innerHTML = ''; // Clear existing messages
-
+                messagesContainer.innerHTML = '';
                 const data = snapshot.val();
                 if (data) {
                     Object.entries(data).forEach(([key, message]) => {
-                        const messageElement = document.createElement('div');
+                        displayDateSeparator(message.timestamp);
+                         const messageElement = document.createElement('div');
                         messageElement.classList.add('message');
 
                         const senderInfo = document.createElement('div');
@@ -1019,7 +979,7 @@
                         senderInfo.appendChild(profileImageElement);
 
                         let messageContent;
-                        if (message.type === 'image') {
+                         if (message.type === 'image') {
                             messageContent = document.createElement('img');
                             messageContent.src = message.content;
                             messageContent.alt = "Imagem";
@@ -1027,7 +987,9 @@
                         } else if (message.type === 'audio') {
                              messageContent = createAudioDisplay(message.content);
 
-                         } else {
+                         } else  if (message.type === 'video') {
+                            messageContent = createVideoDisplay(message.content);
+                        }else {
                             messageContent = document.createElement('span');
                             messageContent.classList.add('message-text');
                              messageContent.textContent = message.content;
@@ -1041,7 +1003,7 @@
                             messageElement.classList.add('sent');
                         } else {
                             messageElement.classList.add('received');
-                           showGroupMessageNotification(message.sender, message.content, message.profileImage, groupId);
+                            showGroupMessageNotification(message.sender, message.content, message.profileImage, groupId);
                         }
 
                         messageElement.appendChild(senderInfo);
@@ -1056,9 +1018,7 @@
 
             });
         }
-
-         // Function to create an audio display element
-       function createAudioDisplay(audioSrc) {
+             function createAudioDisplay(audioSrc) {
             const audioDisplay = document.createElement('div');
             audioDisplay.classList.add('audio-message');
 
@@ -1079,18 +1039,17 @@
             const audio = new Audio(audioSrc);
             let isPlaying = false;
             playButton.addEventListener('click', function() {
-               if (currentPlayingAudio && currentPlayingAudio !== audio) {
+                if (currentPlayingAudio && currentPlayingAudio !== audio) {
                     currentPlayingAudio.pause();
                     const prevAudioDisplay = currentPlayingAudio.parentNode.parentNode;
-                    if(prevAudioDisplay)
-                    {
-                       const prevPlayButton = prevAudioDisplay.querySelector('.audio-controls button');
-                        if(prevPlayButton){
-                             prevPlayButton.innerHTML = '▶';
-                        }
-                    }
+                      if(prevAudioDisplay){
+                         const prevPlayButton = prevAudioDisplay.querySelector('.audio-controls button');
+                             if(prevPlayButton){
+                                prevPlayButton.innerHTML = '▶';
+                           }
+                     }
 
-                   }
+                }
                if (isPlaying) {
                   audio.pause();
                    playButton.innerHTML = '▶';
@@ -1136,22 +1095,127 @@
              audioControls.appendChild(timeDisplay);
              audioControls.appendChild(playbackSpeedSelect);
            audioDisplay.appendChild(audioControls)
-
-
             return audioDisplay;
         }
-        // Function to format time in mm:ss
+
+         function createVideoDisplay(videoSrc) {
+            const videoDisplayContainer = document.createElement('div');
+              videoDisplayContainer.classList.add('video-message-container');
+            const video = document.createElement('video');
+            video.src = videoSrc;
+             video.classList.add('video-message');
+              video.controls = false;
+            let isPlaying = false;
+
+          const playButton = document.createElement('button');
+           playButton.innerHTML = '▶';
+           playButton.style.fontSize = '1.2em';
+           playButton.style.padding = '2px 10px';
+           playButton.style.borderRadius = '5px';
+           playButton.style.position = 'absolute';
+           playButton.style.top = '50%';
+             playButton.style.left= '50%';
+          playButton.style.transform = 'translate(-50%, -50%)';
+          playButton.style.backgroundColor= 'rgba(0,0,0,0.5)';
+           playButton.style.zIndex = '1';
+           playButton.style.color = 'white';
+           playButton.style.border = 'none';
+           playButton.style.cursor = 'pointer';
+          playButton.style.width = '50px';
+         playButton.style.height = '50px';
+         playButton.style.borderRadius = '50%';
+          playButton.style.display = 'flex';
+          playButton.style.alignItems = 'center';
+         playButton.style.justifyContent = 'center';
+          const videoControls = document.createElement('div');
+             videoControls.classList.add('video-controls');
+            videoControls.style.position = 'absolute';
+             videoControls.style.bottom = '5px';
+          videoControls.style.right = '5px';
+          videoControls.style.zIndex = 1;
+
+          video.addEventListener('click', function(){
+                 if (currentPlayingVideo && currentPlayingVideo !== video) {
+                  currentPlayingVideo.pause();
+                      const prevVideoDisplay = currentPlayingVideo.parentNode.parentNode;
+                    if(prevVideoDisplay)
+                    {
+                       const prevPlayButton = prevVideoDisplay.querySelector('.video-controls button');
+                          if(prevPlayButton){
+                              prevPlayButton.innerHTML = '▶';
+                           }
+                    }
+            }
+              if (isPlaying) {
+                  video.pause();
+                    playButton.innerHTML = '▶';
+                  isPlaying = false;
+                   currentPlayingVideo = null;
+                } else {
+                  video.play();
+                  playButton.innerHTML = '⏸';
+                  isPlaying = true;
+                     currentPlayingVideo = video;
+                }
+
+          });
+
+          playButton.addEventListener('click', function(event){
+                event.stopPropagation();
+          });
+
+           video.addEventListener('ended', function() {
+                  playButton.innerHTML = '▶';
+                  isPlaying = false;
+                   currentPlayingVideo = null;
+            });
+
+             const playbackSpeedSelect = document.createElement('select');
+            const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+            speeds.forEach(speed => {
+            const option = document.createElement('option');
+            option.value = speed;
+            option.textContent = `${speed}x`;
+             if(speed == 1)
+              option.selected = true;
+            playbackSpeedSelect.appendChild(option);
+           });
+
+              playbackSpeedSelect.addEventListener('change', function() {
+              video.playbackRate = parseFloat(this.value);
+            });
+             const timeDisplay = document.createElement('span');
+              timeDisplay.textContent = '0:00 / 0:00';
+           timeDisplay.style.whiteSpace = 'nowrap';
+         timeDisplay.style.marginLeft = '5px';
+
+            video.addEventListener('loadedmetadata', () => {
+             const duration = formatTime(video.duration);
+              timeDisplay.textContent = `0:00 / ${duration}`;
+           });
+
+             video.addEventListener('timeupdate', function() {
+                timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+              });
+             videoControls.appendChild(timeDisplay);
+              videoControls.appendChild(playbackSpeedSelect);
+           videoDisplayContainer.appendChild(video);
+             videoDisplayContainer.appendChild(playButton);
+            videoDisplayContainer.appendChild(videoControls);
+
+            return videoDisplayContainer;
+        }
+
+
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = Math.floor(seconds % 60);
             return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
           }
-        // Function to fetch group list from Firebase
-        function fetchGroupList() {
+           function fetchGroupList() {
             onValue(groupsRef, (snapshot) => {
                 groups = [];
                 const data = snapshot.val();
-
                 if (data) {
                     Object.entries(data).forEach(([key, group]) => {
                         groups.push({
@@ -1159,138 +1223,112 @@
                             name: group.name,
                             image: group.image,
                             members: group.members,
-                            admin: group.admin
-                            // Include admin in the group object
+                             admin: group.admin
                         });
                     });
                 }
                 populateGroupList();
-                updateConsoleGroupList(); // Update the console as well
+                updateConsoleGroupList();
             });
         }
-
-               // Function to send a message
-        function sendMessage() {
+       function sendMessage() {
             const text = messageInput.value.trim();
             if (text !== '') {
                 push(messagesRef, {
                     type: 'text',
                     content: text,
                     sender: username,
-                    profileImage: profileImage,
+                     profileImage: profileImage,
                     timestamp: Date.now(),
                     groupId: currentGroupId
                 });
                 messageInput.value = '';
             }
         }
-
-        // Handle Emoji Selection
         emojiPicker.addEventListener('click', function(event) {
             if (event.target.tagName === 'SPAN') {
                 const selectedEmoji = event.target.textContent;
                 messageInput.value += selectedEmoji;
-                emojiPicker.style.display = 'none'; // Hide the picker after selection
+                emojiPicker.style.display = 'none';
                 emojiPickerVisible = false;
             }
         });
-
-        // New Group Button Event Listener
-        newGroupButton.addEventListener('click', () => {
+         newGroupButton.addEventListener('click', () => {
             newGroupModal.style.display = 'flex';
         });
 
-        // Group List Button Event Listener
         groupListButton.addEventListener('click', () => {
             populateGroupList();
             groupListModal.style.display = 'flex';
         });
 
-        // Console Button Event Listener
-        consoleButton.addEventListener('click', () => {
-            consoleVisible = !consoleVisible;
+            consoleButton.addEventListener('click', () => {
+             consoleVisible = !consoleVisible;
             consolePanel.style.display = consoleVisible ? 'block' : 'none';
-            updateConsoleGroupList(); // Ensure the console list is up to date when opened
+             updateConsoleGroupList();
         });
 
-        // Function to Populate Group List
         function populateGroupList() {
             groupList.innerHTML = '';
-
-            groups.forEach(group => {
+             groups.forEach(group => {
                 const listItem = document.createElement('li');
                 listItem.dataset.groupId = group.id;
-
-                // Debugging:
-                console.log("Username:", username);
-                console.log("Group Admin:", group.admin);
-
-                let isAdmin = false; // Initialize isAdmin as false by default
-                let adminMessage = '';
+                let isAdmin = false;
+                 let adminMessage = '';
 
                 if (!group.admin) {
                     adminMessage = ' (Grupo sem ADM. Atualize!)';
                 } else {
                     isAdmin = group.admin.toLowerCase() === username.toLowerCase();
                 }
-
-                console.log("Is Admin:", isAdmin);
-
                 listItem.innerHTML = `
                     ${group.name}${adminMessage}
                     <div class="group-list-options">
                         <button title="Editar Nome" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>✏️</button>
                         <button title="Ver ID do Grupo" data-group-id="${group.id}">#</button>
                         <button title="Deletar Grupo" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🗑️</button>
-                        ${adminMessage !== '' ? `<button title="Definir ADM" data-group-id="${group.id}">👑</button>` : ''}
+                         ${adminMessage !== '' ? `<button title="Definir ADM" data-group-id="${group.id}">👑</button>` : ''}
                     </div>
                 `;
                 groupList.appendChild(listItem);
             });
         }
-        // Function to update the console group list
         function updateConsoleGroupList() {
             consoleGroupList.innerHTML = '';
-            if (groups.length === 0) {
+              if (groups.length === 0) {
                 noGroupsMessage.style.display = 'block';
             } else {
-                noGroupsMessage.style.display = 'none';
-                groups.forEach(group => {
+                 noGroupsMessage.style.display = 'none';
+            groups.forEach(group => {
                     const listItem = document.createElement('li');
                     listItem.innerHTML = `<span>${group.name} - ID: ${group.id}</span>
                 <button class="group-copy-button" data-group-id="${group.id}">Copiar ID</button>`;
                     consoleGroupList.appendChild(listItem);
                 });
-            }
+              }
 
         }
 
-        // Function to switch chat to group
-        function switchChatToGroup(groupId) {
+          function switchChatToGroup(groupId) {
             currentGroupId = groupId;
-            localStorage.setItem('lastGroupId', groupId);
-
-            // Fetch group info, including the ADM
+             localStorage.setItem('lastGroupId', groupId);
             get(ref(database, `groups/${groupId}`)).then(snapshot => {
                 const group = snapshot.val();
                 if (group) {
-                    currentGroupAdmin = group.admin;
-                    console.log("Current Group Admin:", currentGroupAdmin);
-                } else {
-                    currentGroupAdmin = null;
+                     currentGroupAdmin = group.admin;
+                     console.log("Current Group Admin:", currentGroupAdmin);
+                }else{
+                     currentGroupAdmin = null;
                 }
                 fetchGroupMessages(groupId);
             });
             console.log(`Switching chat to group: ${groupId}`);
         }
-
-        // Function to Create a New Group
         createGroupButton.addEventListener('click', async () => {
             const groupName = groupNameInput.value.trim();
             const groupImageFile = groupImageInput.files[0];
-            const admNameInputVal = admNameInput.value.trim(); //Get the ADM name
-
-            if (!groupName || !groupImageFile || !admNameInputVal) {
+             const admNameInputVal = admNameInput.value.trim();
+             if (!groupName || !groupImageFile || !admNameInputVal) {
                 alert("Por favor, preencha o nome, selecione uma imagem e insira o nome do ADM para o grupo.");
                 return;
             }
@@ -1300,17 +1338,16 @@
                 const newGroup = {
                     name: groupName,
                     image: base64Image,
-                    members: [username], // The creator is automatically a member
-                    admin: admNameInputVal //Define ADM
+                    members: [username],
+                    admin: admNameInputVal
                 };
-                //Add new group to Firebase
                 push(groupsRef, newGroup).then((snapshot) => {
                     groupNameInput.value = '';
                     groupImageInput.value = null;
-                    admNameInput.value = '';
-                    newGroupModal.style.display = 'none';
-                    fetchGroupList();
-                    switchChatToGroup(snapshot.key);
+                   admNameInput.value = '';
+                     newGroupModal.style.display = 'none';
+                       fetchGroupList();
+                   switchChatToGroup(snapshot.key);
                 })
             } catch (error) {
                 console.error("Erro ao processar a imagem: ", error);
@@ -1319,17 +1356,15 @@
         });
 
         function generateGroupId() {
-            return Math.random().toString(36).substring(2, 15); // Generate a random string to serve as an ID
+            return Math.random().toString(36).substring(2, 15);
         }
-
-        // Attaching Click Handlers to the Modals
-        usernameModal.addEventListener('click', (e) => {
+         usernameModal.addEventListener('click', (e) => {
             if (e.target === usernameModal) {
                 usernameModal.style.display = 'none';
             }
         });
 
-        settingsModal.addEventListener('click', (e) => {
+          settingsModal.addEventListener('click', (e) => {
             if (e.target === settingsModal) {
                 settingsModal.style.display = 'none';
             }
@@ -1346,18 +1381,15 @@
                 groupListModal.style.display = 'none';
             }
         });
-        consolePanel.addEventListener('click', (e) => {
+          consolePanel.addEventListener('click', (e) => {
             if (e.target === consolePanel) {
                 consolePanel.style.display = 'none';
-                  consoleVisible = false;
+                 consoleVisible = false;
             }
         });
-
-       // Function to handle sending attachments (images, audio, etc.)
-        async function sendAttachment() {
+         async function sendAttachment() {
             const file = attachmentInput.files[0];
-
-            if (!file) {
+             if (!file) {
                 alert("Por favor, selecione um arquivo para enviar.");
                 return;
             }
@@ -1366,16 +1398,20 @@
                 const base64File = await toBase64(file);
                 let messageType = 'file';
 
-                if (file.type.startsWith('image/')) {
+                 if (file.type.startsWith('image/')) {
                     messageType = 'image';
                 } else if (file.type.startsWith('audio/')) {
-                    messageType = 'audio';
-                } else if (file.type === 'audio/ogg') {
-                    messageType = 'audio';
-                } else {
-                    messageType = 'file';
+                     messageType = 'audio';
+                }else if (file.type.startsWith('video/')){
+                     messageType = 'video';
+                 }
+                else if (file.type === 'audio/ogg') {
+                   messageType = 'audio';
                 }
 
+                 else {
+                    messageType = 'file';
+                }
                 push(messagesRef, {
                     type: messageType,
                     content: base64File,
@@ -1384,105 +1420,85 @@
                     timestamp: Date.now(),
                     groupId: currentGroupId
                 });
-
-                attachmentInput.value = ''; // Clear the input
-
-            } catch (error) {
+                attachmentInput.value = '';
+            }  catch(error){
                 console.error("Erro ao enviar o arquivo: ", error);
-                alert("Erro ao processar o arquivo. Tente novamente.");
+                  alert("Erro ao processar o arquivo. Tente novamente.");
             }
         }
-        // Event listener for sending messages
-        sendButton.addEventListener('click', sendMessage);
+          sendButton.addEventListener('click', sendMessage);
 
-        messageInput.addEventListener('keyup', (event) => {
+           messageInput.addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
                 sendMessage();
             }
         });
-
-        // Event listener for attachments
-        attachmentButton.addEventListener('click', () => {
+          attachmentButton.addEventListener('click', () => {
             attachmentInput.click();
         });
+          attachmentInput.addEventListener('change', sendAttachment);
 
-        attachmentInput.addEventListener('change', sendAttachment);
-
-        // Theme settings
         settingsButton.addEventListener('click', () => {
             settingsModal.style.display = 'flex';
         });
-
-        // Function to determine if user is admin of current group
-        function isCurrentUserAdmin() {
+          function isCurrentUserAdmin() {
             return currentGroupAdmin === username;
         }
-
-         // Function to send an ADM message
-        function sendAdminMessage(messageText) {
+          function sendAdminMessage(messageText) {
             push(messagesRef, {
                 type: 'admin',
                 content: messageText,
-                sender: 'Sistema', // Use a system user or similar
-                profileImage: '',
+                sender: 'Sistema',
+                  profileImage: '',
                 timestamp: Date.now(),
                 groupId: currentGroupId
             });
         }
-
-        // Get Clear Chat Modal and its buttons
-        const clearChatModal = document.getElementById('clearChatModal');
+          const clearChatModal = document.getElementById('clearChatModal');
         const confirmClearChatButton = document.getElementById('confirmClearChatButton');
         const cancelClearChatButton = document.getElementById('cancelClearChatButton');
-       let clearingMessages = false;
-        // Clear Chat Button Event Listener (now conditional)
-        clearChatButton.addEventListener('click', () => {
+          let clearingMessages = false;
+          clearChatButton.addEventListener('click', () => {
              if (isCurrentUserAdmin()) {
                 clearChatModal.style.display = 'flex';
             } else {
                 alert("Você não tem permissão para apagar as mensagens deste grupo.");
             }
         });
-          // Event listener for cancelling clear chat modal
-        cancelClearChatButton.addEventListener('click', () => {
+           cancelClearChatButton.addEventListener('click', () => {
             clearChatModal.style.display = 'none';
-            clearingMessages = false;
+              clearingMessages = false;
         });
-        // Event listener for confirming clear chat
-        confirmClearChatButton.addEventListener('click', () => {
-                if(!clearingMessages){
-                    clearingMessages = true;
-                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
-                    get(groupMessagesRef).then((snapshot) => {
+         confirmClearChatButton.addEventListener('click', () => {
+             if(!clearingMessages){
+                  clearingMessages = true;
+                   const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
+                 get(groupMessagesRef).then((snapshot) => {
                             const updates = {};
                             snapshot.forEach(child => {
-                                updates[child.key] = null; // Set value as null to remove
+                                updates[child.key] = null;
                             });
                             return update(ref(database, 'messages'), updates);
                         })
                         .then(() => {
                              clearChatModal.style.display = 'none';
-                             alert("Conversas apagadas com sucesso!");
-                            clearingMessages = false;
+                                alert("Conversas apagadas com sucesso!");
+                              clearingMessages = false;
                         })
                         .catch((error) => {
                             console.error("Erro ao apagar as conversas: ", error);
                             alert("Erro ao apagar as conversas. Tente novamente.");
-                             clearingMessages = false;
+                              clearingMessages = false;
                         });
-                }
+             }
+
 
         });
-
-        editProfileButton.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
+          editProfileButton.addEventListener('click', () => {
+              settingsModal.style.display = 'none';
             usernameModal.style.display = 'flex';
         });
-
-
-
-        // Function to handle Enter Group by ID
-        enterGroupIdButton.addEventListener('click', () => {
+         enterGroupIdButton.addEventListener('click', () => {
             const groupId = groupIdInput.value.trim();
             if (groupId) {
                 switchChatToGroup(groupId);
@@ -1491,54 +1507,42 @@
                 alert('Por favor, digite o ID do grupo.');
             }
         });
-
-        //Load the group list when the application starts
-        fetchGroupList();
-
-         // Get the new modal and buttons
-        const deleteGroupModal = document.getElementById('deleteGroupModal');
+          fetchGroupList();
+             const deleteGroupModal = document.getElementById('deleteGroupModal');
         const confirmDeleteButton = document.getElementById('confirmDeleteButton');
         const cancelDeleteButton = document.getElementById('cancelDeleteButton');
-        let currentGroupIdToDelete = null; // Variable to store the group ID to delete
-        
-        // Function to show the delete confirmation modal
-            function showDeleteConfirmation(groupId) {
+          let currentGroupIdToDelete = null;
+          function showDeleteConfirmation(groupId) {
                 currentGroupIdToDelete = groupId;
-                deleteGroupModal.style.display = 'flex';
-                
+                 deleteGroupModal.style.display = 'flex';
             }
-          // Handle the cancel button
-            cancelDeleteButton.addEventListener('click', () => {
-                deleteGroupModal.style.display = 'none';
-                currentGroupIdToDelete = null; // Clear the stored group ID
+         cancelDeleteButton.addEventListener('click', () => {
+                 deleteGroupModal.style.display = 'none';
+                currentGroupIdToDelete = null;
             });
-
-            // Function to handle delete group
-            function handleGroupDeletion(){
+              function handleGroupDeletion(){
                 if (currentGroupIdToDelete) {
                     const groupRef = ref(database, `groups/${currentGroupIdToDelete}`);
-                    remove(groupRef)
+                      remove(groupRef)
                         .then(() => {
                             const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupIdToDelete));
-
-                            get(groupMessagesRef).then((snapshot) => {
+                             get(groupMessagesRef).then((snapshot) => {
                                     const updates = {};
                                     snapshot.forEach(child => {
-                                        updates[child.key] = null; // Set value as null to remove
+                                        updates[child.key] = null;
                                     });
                                     return update(ref(database, 'messages'), updates);
                                 })
                                 .then(() => {
-                                    alert("Grupo deletado com sucesso!");
-                                    fetchGroupList();
+                                        alert("Grupo deletado com sucesso!");
+                                   fetchGroupList();
                                    if(currentGroupId === currentGroupIdToDelete){
                                         messagesContainer.innerHTML = '';
                                         currentGroupId = null;
                                         currentGroupAdmin = null;
                                     }
-
-                                 deleteGroupModal.style.display = 'none';
-                                 currentGroupIdToDelete = null;
+                                       deleteGroupModal.style.display = 'none';
+                                       currentGroupIdToDelete = null;
                                 })
                             .catch((error) => {
                                     console.error("Erro ao apagar as conversas: ", error);
@@ -1551,16 +1555,14 @@
                         });
                  }
             }
-           confirmDeleteButton.addEventListener('click', () => {
+        confirmDeleteButton.addEventListener('click', () => {
                 handleGroupDeletion();
             });
-
-        // Modified groupList event listener to use the modal for group deletion
-          groupList.addEventListener('click', (event) => {
+           groupList.addEventListener('click', (event) => {
             const target = event.target;
             const groupId = target.dataset.groupId;
             if (target.tagName === 'BUTTON' && groupId) {
-              event.stopPropagation(); // Prevent the li click event
+              event.stopPropagation();
 
               switch (target.title) {
                 case 'Editar Nome':
@@ -1582,9 +1584,9 @@
                   alert(`ID do Grupo: ${groupId}`);
                   break;
                 case 'Deletar Grupo':
-                    showDeleteConfirmation(groupId)
+                   showDeleteConfirmation(groupId)
                   break;
-                   case 'Definir ADM':
+                     case 'Definir ADM':
                                      defineAdminModal.style.display = 'flex';
                                       currentGroupIdToUpdate = groupId;
                                     break;
@@ -1594,18 +1596,17 @@
 
             } else {
               if (groupId) {
-                console.log("Switching to group:", groupId);
+                 console.log("Switching to group:", groupId);
                 switchChatToGroup(groupId);
-                groupListModal.style.display = 'none';
+                 groupListModal.style.display = 'none';
               } else {
-                console.log("groupId is undefined, not switching group.");
+                 console.log("groupId is undefined, not switching group.");
               }
             }
 
           });
 
-
-       setAdminButton.addEventListener('click', async () => {
+            setAdminButton.addEventListener('click', async () => {
             const newAdminName = newAdminNameInput.value.trim();
                 if(!newAdminName){
                     alert("Por favor insira o nome de usuário para o ADM!");
@@ -1622,38 +1623,32 @@
                      defineAdminModal.style.display = 'none';
                     return;
                 }
-
                  update(groupRef, { admin: newAdminName })
                     .then(() => {
                          sendAdminMessage(`${newAdminName} se tornou o novo ADM do grupo.`);
-                         alert("ADM Definido com Sucesso!");
+                        alert("ADM Definido com Sucesso!");
                          fetchGroupList()
                          defineAdminModal.style.display = 'none';
                     }).catch((error) => {
                         console.error("Erro ao definir o ADM: ", error);
                         alert("Erro ao definir o ADM. Tente novamente!");
                     });
-
-
                 });
             }
         });
 
-
-       defineAdminModal.addEventListener('click', (e) => {
+        defineAdminModal.addEventListener('click', (e) => {
         if(e.target === defineAdminModal){
             defineAdminModal.style.display = 'none';
         }
       });
-
-       // Event listener to copy group id
-        consoleGroupList.addEventListener('click', (event) => {
+          consoleGroupList.addEventListener('click', (event) => {
             const target = event.target;
               if (target.classList.contains('group-copy-button')) {
                 const groupId = target.dataset.groupId;
-                    navigator.clipboard.writeText(groupId)
+                     navigator.clipboard.writeText(groupId)
                     .then(() => {
-                        alert('ID do grupo copiado!');
+                         alert('ID do grupo copiado!');
                     })
                     .catch(err => {
                         console.error('Erro ao copiar ID do grupo', err);
@@ -1661,15 +1656,11 @@
                     });
                  }
         });
-        
-          // Event listener to close the console panel
-            closeConsoleButton.addEventListener('click', () => {
+          closeConsoleButton.addEventListener('click', () => {
                 consolePanel.style.display = 'none';
                 consoleVisible = false;
             });
-
-           let lastGroupId = localStorage.getItem('lastGroupId');
-
+             let lastGroupId = localStorage.getItem('lastGroupId');
         window.addEventListener('load', () => {
             if (lastGroupId) {
                 console.log("Loading last group:", lastGroupId);
@@ -1679,31 +1670,24 @@
             }
         });
 
-           function adjustInputArea() {
+          function adjustInputArea() {
             const chatContainerHeight = chatContainer.offsetHeight;
               const inputAreaHeight = inputArea.offsetHeight;
             chatContainer.style.height = `calc(100vh - ${inputAreaHeight}px)`;
         }
-
-        // Call on startup and on window resize
-        window.addEventListener('load', adjustInputArea);
-        window.addEventListener('resize', adjustInputArea);
-         // Function to apply the selected theme
-        function applyTheme() {
+            window.addEventListener('load', adjustInputArea);
+           window.addEventListener('resize', adjustInputArea);
+          function applyTheme() {
             document.documentElement.setAttribute('data-theme', theme);
         }
-
-
-        themeSelect.addEventListener('change', () => {
+       themeSelect.addEventListener('change', () => {
             theme = themeSelect.value;
             localStorage.setItem('theme', theme);
-            applyTheme(); // Apply the theme immediately upon change
+            applyTheme();
         });
-
-        // Load and apply theme
         themeSelect.value = theme;
         applyTheme();
-         function showGroupMessageNotification(sender, message, profileImage, groupId) {
+           function showGroupMessageNotification(sender, message, profileImage, groupId) {
             navigator.serviceWorker.ready.then(registration => {
                 registration.showNotification(`Nova Mensagem de ${sender} no grupo ${groupId}`, {
                     body: message,
@@ -1712,14 +1696,10 @@
             });
         }
 
-        onMessage(messaging, (payload) => {
+           onMessage(messaging, (payload) => {
             console.log('Mensagem recebida no frontend: ', payload);
         });
-
-         // Injected Service Worker code
-    if ('serviceWorker' in navigator) {
-    
-         
+           if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
          importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js');
         importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js');
@@ -1775,7 +1755,7 @@
            console.error('Falha ao registrar o service worker:', error);
          });
     }
-              </script>
+      </script>
 </body>
 
 </html>
