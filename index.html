@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat FCM + Realtime DB</title>
+    <title>Reprodutor de Música</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -562,8 +560,7 @@
                 <!-- Add more emojis as needed -->
             </div>
             <button class="attachment-button" id="attachment-button">📎</button>
-            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, application/pdf"
-                style="display: none;">
+          <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, application/pdf" style="display: none;">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
         </div>
@@ -659,7 +656,7 @@
     </div>
 
     <script type="module">
-             import {
+                import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -897,7 +894,7 @@
                 const data = snapshot.val();
                 if (data) {
                     Object.entries(data).forEach(([key, message]) => {
-                      const messageElement = document.createElement('div');
+                        const messageElement = document.createElement('div');
                         messageElement.classList.add('message');
 
                         const senderInfo = document.createElement('div');
@@ -914,37 +911,93 @@
                             messageContent.src = message.content;
                             messageContent.alt = "Imagem";
                             messageContent.classList.add('image-message');
-                        } else {
+                        } else if (message.type === 'audio') {
+                             messageContent = createAudioDisplay(message.content);
+
+                         } else {
                             messageContent = document.createElement('span');
                             messageContent.classList.add('message-text');
                              messageContent.textContent = message.content;
                         }
-                        
-                         const timestampElement = document.createElement('span');
-                            timestampElement.classList.add('timestamp');
-                            timestampElement.textContent = formatTimestamp(message.timestamp);
 
-                          if (message.sender === username) {
+                        const timestampElement = document.createElement('span');
+                        timestampElement.classList.add('timestamp');
+                        timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                        if (message.sender === username) {
                             messageElement.classList.add('sent');
-                         } else {
-                           messageElement.classList.add('received');
+                        } else {
+                            messageElement.classList.add('received');
                            showGroupMessageNotification(message.sender, message.content, message.profileImage, groupId);
                         }
 
-                      messageElement.appendChild(senderInfo);
-                       messageElement.appendChild(messageContent);
-                       messageElement.appendChild(timestampElement);
-                         messagesContainer.appendChild(messageElement);
-
+                        messageElement.appendChild(senderInfo);
+                        messageElement.appendChild(messageContent);
+                        messageElement.appendChild(timestampElement);
+                        messagesContainer.appendChild(messageElement);
                     });
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 } else {
                     messagesContainer.innerHTML = '<p>Nenhuma mensagem neste grupo.</p>';
-                 }
+                }
 
             });
         }
 
+         // Function to create an audio display element
+       function createAudioDisplay(audioSrc) {
+           const audioDisplay = document.createElement('div');
+           audioDisplay.classList.add('audio-message');
+
+           const playButton = document.createElement('button');
+           playButton.innerHTML = '▶';
+           playButton.style.fontSize = '1.2em';
+           playButton.style.padding = '2px 10px';
+           playButton.style.borderRadius = '5px';
+
+           const timeDisplay = document.createElement('span');
+           timeDisplay.textContent = '0:00 / 0:00';
+           timeDisplay.style.marginLeft = '5px';
+           timeDisplay.style.whiteSpace = 'nowrap';
+
+            const audio = new Audio(audioSrc);
+            let isPlaying = false;
+            playButton.addEventListener('click', function() {
+               if (isPlaying) {
+                  audio.pause();
+                   playButton.innerHTML = '▶';
+                  isPlaying = false;
+                } else {
+                   audio.play();
+                    playButton.innerHTML = '⏸';
+                  isPlaying = true;
+                }
+              });
+           audio.addEventListener('loadedmetadata', () => {
+             const duration = formatTime(audio.duration);
+              timeDisplay.textContent = `0:00 / ${duration}`;
+           });
+
+             audio.addEventListener('timeupdate', function() {
+                timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+              });
+              audio.addEventListener('ended', function() {
+                  playButton.innerHTML = '▶';
+                  isPlaying = false;
+              });
+
+           audioDisplay.appendChild(playButton);
+           audioDisplay.appendChild(timeDisplay);
+
+
+            return audioDisplay;
+        }
+        // Function to format time in mm:ss
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+          }
         // Function to fetch group list from Firebase
         function fetchGroupList() {
             onValue(groupsRef, (snapshot) => {
@@ -1152,7 +1205,7 @@
             }
         });
 
-        // Function to handle sending attachments (images, audio, etc.)
+       // Function to handle sending attachments (images, audio, etc.)
         async function sendAttachment() {
             const file = attachmentInput.files[0];
 
@@ -1168,6 +1221,8 @@
                 if (file.type.startsWith('image/')) {
                     messageType = 'image';
                 } else if (file.type.startsWith('audio/')) {
+                    messageType = 'audio';
+                } else if (file.type === 'audio/ogg') {
                     messageType = 'audio';
                 } else {
                     messageType = 'file';
@@ -1189,7 +1244,6 @@
                 alert("Erro ao processar o arquivo. Tente novamente.");
             }
         }
-
         // Event listener for sending messages
         sendButton.addEventListener('click', sendMessage);
 
@@ -1527,6 +1581,7 @@
            console.error('Falha ao registrar o service worker:', error);
          });
     }
+    
     </script>
 </body>
 
