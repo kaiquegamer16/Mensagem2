@@ -619,7 +619,7 @@
           /* New PV Panel */
         .modal#pvPanel .modal-content {
         position: relative;
-    }
+        }
             #pvPanel .modal-content input[type="text"] {
                width: 90%;
                 padding: 8px;
@@ -683,165 +683,194 @@
                     text-overflow: ellipsis;
                     margin-right: 5px;
                 }
-                
+            .settings-modal .settings-content #user-nick-display {
+                background-color: #2a3942;
+                padding: 8px;
+                 border-radius: 5px;
+                 color: #e0e0e0;
+               margin-bottom: 10px;
+                 white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+           display: inline-block;
+         max-width: 70%;
+            }
+             .settings-modal .settings-content button#copy-nick-button {
+                padding: 5px 10px;
+             background-color: #008069;
+                color: white;
+                 border: none;
+                 border-radius: 5px;
+                cursor: pointer;
+                  font-size: 0.9em;
+                margin-left: 5px;
+                white-space: nowrap;
+            }
+            .settings-modal .settings-content button#copy-nick-button:hover{
+                background-color: #006659;
+            }
     </style>
 </head>
 
 <body>
-<div class="chat-container">
-    <div class="top-buttons">
-        <button class="settings-button" id="settingsButton">⚙️</button>
-        <button id="new-group-button">👥 Novo Grupo</button>
-        <button id="group-list-button">📁 Lista Grupos</button>
-        <button id="console-button">⚙️ Console</button>
-        <button id="pv-button">PV</button>
-        <!-- New Button -->
-    </div>
-    <!-- Existing Chat UI -->
-    <div class="messages" id="messages">
-        <!-- Messages will be inserted here -->
-    </div>
-    <div class="input-area">
-        <div class="user-info">
-            <img id="currentUserImage" src="" alt="Foto de Perfil">
+    <div class="chat-container">
+        <div class="top-buttons">
+            <button class="settings-button" id="settingsButton">⚙️</button>
+            <button id="new-group-button">👥 Novo Grupo</button>
+            <button id="group-list-button">📁 Lista Grupos</button>
+            <button id="console-button">⚙️ Console</button>
+              <button id="pv-button">PV</button> <!-- New Button -->
         </div>
-        <div class="emoji-picker" id="emojiPicker">
-            <span>😀</span>
-            <span>😂</span>
-            <span>😊</span>
-            <span>😍</span>
-            <span>🤔</span>
-            <span>👍</span>
-            <span>❤️</span>
-            <span>🙏</span>
-            <span>🎉</span>
-            <span>🔥</span>
-        </div>
-        <button class="attachment-button" id="attachment-button">📎</button>
-        <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, video/*, application/pdf"
-            style="display: none;">
-        <input type="text" id="message-input" placeholder="Digite sua mensagem...">
-        <button id="send-button">Enviar</button>
-    </div>
-</div>
 
-<div class="console-panel" id="consolePanel">
-    <h2>Console de Grupos</h2>
-    <ul id="consoleGroupList">
-        <!-- Group list items will be dynamically added here -->
-    </ul>
-     <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
-    <div class="console-footer">
-        <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
-    </div>
-</div>
-<!-- New PV Panel -->
-<div class="modal" id="pvPanel">
-    <div class="modal-content">
-        <h2>Conversas Privadas</h2>
-        <input type="text" id="pvUserSearch" placeholder="Digite o nome do usuário">
-        <label>
-            <input type="checkbox" id="pvTermsCheckbox"> Aceito os termos e condições
-        </label>
-        <button id="createPvButton">Criar Conversa</button>
-        <ul class="group-list" id="pvChatList">
-            <!-- List of Private Chats -->
-        </ul>
+        <div class="messages" id="messages">
+            <!-- Messages will be inserted here -->
+        </div>
+        <div class="input-area">
+            <div class="user-info">
+                <img id="currentUserImage" src="" alt="Foto de Perfil">
+            </div>
+            <div class="emoji-picker" id="emojiPicker">
+                <span>😀</span>
+                <span>😂</span>
+                <span>😊</span>
+                <span>😍</span>
+                <span>🤔</span>
+                <span>👍</span>
+                <span>❤️</span>
+                <span>🙏</span>
+                <span>🎉</span>
+                <span>🔥</span>
+            </div>
+            <button class="attachment-button" id="attachment-button">📎</button>
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, video/*, application/pdf"
+                style="display: none;">
+            <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+            <button id="send-button">Enviar</button>
         </div>
     </div>
-<!-- Modals -->
-<div class="modal" id="usernameModal">
-    <div class="modal-content">
-        <h2>Crie sua conta</h2>
-        <label for="usernameInput">Nome de Usuário:</label>
-        <input type="text" id="usernameInput" placeholder="Seu nome" required>
 
-        <label for="profileImageInput">Foto de Perfil:</label>
-        <input type="file" id="profileImageInput" accept="image/*" required>
-
-        <button id="setUsernameButton">Confirmar</button>
-    </div>
-</div>
-
-<div class="settings-modal" id="settingsModal">
-    <div class="settings-content">
-        <h2>Configurações</h2>
-
-        <label for="themeSelect">Tema:</label>
-        <select id="themeSelect">
-            <option value="dark">Escuro (Padrão)</option>
-            <option value="solarized">Solarized Dark</option>
-            <option value="monokai">Monokai</option>
-            <option value="dracula">Dracula</option>
-            <option value="gruvbox">Gruvbox Dark</option>
-            <option value="nord">Nord</option>
-        </select>
-
-        <label for="editProfile">Editar Perfil:</label>
-        <button id="editProfile">Editar Nome e Foto</button>
-
-        <button id="clearChatButton">Apagar Conversas</button>
-    </div>
-</div>
-
-<div class="modal" id="newGroupModal">
-    <div class="modal-content">
-        <h2>Criar Novo Grupo</h2>
-
-        <label for="admNameInput">Nome do ADM:</label>
-        <input type="admname" id="admNameInput" placeholder="Nome ADM" required>
-
-        <label for="groupNameInput">Nome do Grupo:</label>
-        <input type="text" id="groupNameInput" placeholder="Nome do Grupo" required>
-
-        <label for="groupImageInput">Imagem do Grupo:</label>
-        <input type="file" id="groupImageInput" accept="image/*" required>
-
-        <button id="createGroupButton">Criar Grupo</button>
-    </div>
-</div>
-
-<div class="modal" id="groupListModal">
-    <div class="modal-content">
-        <h2>Lista de Grupos</h2>
-        <ul class="group-list" id="groupList">
+    <div class="console-panel" id="consolePanel">
+        <h2>Console de Grupos</h2>
+        <ul id="consoleGroupList">
             <!-- Group list items will be dynamically added here -->
         </ul>
-        <div class="enter-group-by-id">
-            <input type="text" id="groupIdInput" placeholder="Digite o ID do Grupo">
-            <button id="enterGroupIdButton">Entrar</button>
+         <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
+        <div class="console-footer">
+            <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
         </div>
     </div>
-</div>
+    <!-- New PV Panel -->
+    <div class="modal" id="pvPanel">
+        <div class="modal-content">
+            <h2>Conversas Privadas</h2>
+            <input type="text" id="pvUserSearch" placeholder="Digite o apelido do usuário">
+            <label>
+                <input type="checkbox" id="pvTermsCheckbox"> Aceito os termos e condições
+            </label>
+            <button id="createPvButton">Criar Conversa</button>
+            <ul class="group-list" id="pvChatList">
+                <!-- List of Private Chats -->
+            </ul>
+        </div>
+    </div>
+    <div class="modal" id="usernameModal">
+        <div class="modal-content">
+            <h2>Crie sua conta</h2>
+            <label for="usernameInput">Nome de Usuário:</label>
+            <input type="text" id="usernameInput" placeholder="Seu nome" required>
 
-<div class="modal" id="defineAdminModal">
-    <div class="modal-content">
-        <h2>Definir Administrador</h2>
-        <label for="newAdminNameInput">Nome de Usuário para ADM:</label>
-        <input type="text" id="newAdminNameInput" placeholder="Nome de Usuário" required>
-        <button id="setAdminButton">Definir ADM</button>
-    </div>
-</div>
-<div class="modal" id="deleteGroupModal">
-    <div class="modal-content">
-        <h2>Tem certeza que deseja deletar este grupo?</h2>
-        <div style="display:flex; justify-content: center;">
-            <button class="console-delete-button" id="confirmDeleteButton" style="margin-right:5px;">Deletar</button>
-            <button class="console-cancel-button" id="cancelDeleteButton">Cancelar</button>
+            <label for="profileImageInput">Foto de Perfil:</label>
+            <input type="file" id="profileImageInput" accept="image/*" required>
+
+            <button id="setUsernameButton">Confirmar</button>
         </div>
     </div>
-</div>
-<div class="modal" id="clearChatModal">
-    <div class="modal-content">
-        <h2>Deseja limpar o chat deste grupo?</h2>
-        <div style="display:flex; justify-content: center;">
-            <button class="console-delete-button" id="confirmClearChatButton" style="margin-right:5px;">Sim</button>
-            <button class="console-cancel-button" id="cancelClearChatButton">Não</button>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h2>Configurações</h2>
+             <label>Seu Nick:
+                <span id="user-nick-display"></span>
+                <button id="copy-nick-button">Copiar</button>
+            </label>
+            <label for="themeSelect">Tema:</label>
+            <select id="themeSelect">
+                <option value="dark">Escuro (Padrão)</option>
+                <option value="solarized">Solarized Dark</option>
+                <option value="monokai">Monokai</option>
+                <option value="dracula">Dracula</option>
+                <option value="gruvbox">Gruvbox Dark</option>
+                <option value="nord">Nord</option>
+            </select>
+
+            <label for="editProfile">Editar Perfil:</label>
+            <button id="editProfile">Editar Nome e Foto</button>
+
+            <button id="clearChatButton">Apagar Conversas</button>
         </div>
     </div>
-</div>
+
+    <div class="modal" id="newGroupModal">
+        <div class="modal-content">
+            <h2>Criar Novo Grupo</h2>
+
+            <label for="admNameInput">Nome do ADM:</label>
+            <input type="admname" id="admNameInput" placeholder="Nome ADM" required>
+
+            <label for="groupNameInput">Nome do Grupo:</label>
+            <input type="text" id="groupNameInput" placeholder="Nome do Grupo" required>
+
+            <label for="groupImageInput">Imagem do Grupo:</label>
+            <input type="file" id="groupImageInput" accept="image/*" required>
+
+            <button id="createGroupButton">Criar Grupo</button>
+        </div>
+    </div>
+
+    <div class="modal" id="groupListModal">
+        <div class="modal-content">
+            <h2>Lista de Grupos</h2>
+            <ul class="group-list" id="groupList">
+                <!-- Group list items will be dynamically added here -->
+            </ul>
+            <div class="enter-group-by-id">
+                <input type="text" id="groupIdInput" placeholder="Digite o ID do Grupo">
+                <button id="enterGroupIdButton">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="defineAdminModal">
+        <div class="modal-content">
+            <h2>Definir Administrador</h2>
+            <label for="newAdminNameInput">Nome de Usuário para ADM:</label>
+            <input type="text" id="newAdminNameInput" placeholder="Nome de Usuário" required>
+            <button id="setAdminButton">Definir ADM</button>
+        </div>
+    </div>
+    <div class="modal" id="deleteGroupModal">
+        <div class="modal-content">
+            <h2>Tem certeza que deseja deletar este grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                <button class="console-delete-button" id="confirmDeleteButton" style="margin-right:5px;">Deletar</button>
+                <button class="console-cancel-button" id="cancelDeleteButton">Cancelar</button>
+            </div>
+        </div>
+    </div>
+        <div class="modal" id="clearChatModal">
+        <div class="modal-content">
+              <h2>Deseja limpar o chat deste grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmClearChatButton" style="margin-right:5px;">Sim</button>
+                 <button class="console-cancel-button"  id="cancelClearChatButton">Não</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    
     <script type="module">
-        import {
+       import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -921,10 +950,23 @@
         const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
          let consoleVisible = false;
         const themeSelect = document.getElementById('themeSelect');
+        
+         //New variables
+        const pvButton = document.getElementById('pv-button');
+        const pvPanel = document.getElementById('pvPanel');
+        const pvUserSearch = document.getElementById('pvUserSearch');
+        const pvTermsCheckbox = document.getElementById('pvTermsCheckbox');
+        const createPvButton = document.getElementById('createPvButton');
+          const pvChatList = document.getElementById('pvChatList');
+         
+        let pvPanelVisible = false;
+           const privateChatsRef = ref(database, 'privateChats');
+            let currentPvChatId = null;
 
 
         let username = localStorage.getItem('username');
         let profileImage = localStorage.getItem('profileImage');
+         let userNick = localStorage.getItem('userNick');
        let theme = localStorage.getItem('theme') || 'dark';
         const emojiButton = document.createElement('button');
          emojiButton.textContent = 'Emoji';
@@ -947,6 +989,13 @@
 
             let currentPlayingAudio = null;
          let currentPlayingVideo = null;
+          const userNickDisplay = document.getElementById('user-nick-display');
+            const copyNickButton = document.getElementById('copy-nick-button');
+
+            function generateRandomNick() {
+            const randomNumber = Math.floor(1000 + Math.random() * 9000);
+              return `User-${randomNumber}`;
+            }
 
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -968,6 +1017,7 @@
                             const messageKey = childSnapshot.key;
                             const updates = {};
                             updates[`/messages/${messageKey}/sender`] = newUsername;
+                             updates[`/messages/${messageKey}/nick`] = userNick;
                             updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
                             update(ref(database), updates);
                         }
@@ -978,10 +1028,11 @@
                 alert("Erro ao atualizar o perfil. Tente novamente.");
             }
         };
-           if (!username || !profileImage) {
+           if (!username || !profileImage || !userNick) {
             usernameModal.style.display = 'flex';
         } else {
             currentUserImage.src = profileImage;
+             updateSettingsDisplay();
         }
 
           setUsernameButton.addEventListener('click', async () => {
@@ -1001,12 +1052,14 @@
                     const base64Image = await toBase64(imageFile);
                     username = inputName;
                     profileImage = base64Image;
+                    userNick = generateRandomNick();
                       localStorage.setItem('username', username);
                     localStorage.setItem('profileImage', profileImage);
+                      localStorage.setItem('userNick', userNick);
                       usernameModal.style.display = 'none';
                         currentUserImage.src = profileImage;
-
-                    await updateUsernameAndImage(username, profileImage).catch(error => {
+                       updateSettingsDisplay();
+                     await updateUsernameAndImage(username, profileImage).catch(error => {
                         console.error("Erro ao atualizar o Firebase: ", error);
                         alert("Erro ao atualizar o perfil. Tente novamente.");
                     });
@@ -1086,7 +1139,7 @@
                         timestampElement.classList.add('timestamp');
                         timestampElement.textContent = formatTimestamp(message.timestamp);
 
-                        if (message.sender === username) {
+                        if (message.sender === userNick) {
                             messageElement.classList.add('sent');
                         } else {
                             messageElement.classList.add('received');
@@ -1126,7 +1179,7 @@
             const audio = new Audio(audioSrc);
             let isPlaying = false;
             playButton.addEventListener('click', function() {
-                            if (currentPlayingAudio && currentPlayingAudio !== audio) {
+                if (currentPlayingAudio && currentPlayingAudio !== audio) {
                     currentPlayingAudio.pause();
                     const prevAudioDisplay = currentPlayingAudio.parentNode.parentNode;
                       if(prevAudioDisplay){
@@ -1332,7 +1385,7 @@
                 push(messagesRef, {
                     type: 'text',
                     content: text,
-                    sender: username,
+                    sender: userNick,
                      profileImage: profileImage,
                     timestamp: Date.now(),
                     groupId: messageGroupId
@@ -1519,7 +1572,7 @@
                 push(messagesRef, {
                     type: messageType,
                     content: base64File,
-                    sender: username,
+                    sender: userNick,
                     profileImage: profileImage,
                     timestamp: Date.now(),
                     groupId: messageGroupId
@@ -1543,8 +1596,13 @@
           attachmentInput.addEventListener('change', sendAttachment);
 
         settingsButton.addEventListener('click', () => {
+             updateSettingsDisplay();
             settingsModal.style.display = 'flex';
         });
+        function updateSettingsDisplay()
+        {
+             userNickDisplay.textContent = userNick;
+        }
           function isCurrentUserAdmin() {
             return currentGroupAdmin === username;
         }
@@ -1553,7 +1611,7 @@
                 type: 'admin',
                 content: messageText,
                 sender: 'Sistema',
-                  profileImage: '',
+                profileImage: '',
                 timestamp: Date.now(),
                 groupId: currentGroupId
             });
@@ -1689,8 +1747,7 @@
                   break;
                 case 'Deletar Grupo':
                    showDeleteConfirmation(groupId)
-                  break;
-                     case 'Definir ADM':
+                  break; case 'Definir ADM':
                                      defineAdminModal.style.display = 'flex';
                                       currentGroupIdToUpdate = groupId;
                                     break;
@@ -1859,23 +1916,7 @@
            console.error('Falha ao registrar o service worker:', error);
          });
     }
-
-
-        // New variables
-        const pvButton = document.getElementById('pv-button');
-        const pvPanel = document.getElementById('pvPanel');
-        const pvUserSearch = document.getElementById('pvUserSearch');
-        const pvTermsCheckbox = document.getElementById('pvTermsCheckbox');
-        const createPvButton = document.getElementById('createPvButton');
-          const pvChatList = document.getElementById('pvChatList');
-         
-        let pvPanelVisible = false;
-           const privateChatsRef = ref(database, 'privateChats');
-            let currentPvChatId = null;
-
-
-
-         function createPrivateChatId(user1, user2) {
+      function createPrivateChatId(user1, user2) {
             const sortedUsers = [user1, user2].sort();
             return `${sortedUsers[0]}_${sortedUsers[1]}`;
         }
@@ -1891,8 +1932,9 @@
                             let otherUser = chat.participants[0] === username ? chat.participants[1] : chat.participants[0];
 
                             const listItem = document.createElement('li');
-                            listItem.innerHTML = `<span>${otherUser}</span>`;
+                             listItem.innerHTML = `<span>${otherUser}</span>`;
                              listItem.dataset.pvChatId = key;
+                             listItem.dataset.otherUser = otherUser;
                             pvChatList.appendChild(listItem);
                         }
 
@@ -1900,10 +1942,10 @@
                 }
             });
         }
-           function fetchPvMessages(pvChatId) {
+           function fetchPvMessages(pvChatId, otherUserAlias) {
                         if (!pvChatId) {
                 console.warn("fetchPvMessages called with undefined pvChatId.");
-                messagesContainer.innerHTML = '<p>Nenhuma conversa privada selecionada.</p>';
+                messagesContainer.innerHTML = `<p>Nenhuma conversa privada selecionada com ${otherUserAlias}.</p>`;
                 return;
             }
 
@@ -1947,12 +1989,11 @@
                         timestampElement.classList.add('timestamp');
                         timestampElement.textContent = formatTimestamp(message.timestamp);
 
-                        if (message.sender === username) {
+                        if (message.sender === userNick) {
                             messageElement.classList.add('sent');
                         } else {
                             messageElement.classList.add('received');
-                                showGroupMessageNotification(message.sender, message.content, message.profileImage, pvChatId);
-
+                            showGroupMessageNotification(message.sender, message.content, message.profileImage, pvChatId);
                         }
 
                         messageElement.appendChild(senderInfo);
@@ -1962,7 +2003,7 @@
                     });
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 } else {
-                    messagesContainer.innerHTML = '<p>Nenhuma mensagem nesta conversa.</p>';
+                    messagesContainer.innerHTML = `<p>Nenhuma mensagem nesta conversa com ${otherUserAlias}.</p>`;
                 }
 
             });
@@ -1979,29 +2020,26 @@
             }
         });
 
-         
+       
         createPvButton.addEventListener('click', async() => {
-              const otherUsername = pvUserSearch.value.trim();
-            if (!otherUsername) {
-                alert("Por favor, digite o nome do usuário para iniciar a conversa privada.");
+              const otherUserAlias = pvUserSearch.value.trim();
+            if (!otherUserAlias) {
+                alert("Por favor, digite o apelido do usuário para iniciar a conversa privada.");
                 return;
             }
-             if (otherUsername === username) {
-                alert("Você não pode criar uma conversa privada consigo mesmo.");
-                  return;
-            }
+            
              if (!pvTermsCheckbox.checked) {
                 alert("Por favor, aceite os termos e condições.");
                  return;
             }
-
-               const pvChatId = createPrivateChatId(username, otherUsername);
+             
+            const otherUsername = otherUserAlias;
+            const pvChatId = createPrivateChatId(username, otherUsername);
                const existingPvChat = await get(ref(database, `privateChats/${pvChatId}`));
                  if (existingPvChat.exists()) {
                 alert("Conversa já existe com esse usuário, clique no usuário na lista abaixo.");
                      return;
             }
-
             push(privateChatsRef,{
                 id:pvChatId,
                participants: [username, otherUsername]
@@ -2009,31 +2047,45 @@
             }).then(() => {
                  pvPanel.style.display = 'none';
                    pvPanelVisible = false;
-                   switchChatToPv(pvChatId);
+                   switchChatToPv(pvChatId, otherUserAlias);
                    pvUserSearch.value = '';
                     pvTermsCheckbox.checked = false;
             });
 
         });
-         function switchChatToPv(pvChatId)
+         function switchChatToPv(pvChatId, otherUserAlias)
         {
+             let alias = otherUserAlias
             currentGroupId = null;
             currentPvChatId = pvChatId;
-              localStorage.setItem('lastGroupId', null);
-              fetchPvMessages(pvChatId);
+             localStorage.setItem('lastGroupId', null);
+              fetchPvMessages(pvChatId, alias);
         }
+         copyNickButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(userNick)
+                .then(() => {
+                    alert('Nick copiado!');
+                })
+                .catch((err) => {
+                    console.error('Erro ao copiar o Nick', err);
+                    alert("Não foi possível copiar o Nick.");
+                });
+            });
+            
        pvChatList.addEventListener('click', (event) => {
                 const target = event.target;
               const pvChatId = target.closest('li')?.dataset.pvChatId;
+             const otherUser = target.closest('li')?.dataset.otherUser;
+              
                if(pvChatId){
-                 switchChatToPv(pvChatId);
+                 switchChatToPv(pvChatId, otherUser);
                 pvPanel.style.display = 'none';
                 pvPanelVisible = false;
              }
 
         });
+        
         // Existing JavaScript code remains
-                
-   </script>
+  </script>
 </body>
 </html>
