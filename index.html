@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>Chat App</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -40,7 +40,8 @@
 
         .settings-button,
         #new-group-button,
-        #group-list-button {
+        #group-list-button,
+        #console-button {
             background-color: transparent;
             border: none;
             color: #e0e0e0;
@@ -54,7 +55,8 @@
 
         .settings-button:hover,
         #new-group-button:hover,
-        #group-list-button:hover {
+        #group-list-button:hover,
+        #console-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
@@ -453,6 +455,56 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        /* Style for the Console Panel */
+        .console-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 200px; /* Ajuste conforme necessário */
+            background-color: #1e2a33;
+            border-top: 1px solid #3e4c54;
+            padding: 10px;
+            overflow-y: auto;
+            display: none;
+            /* Initially hidden */
+            z-index: 999;
+        }
+
+        .console-panel h2 {
+            margin-top: 0;
+        }
+
+        .console-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .console-panel li {
+            padding: 5px;
+            border-bottom: 1px solid #3e4c54;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .console-panel li .group-copy-button{
+            padding: 4px 8px;
+            border: none;
+            background-color: #008069;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .console-panel li .group-copy-button:hover {
+             background-color: #006659;
+        }
+
+        .console-panel .no-groups-message {
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -462,6 +514,7 @@
             <button class="settings-button" id="settingsButton">⚙️</button>
             <button id="new-group-button">👥 Novo Grupo</button>
             <button id="group-list-button">📁 Lista Grupos</button>
+            <button id="console-button">⚙️ Console</button>
         </div>
 
         <div class="messages" id="messages">
@@ -491,6 +544,15 @@
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
         </div>
+    </div>
+
+    <!-- Console Panel -->
+    <div class="console-panel" id="consolePanel">
+        <h2>Console de Grupos</h2>
+        <ul id="consoleGroupList">
+            <!-- Group list items will be dynamically added here -->
+        </ul>
+        <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
     </div>
 
     <!-- Modal de nome de usuário -->
@@ -573,8 +635,8 @@
         </div>
     </div>
 
-       <script type="module">
-        import {
+    <script type="module">
+               import {
             initializeApp
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
         import {
@@ -652,7 +714,11 @@
         const settingsModal = document.getElementById('settingsModal');
         const clearChatButton = document.getElementById('clearChatButton');
         const editProfileButton = document.getElementById('editProfile');
-
+        const consoleButton = document.getElementById('console-button');
+        const consolePanel = document.getElementById('consolePanel');
+        const consoleGroupList = document.getElementById('consoleGroupList');
+        const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
+        let consoleVisible = false; // Inicializa a variável consoleVisible aqui
         // Settings options
         const themeSelect = document.getElementById('themeSelect');
 
@@ -864,6 +930,7 @@
                     });
                 }
                 populateGroupList();
+                updateConsoleGroupList(); // Update the console as well
             });
         }
 
@@ -906,6 +973,14 @@
             groupListModal.style.display = 'flex';
         });
 
+           // Console Button Event Listener
+         consoleButton.addEventListener('click', () => {
+                consoleVisible = !consoleVisible;
+                consolePanel.style.display = consoleVisible ? 'block' : 'none';
+                updateConsoleGroupList(); // Ensure the console list is up to date when opened
+            });
+
+
         // Function to Populate Group List
         function populateGroupList() {
             groupList.innerHTML = '';
@@ -941,6 +1016,23 @@
                 groupList.appendChild(listItem);
             });
         }
+         // Function to update the console group list
+        function updateConsoleGroupList() {
+            consoleGroupList.innerHTML = '';
+            if(groups.length === 0){
+                 noGroupsMessage.style.display = 'block';
+            } else {
+                noGroupsMessage.style.display = 'none';
+                 groups.forEach(group => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span>${group.name} - ID: ${group.id}</span>
+                <button class="group-copy-button" data-group-id="${group.id}">Copiar ID</button>`;
+                consoleGroupList.appendChild(listItem);
+                });
+            }
+
+        }
+
 
         // Function to switch chat to group
         function switchChatToGroup(groupId) {
@@ -1022,6 +1114,12 @@
         groupListModal.addEventListener('click', (e) => {
             if (e.target === groupListModal) {
                 groupListModal.style.display = 'none';
+            }
+        });
+        consolePanel.addEventListener('click', (e) => {
+            if (e.target === consolePanel) {
+                consolePanel.style.display = 'none';
+                  consoleVisible = false;
             }
         });
         // Function to handle sending attachments (images, audio, etc.)
@@ -1282,6 +1380,21 @@
         }
       });
 
+       // Event listener to copy group id
+        consoleGroupList.addEventListener('click', (event) => {
+            const target = event.target;
+              if (target.classList.contains('group-copy-button')) {
+                const groupId = target.dataset.groupId;
+                    navigator.clipboard.writeText(groupId)
+                    .then(() => {
+                        alert('ID do grupo copiado!');
+                    })
+                    .catch(err => {
+                        console.error('Erro ao copiar ID do grupo', err);
+                        alert("Não foi possível copiar o ID do grupo.")
+                    });
+                 }
+        });
 
         let lastGroupId = localStorage.getItem('lastGroupId');
 
@@ -1309,8 +1422,7 @@
         // Load and apply theme
         themeSelect.value = theme;
         applyTheme();
-   
-    </script>
+ </script>
 </body>
 
 </html>
