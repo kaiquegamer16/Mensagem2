@@ -957,8 +957,8 @@
              <div style="display:flex; justify-content: center;">
                  <button class="console-delete-button" id="confirmEditPvNick" style="margin-right:5px;">Salvar</button>
                  <button class="console-cancel-button" id="cancelEditPvNick">Cancelar</button>
-            </div>
-            <audio id="notificationSound" src="notifica.mp3" preload="auto"></audio>
+                              </div>
+           <audio id="notificationSound" src="notifica.mp3" preload="auto"></audio>
         </div>
     </div>
     <script type="module">
@@ -978,6 +978,13 @@
             equalTo
         } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
 
+         //Import FCM if using
+       /* import {
+            getMessaging,
+            getToken,
+            onMessage,
+        } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js';
+*/
 
         const firebaseConfig = {
            apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
@@ -991,7 +998,7 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        
+    
         const messagesRef = ref(database, 'messages');
         const groupsRef = ref(database, 'groups');
         const reportsRef = ref(database, 'reports');
@@ -1037,7 +1044,7 @@
         const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
          let consoleVisible = false;
         const themeSelect = document.getElementById('themeSelect');
-        
+
          //New variables
         const pvButton = document.getElementById('pv-button');
         const pvPanel = document.getElementById('pvPanel');
@@ -1045,13 +1052,13 @@
         const pvTermsCheckbox = document.getElementById('pvTermsCheckbox');
         const createPvButton = document.getElementById('createPvButton');
           const pvChatList = document.getElementById('pvChatList');
-         
+        
         let pvPanelVisible = false;
            const privateChatsRef = ref(database, 'privateChats');
             let currentPvChatId = null;
 
             const messageSound = document.getElementById('messageSound');
-
+            const notificationSound = document.getElementById('notificationSound');
 
         let username = localStorage.getItem('username');
         let profileImage = localStorage.getItem('profileImage');
@@ -1100,6 +1107,8 @@
         const confirmEditPvNick = document.getElementById('confirmEditPvNick');
            const cancelEditPvNick = document.getElementById('cancelEditPvNick');
             let currentPvUserToUpdate = null;
+            let lastMessageTimestamps = {}; // Track last received message timestamp for notification logic
+
             function generateRandomNick() {
             const randomNumber = Math.floor(1000 + Math.random() * 9000);
               return `User-${randomNumber}`;
@@ -1141,7 +1150,86 @@
         } else {
             currentUserImage.src = profileImage;
              updateSettingsDisplay();
+            // Request permission for notifications on load
+            requestNotificationPermission();
         }
+    
+        // Notification permission handling function
+      async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    try {
+                     const permission = await Notification.requestPermission();
+                        if(permission === 'granted')
+                        {
+                          console.log("Permissão de notificação concedida.")
+                           //   initFCM(); // If using FCM
+                         }else{
+                            console.log("Permissão de notificação negada ou ignorada.")
+                         }
+                    } catch (error) {
+                           console.error("Erro ao solicitar permissão de notificação:", error);
+                      }
+                }else if(Notification.permission === 'granted'){
+                    console.log('Notificações já concedidas.');
+                      //  initFCM();  // If using FCM
+                } else {
+                    console.log("Notificações bloqueadas.");
+                }
+            } else {
+                console.log('Notificações não suportadas neste browser.');
+            }
+        }
+         // Function to display the notification
+
+    function showNotification(title, body, icon = null) {
+             if ('Notification' in window && Notification.permission === 'granted') {
+                const options = {
+                    body: body,
+                    icon: icon || 'default-profile.png', // Default icon if not provided
+                    timestamp: Date.now(),
+                };
+                 const notification = new Notification(title, options);
+                   notification.onclick = function(event)
+                    {
+                        window.focus();
+                     if(event.target)
+                        event.target.close();
+
+                    }
+               } else {
+                console.log("Notificações não suportadas ou permissão negada.");
+            }
+        }
+
+
+     /*
+      // Initialize FCM if using
+    async function initFCM()
+    {
+          try{
+           const messaging = getMessaging(app);
+            const token = await getToken(messaging, {vapidKey: 'BMwL4o3tq56RkY24h3n0m-eR884GvE2w137o5v745p8c_p1j9X7y1H8X9tJ17_uVzT-R8y7p46b_k'});
+
+             if(token){
+                console.log('FCM token: ', token)
+
+             }else{
+                console.log("No FCM registration token available");
+            }
+
+             onMessage(messaging, (payload) => {
+                    console.log("Message received: ", payload);
+                    const title = payload.notification.title;
+                    const body = payload.notification.body;
+                      showNotification(title, body);
+               });
+           } catch(error){
+            console.error("Error initializing FCM: ", error);
+          }
+
+    }
+     */
 
           setUsernameButton.addEventListener('click', async () => {
             const inputName = usernameInput.value.trim();
@@ -1199,227 +1287,242 @@
                 lastDisplayedDate = dateString;
             }
         }
-           
+
  function fetchGroupMessages(groupId) {
-                        if (!groupId) {
-                console.warn("fetchGroupMessages called with undefined groupId.");
-                messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
-                return;
+            if (!groupId) {
+              console.warn("fetchGroupMessages called with undefined groupId.");
+              messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
+              return;
+          }
+
+          const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
+          lastDisplayedDate = null;
+        
+          onValue(groupMessagesRef, (snapshot) => {
+              messagesContainer.innerHTML = '';
+             const data = snapshot.val();
+            if (data) {
+                let lastMessageTimestamp = lastMessageTimestamps[groupId] || 0;
+                let newMessages = false;
+                Object.entries(data).forEach(([key, message]) => {
+                      displayDateSeparator(message.timestamp);
+                        const messageElement = document.createElement('div');
+                      messageElement.classList.add('message');
+                       messageElement.dataset.messageId = key;
+
+                      const senderInfo = document.createElement('div');
+                      senderInfo.classList.add('sender-info');
+
+                      const profileImageElement = document.createElement('img');
+                      profileImageElement.src = message.profileImage || 'default-profile.png';
+                      profileImageElement.alt = "Foto de Perfil";
+                      senderInfo.appendChild(profileImageElement);
+
+                      let messageContent;
+                      if (message.type === 'image') {
+                          messageContent = document.createElement('img');
+                          messageContent.src = message.content;
+                          messageContent.alt = "Imagem";
+                          messageContent.classList.add('image-message');
+                      } else if (message.type === 'audio') {
+                           messageContent = createAudioDisplay(message.content);
+
+                       } else  if (message.type === 'video') {
+                          messageContent = createVideoDisplay(message.content);
+                      } else if (message.type === 'text'){
+                          messageContent = document.createElement('span');
+                          messageContent.classList.add('message-text');
+                            if (message.replyId) {
+                              const replyMessage = data[message.replyId];
+                                 if(replyMessage)
+                                {
+                              const replyText = document.createElement('span');
+                               replyText.style.color = '#aaa';
+                                replyText.style.display = 'block';
+                                replyText.style.fontStyle = 'italic';
+                                replyText.style.marginBottom = '5px';
+                                replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                               messageContent.appendChild(replyText);
+                               }
+
+                            }
+                           messageContent.textContent += message.content;
+                      } else {
+                         messageContent = createFileDisplay(message.content, message.fileType);
+                      }
+
+                      const timestampElement = document.createElement('span');
+                      timestampElement.classList.add('timestamp');
+                      timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                      if (message.sender === userNick) {
+                          messageElement.classList.add('sent');
+                      } else {
+                          messageElement.classList.add('received');
+                      }
+
+                      messageElement.appendChild(senderInfo);
+                      messageElement.appendChild(messageContent);
+                      messageElement.appendChild(timestampElement);
+                      messagesContainer.appendChild(messageElement);
+                         if (message.sender !== userNick && message.timestamp > lastMessageTimestamp) {
+                         newMessages = true;
+                         lastMessageTimestamp = message.timestamp; // Update last timestamp only if its newer
+                        }
+                 });
+                  lastMessageTimestamps[groupId] = lastMessageTimestamp;
+                if(newMessages) {
+                    notificationSound.play();
+                       showNotification("Nova Mensagem", "Você recebeu uma nova mensagem em um grupo.");
+                   }
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                messagesContainer.innerHTML = '<p>Nenhuma mensagem neste grupo.</p>';
             }
+        });
+    }
 
-            const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
-            lastDisplayedDate = null;
-            onValue(groupMessagesRef, (snapshot) => {
-                messagesContainer.innerHTML = '';
-                const data = snapshot.val();
-                if (data) {
-                    Object.entries(data).forEach(([key, message]) => {
-                        displayDateSeparator(message.timestamp);
-                         const messageElement = document.createElement('div');
-                        messageElement.classList.add('message');
-                         messageElement.dataset.messageId = key;
+ function fetchPvMessages(pvChatId, otherUserAlias) {
+        if (!pvChatId) {
+          console.warn("fetchPvMessages called with undefined pvChatId.");
+          messagesContainer.innerHTML = `<p>Nenhuma conversa privada selecionada com ${otherUserAlias}.</p>`;
+          return;
+      }
 
-                        const senderInfo = document.createElement('div');
-                        senderInfo.classList.add('sender-info');
+        const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
+          lastDisplayedDate = null;
+         onValue(pvMessagesRef, (snapshot) => {
+             messagesContainer.innerHTML = '';
+              const data = snapshot.val();
+              if (data) {
+              let lastMessageTimestamp = lastMessageTimestamps[pvChatId] || 0;
+              let newMessages = false;
+                  Object.entries(data).forEach(([key, message]) => {
+                   displayDateSeparator(message.timestamp);
+                      const messageElement = document.createElement('div');
+                     messageElement.classList.add('message');
+                      messageElement.dataset.messageId = key;
+                      const senderInfo = document.createElement('div');
+                      senderInfo.classList.add('sender-info');
 
-                        const profileImageElement = document.createElement('img');
-                        profileImageElement.src = message.profileImage || 'default-profile.png';
-                        profileImageElement.alt = "Foto de Perfil";
-                        senderInfo.appendChild(profileImageElement);
+                      const profileImageElement = document.createElement('img');
+                      profileImageElement.src = message.profileImage || 'default-profile.png';
+                      profileImageElement.alt = "Foto de Perfil";
+                      senderInfo.appendChild(profileImageElement);
 
-                        let messageContent;
-                         if (message.type === 'image') {
-                            messageContent = document.createElement('img');
-                            messageContent.src = message.content;
-                            messageContent.alt = "Imagem";
-                            messageContent.classList.add('image-message');
-                        } else if (message.type === 'audio') {
-                             messageContent = createAudioDisplay(message.content);
+                      let messageContent;
+                       if (message.type === 'image') {
+                          messageContent = document.createElement('img');
+                          messageContent.src = message.content;
+                          messageContent.alt = "Imagem";
+                          messageContent.classList.add('image-message');
+                      } else if (message.type === 'audio') {
+                           messageContent = createAudioDisplay(message.content);
 
-                         } else  if (message.type === 'video') {
-                            messageContent = createVideoDisplay(message.content);
-                        }else if (message.type === 'text'){
-                            messageContent = document.createElement('span');
-                            messageContent.classList.add('message-text');
-                              if (message.replyId) {
-                                const replyMessage = data[message.replyId];
-                                   if(replyMessage)
-                                  {
-                                const replyText = document.createElement('span');
-                                 replyText.style.color = '#aaa';
-                                  replyText.style.display = 'block';
-                                  replyText.style.fontStyle = 'italic';
-                                  replyText.style.marginBottom = '5px';
-                                  replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
-                                 messageContent.appendChild(replyText);
-                                 }
+                       } else  if (message.type === 'video') {
+                          messageContent = createVideoDisplay(message.content);
+                      } else if (message.type === 'text'){
+                          messageContent = document.createElement('span');
+                          messageContent.classList.add('message-text');
+                            if (message.replyId) {
+                              const replyMessage = data[message.replyId];
+                                 if(replyMessage)
+                                {
+                              const replyText = document.createElement('span');
+                               replyText.style.color = '#aaa';
+                                replyText.style.display = 'block';
+                                replyText.style.fontStyle = 'italic';
+                                replyText.style.marginBottom = '5px';
+                                replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                               messageContent.appendChild(replyText);
+                               }
 
-                              }
-                             messageContent.textContent += message.content;
-                        } else {
-                           messageContent = createFileDisplay(message.content, message.fileType);
+                            }
+                           messageContent.textContent += message.content;
+                      }
+                      else {
+                         messageContent = createFileDisplay(message.content, message.fileType);
+                      }
+
+                      const timestampElement = document.createElement('span');
+                      timestampElement.classList.add('timestamp');
+                      timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                      if (message.sender === userNick) {
+                          messageElement.classList.add('sent');
+                      } else {
+                          messageElement.classList.add('received');
+                      }
+
+                      messageElement.appendChild(senderInfo);
+                      messageElement.appendChild(messageContent);
+                      messageElement.appendChild(timestampElement);
+                      messagesContainer.appendChild(messageElement);
+                       if (message.sender !== userNick && message.timestamp > lastMessageTimestamp) {
+                         newMessages = true;
+                         lastMessageTimestamp = message.timestamp;
                         }
+                });
+                  lastMessageTimestamps[pvChatId] = lastMessageTimestamp;
+               if(newMessages){
+                  messageSound.play();
+                 showNotification("Nova Mensagem", `Você recebeu uma nova mensagem de ${otherUserAlias}.`);
+               }
+                   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+              } else {
+                  messagesContainer.innerHTML = `<p>Nenhuma mensagem nesta conversa com ${otherUserAlias}.</p>`;
+              }
 
-                        const timestampElement = document.createElement('span');
-                        timestampElement.classList.add('timestamp');
-                        timestampElement.textContent = formatTimestamp(message.timestamp);
+        });
+    }
+      function createFileDisplay(fileContent, fileType) {
+        let fileDisplay = document.createElement('div');
+          fileDisplay.classList.add('message-content-link');
+   let link;
+  if (fileType.startsWith('image/')) {
+       link = document.createElement('img');
+      link.src = fileContent;
+      link.alt = "Imagem";
+       link.classList.add('image-message');
 
-                        if (message.sender === userNick) {
-                            messageElement.classList.add('sent');
-                        } else {
-                            messageElement.classList.add('received');
-                             if (message.sender !== userNick)
-                                 {
-                                       notificationSound.play();
-                                 }
-                        }
+  } else if (fileType === 'text/plain') {
+        link = document.createElement('a');
+          link.href = fileContent;
+         link.textContent = "Abrir Texto";
+           link.target = "_blank";
+            link.rel = "noopener noreferrer"
+           link.classList.add('file-link');
 
-                        messageElement.appendChild(senderInfo);
-                        messageElement.appendChild(messageContent);
-                        messageElement.appendChild(timestampElement);
-                        messagesContainer.appendChild(messageElement);
-                    });
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                } else {
-                    messagesContainer.innerHTML = '<p>Nenhuma mensagem neste grupo.</p>';
-                }
+  } else if (fileType === 'text/html'){
+        link = document.createElement('a');
+         link.href = fileContent;
+         link.textContent = "Abrir HTML";
+         link.target = "_blank";
+             link.rel = "noopener noreferrer"
+           link.classList.add('file-link');
 
-            });
-        }
-         function fetchPvMessages(pvChatId, otherUserAlias) {
-                        if (!pvChatId) {
-                console.warn("fetchPvMessages called with undefined pvChatId.");
-                messagesContainer.innerHTML = `<p>Nenhuma conversa privada selecionada com ${otherUserAlias}.</p>`;
-                return;
-            }
+  } else if (fileType === 'application/pdf'){
+     link = document.createElement('a');
+         link.href = fileContent;
+         link.textContent = "Abrir PDF";
+         link.target = "_blank";
+              link.rel = "noopener noreferrer"
+         link.classList.add('file-link');
+  } else{
+       link = document.createElement('a');
+           link.href = fileContent;
+         link.textContent = "Download";
+         link.download = 'download';
+          link.target = "_blank";
+               link.rel = "noopener noreferrer"
+        link.classList.add('file-link');
+  }
+ fileDisplay.appendChild(link);
+  return fileDisplay;
 
-              const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
-                lastDisplayedDate = null;
-            onValue(pvMessagesRef, (snapshot) => {
-                messagesContainer.innerHTML = '';
-                const data = snapshot.val();
-                if (data) {
-                    Object.entries(data).forEach(([key, message]) => {
-                         displayDateSeparator(message.timestamp);
-                         const messageElement = document.createElement('div');
-                        messageElement.classList.add('message');
-                        messageElement.dataset.messageId = key;
-                        const senderInfo = document.createElement('div');
-                        senderInfo.classList.add('sender-info');
+ }
 
-                        const profileImageElement = document.createElement('img');
-                        profileImageElement.src = message.profileImage || 'default-profile.png';
-                        profileImageElement.alt = "Foto de Perfil";
-                        senderInfo.appendChild(profileImageElement);
-
-                        let messageContent;
-                         if (message.type === 'image') {
-                            messageContent = document.createElement('img');
-                            messageContent.src = message.content;
-                            messageContent.alt = "Imagem";
-                            messageContent.classList.add('image-message');
-                        } else if (message.type === 'audio') {
-                             messageContent = createAudioDisplay(message.content);
-
-                         } else  if (message.type === 'video') {
-                            messageContent = createVideoDisplay(message.content);
-                        } else if (message.type === 'text'){
-                            messageContent = document.createElement('span');
-                            messageContent.classList.add('message-text');
-                              if (message.replyId) {
-                                const replyMessage = data[message.replyId];
-                                   if(replyMessage)
-                                  {
-                                const replyText = document.createElement('span');
-                                 replyText.style.color = '#aaa';
-                                  replyText.style.display = 'block';
-                                  replyText.style.fontStyle = 'italic';
-                                  replyText.style.marginBottom = '5px';
-                                  replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
-                                 messageContent.appendChild(replyText);
-                                 }
-
-                              }
-                             messageContent.textContent += message.content;
-                        }
-                        else {
-                           messageContent = createFileDisplay(message.content, message.fileType);
-                        }
-
-                        const timestampElement = document.createElement('span');
-                        timestampElement.classList.add('timestamp');
-                        timestampElement.textContent = formatTimestamp(message.timestamp);
-
-                        if (message.sender === userNick) {
-                            messageElement.classList.add('sent');
-                        } else {
-                            messageElement.classList.add('received');
-                               if (message.sender !== userNick)
-                                 {
-                                    notificationSound.play();
-                                 }
-                        }
-
-                        messageElement.appendChild(senderInfo);
-                        messageElement.appendChild(messageContent);
-                        messageElement.appendChild(timestampElement);
-                        messagesContainer.appendChild(messageElement);
-                    });
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                } else {
-                    messagesContainer.innerHTML = `<p>Nenhuma mensagem nesta conversa com ${otherUserAlias}.</p>`;
-                }
-
-            });
-        }
-    
-         function createFileDisplay(fileContent, fileType) {
-                 let fileDisplay = document.createElement('div');
-                   fileDisplay.classList.add('message-content-link');
-             let link;
-            if (fileType.startsWith('image/')) {
-                 link = document.createElement('img');
-                link.src = fileContent;
-                link.alt = "Imagem";
-                 link.classList.add('image-message');
-
-            } else if (fileType === 'text/plain') {
-                  link = document.createElement('a');
-                    link.href = fileContent;
-                   link.textContent = "Abrir Texto";
-                     link.target = "_blank";
-                      link.rel = "noopener noreferrer"
-                     link.classList.add('file-link');
-
-            } else if (fileType === 'text/html'){
-                  link = document.createElement('a');
-                   link.href = fileContent;
-                   link.textContent = "Abrir HTML";
-                   link.target = "_blank";
-                       link.rel = "noopener noreferrer"
-                     link.classList.add('file-link');
-
-            } else if (fileType === 'application/pdf'){
-               link = document.createElement('a');
-                   link.href = fileContent;
-                   link.textContent = "Abrir PDF";
-                   link.target = "_blank";
-                        link.rel = "noopener noreferrer"
-                   link.classList.add('file-link');
-            } else{
-                 link = document.createElement('a');
-                     link.href = fileContent;
-                   link.textContent = "Download";
-                   link.download = 'download';
-                    link.target = "_blank";
-                         link.rel = "noopener noreferrer"
-                  link.classList.add('file-link');
-            }
-           fileDisplay.appendChild(link);
-            return fileDisplay;
-
-         }
-                
         function createAudioDisplay(audioSrc) {
             const audioDisplay = document.createElement('div');
             audioDisplay.classList.add('audio-message');
@@ -1705,7 +1808,7 @@
                         <button title="Editar Nome" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>✏️</button>
                         <button title="Ver ID do Grupo" data-group-id="${group.id}">#</button>
                         <button title="Deletar Grupo" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🗑️</button>
-                          <button title="Sair do Grupo" class="leave-group-button" data-group-id="${group.id}"  ${isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🚪</button>
+                                                    <button title="Sair do Grupo" class="leave-group-button" data-group-id="${group.id}"  ${isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🚪</button>
                          ${adminMessage !== '' ? `<button title="Definir ADM" data-group-id="${group.id}">👑</button>` : ''}
                           <button title="Reportar Grupo" data-group-id="${group.id}">🚩</button>
                     </div>
@@ -2200,7 +2303,7 @@
         });
         themeSelect.value = theme;
         applyTheme();
-          
+         
       function createPrivateChatId(user1, user2) {
             const sortedUsers = [user1, user2].sort();
             return `${sortedUsers[0]}_${sortedUsers[1]}`;
@@ -2230,86 +2333,8 @@
                  });
                 }
             });
-        
-              const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
-                lastDisplayedDate = null;
-            onValue(pvMessagesRef, (snapshot) => {
-                messagesContainer.innerHTML = '';
-                const data = snapshot.val();
-                if (data) {
-                    Object.entries(data).forEach(([key, message]) => {
-                         displayDateSeparator(message.timestamp);
-                         const messageElement = document.createElement('div');
-                        messageElement.classList.add('message');
-                        messageElement.dataset.messageId = key;
-                        const senderInfo = document.createElement('div');
-                        senderInfo.classList.add('sender-info');
-
-                        const profileImageElement = document.createElement('img');
-                        profileImageElement.src = message.profileImage || 'default-profile.png';
-                        profileImageElement.alt = "Foto de Perfil";
-                        senderInfo.appendChild(profileImageElement);
-
-                        let messageContent;
-                         if (message.type === 'image') {
-                            messageContent = document.createElement('img');
-                            messageContent.src = message.content;
-                            messageContent.alt = "Imagem";
-                            messageContent.classList.add('image-message');
-                        } else if (message.type === 'audio') {
-                             messageContent = createAudioDisplay(message.content);
-
-                         } else  if (message.type === 'video') {
-                            messageContent = createVideoDisplay(message.content);
-                        } else if (message.type === 'text'){
-                            messageContent = document.createElement('span');
-                            messageContent.classList.add('message-text');
-                              if (message.replyId) {
-                                const replyMessage = data[message.replyId];
-                                   if(replyMessage)
-                                  {
-                                const replyText = document.createElement('span');
-                                 replyText.style.color = '#aaa';
-                                  replyText.style.display = 'block';
-                                  replyText.style.fontStyle = 'italic';
-                                  replyText.style.marginBottom = '5px';
-                                  replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
-                                 messageContent.appendChild(replyText);
-                                 }
-
-                              }
-                             messageContent.textContent += message.content;
-                        }
-                        else {
-                           messageContent = createFileDisplay(message.content, message.fileType);
-                        }
-
-                        const timestampElement = document.createElement('span');
-                        timestampElement.classList.add('timestamp');
-                        timestampElement.textContent = formatTimestamp(message.timestamp);
-
-                        if (message.sender === userNick) {
-                            messageElement.classList.add('sent');
-                        } else {
-                            messageElement.classList.add('received');
-                               if (message.sender !== userNick)
-                                 {
-                                    messageSound.play();
-                                 }
-                        }
-
-                        messageElement.appendChild(senderInfo);
-                        messageElement.appendChild(messageContent);
-                        messageElement.appendChild(timestampElement);
-                        messagesContainer.appendChild(messageElement);
-                    });
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                } else {
-                    messagesContainer.innerHTML = `<p>Nenhuma mensagem nesta conversa com ${otherUserAlias}.</p>`;
-                }
-
-            });
         }
+     
         pvButton.addEventListener('click', () => {
             pvPanelVisible = !pvPanelVisible;
             pvPanel.style.display = pvPanelVisible ? 'flex' : 'none';
@@ -2361,7 +2386,7 @@
             currentGroupId = null;
             currentPvChatId = pvChatId;
              localStorage.setItem('lastGroupId', null);
-              fetchPvMessages(pvChatId, alias);
+               fetchPvMessages(pvChatId, alias);
         }
          copyNickButton.addEventListener('click', () => {
             navigator.clipboard.writeText(userNick)
@@ -2555,7 +2580,7 @@
                   mediaRecorder.stop();
               }
              });
-        async function sendAudioMessage(audioUrl) {
+          async function sendAudioMessage(audioUrl) {
               try {
                 let messageGroupId;
                  if(currentGroupId){
@@ -2576,8 +2601,6 @@
                   alert("Erro ao processar o arquivo. Tente novamente.");
             }
         }
-
-        // Existing JavaScript code remains
-          </script>
+    </script>
 </body>
 </html>
