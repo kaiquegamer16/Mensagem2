@@ -961,6 +961,9 @@
         <audio id="notificationSound" src="notifica.mp3" preload="auto"></audio>
     </div>
 </div>
+<div id="audioContextMenu" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; z-index: 1000;">
+  <button id="downloadAudioButton" style="width: 100%; border:none; padding: 10px; text-align: left; cursor: pointer;">Baixar Áudio</button>
+</div>
 <script type="module">
     import {
         initializeApp
@@ -1108,7 +1111,9 @@
     const cancelEditPvNick = document.getElementById('cancelEditPvNick');
     let currentPvUserToUpdate = null;
     let lastMessageTimestamps = {}; // Track last received message timestamp for notification logic
-
+    let currentAudioElement = null;
+    const audioContextMenu = document.getElementById('audioContextMenu');
+    const downloadAudioButton = document.getElementById('downloadAudioButton');
     function generateRandomNick() {
         const randomNumber = Math.floor(1000 + Math.random() * 9000);
         return `User-${randomNumber}`;
@@ -1519,7 +1524,7 @@
 
     }
 
-    function createAudioDisplay(audioSrc) {
+     function createAudioDisplay(audioSrc) {
         const audioDisplay = document.createElement('div');
         audioDisplay.classList.add('audio-message');
 
@@ -1540,6 +1545,16 @@
         let audio = new Audio(audioSrc);
         let isPlaying = false;
         let currentSrc = audioSrc;
+
+        audioDisplay.addEventListener('click', (event) => {
+            event.preventDefault();
+              currentAudioElement = audioDisplay;
+                audioContextMenu.style.display = 'block';
+                   audioContextMenu.style.left = `${event.clientX}px`;
+                audioContextMenu.style.top = `${event.clientY}px`;
+
+        });
+
         playButton.addEventListener('click', function () {
             if (currentPlayingAudio && currentPlayingAudio !== audio) {
                 currentPlayingAudio.pause();
@@ -1706,8 +1721,6 @@
 
         return videoDisplayContainer;
     }
-
-
     function formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
@@ -1745,8 +1758,7 @@
             let messageData = {
                 type: 'text',
                 content: text,
-                sender: userNick,
-                profileImage: profileImage,
+                sender: userNick,profileImage: profileImage,
                 timestamp: Date.now(),
                 groupId: messageGroupId,
             };
@@ -2500,11 +2512,15 @@
         }
 
     });
-    document.addEventListener('click', (event) => {
-        if (event.target !== currentSelectedMessage && event.target !== messageContextMenu && !messageContextMenu.contains(event.target)) {
-            messageContextMenu.style.display = 'none';
-            currentSelectedMessage = null;
-        }
+      document.addEventListener('click', (event) => {
+            if (event.target !== currentSelectedMessage && event.target !== messageContextMenu && !messageContextMenu.contains(event.target) ) {
+                messageContextMenu.style.display = 'none';
+                 currentSelectedMessage = null;
+            }
+             if(event.target !== currentAudioElement && event.target !== audioContextMenu && !audioContextMenu.contains(event.target)){
+                   audioContextMenu.style.display = 'none';
+                    currentAudioElement = null;
+                 }
     });
 
     replyMessageButton.addEventListener('click', () => {
@@ -2582,6 +2598,45 @@
             return dataTransfer.files;
         }
 
+     function downloadAudioFromBase64(base64Audio) {
+          const audioFilename = prompt("Digite o nome para o arquivo de áudio:", "audio_baixado.webm");
+            if(!audioFilename) return;
+        try {
+            const byteString = atob(base64Audio.split(',')[1]);
+            const mimeString = base64Audio.split(',')[0].split(':')[1].split(';')[0];
+            const byteArray = new Uint8Array(byteString.length);
+            for (let i = 0; i < byteString.length; i++) {
+                byteArray[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([byteArray], { type: mimeString });
+             const audioUrl = URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+              downloadLink.href = audioUrl;
+           downloadLink.download = audioFilename;
+           document.body.appendChild(downloadLink);
+           downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(audioUrl);
+
+        } catch (error) {
+            console.error("Erro ao baixar o áudio", error);
+            alert("Erro ao baixar o áudio. Tente novamente.");
+        }
+    }
+
+    downloadAudioButton.addEventListener('click', () => {
+        audioContextMenu.style.display = 'none';
+          if(currentAudioElement)
+           {
+               const audioSrc =  currentAudioElement.querySelector('audio')?.src;
+                  if(audioSrc){
+                        let base64Audio = audioSrc;
+                       downloadAudioFromBase64(base64Audio);
+                   }
+                currentAudioElement = null;
+           }
+
+    });
 
     recordButton.addEventListener('click', async () => {
         if (!isRecording) {
@@ -2589,8 +2644,7 @@
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
-
-                mediaRecorder.addEventListener('dataavailable', event => {
+                                mediaRecorder.addEventListener('dataavailable', event => {
                     audioChunks.push(event.data);
                 });
                 mediaRecorder.addEventListener('stop', async () => {
@@ -2617,7 +2671,9 @@
             mediaRecorder.stop();
         }
     });
+   
 
+</script>
 </script>
 </body>
 </html>
