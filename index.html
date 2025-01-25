@@ -1,169 +1,2679 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDN Generator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.css" integrity="sha512-X5R0o7s/YdM5c2gZ8eG6yK27w1/0/g8L1qj5p/8/9O8Y2L7fF6G1K+lP8dIq7N2c/Fq/sI7l4w6x0N3Oq0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Chat App</title>
     <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f4f4f4;
-        margin: 20px;
-        text-align: center;
-      }
-      #upload-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-      
-      #upload-form input[type="file"] {
-        display: none;
-      }
-      .custom-file-upload {
-        border: 1px solid #ccc;
-        display: inline-block;
-        padding: 10px 12px;
-        cursor: pointer;
-        background-color: #fff;
-        margin-bottom: 10px;
-      }
-      .custom-file-upload:hover {
-          background-color: #e8e8e8;
-      }
-      .custom-file-upload i {
-        margin-right: 5px;
-      }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: #121b22;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100vh;
+        }
 
-      #upload-form button {
-        padding: 10px 12px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-        margin: 5px;
-      }
-      #upload-form button:hover {
-        background-color: #367c38;
-      }
+        .chat-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background-color: #1e2a33;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: calc(100vh - 80px);
+        }
 
-      #link-area {
-          margin-top: 10px;
-          text-align: left;
-          padding: 10px;
-      }
+        .messages {
+            flex-grow: 1;
+            padding: 10px 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
 
-      #editor {
-        width: 80%;
-        height: 400px;
-        margin: 20px auto;
-      }
-    </style>
-</head>
-<body>
-    <h1>Gerador de CDN</h1>
-        <div id="upload-form">
-        <input type="file" id="file-upload">
-        <label for="file-upload" class="custom-file-upload">
-          <i class="fas fa-upload"></i> Selecione o arquivo
-        </label>
-        <button id="generate-cdn">Converter para CDN</button>
-        <button id="generate-base64-cdn">Converter para CDN base64</button>
-    </div>
-        <div id="link-area" >
-        </div>
-    <div id="editor"></div>
+        .date-separator {
+            text-align: center;
+            color: #888;
+            margin: 10px 0;
+            font-size: 0.8em;
+        }
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js" integrity="sha512-cT1E2E6J1q87R2G+o7k/8y0v41s9o86V2/xK2Fm9r/Y2H3+3H6j+0I3/I8x+p7y8G0/7E2N5B5F0/9/v1p0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        const fileUpload = document.getElementById('file-upload');
-        const generateCDNButton = document.getElementById('generate-cdn');
-        const generateBase64CDNButton = document.getElementById('generate-base64-cdn');
-        const linkArea = document.getElementById('link-area');
-        const editorElement = document.getElementById('editor');
-        let editor;
+        .message {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            max-width: 80%;
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+            word-break: break-word;
+            cursor: pointer;
+        }
 
-        const aceScript = document.querySelector('script[src*="ace.min.js"]');
+        .message:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
 
-        aceScript.onload = function () {
-          editor = ace.edit(editorElement);
-          editor.setTheme("ace/theme/monokai");
-          editor.session.setMode("ace/mode/javascript");
-        };
+        .message .timestamp {
+            position: absolute;
+            bottom: -15px;
+            font-size: 0.7em;
+            color: #aaa;
+        }
 
-        generateCDNButton.addEventListener('click', () => handleGenerateCDN(false));
-        generateBase64CDNButton.addEventListener('click', () => handleGenerateCDN(true));
+        .message.sent {
+            background-color: #005c4b;
+            color: #e0e0e0;
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
 
-        async function handleGenerateCDN(base64) {
-            if (!fileUpload.files[0]) {
-                alert("Selecione um arquivo!");
-                return;
+        .message.sent .timestamp {
+            right: 0;
+        }
+
+        .message.received {
+            background-color: #202c33;
+            color: #e0e0e0;
+            align-self: flex-start;
+        }
+
+        .message.received .timestamp {
+            left: 0;
+        }
+
+        .message .sender-info {
+            display: flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .message.sent .sender-info {
+            margin-left: 8px;
+            margin-right: 0;
+        }
+
+        .message .sender-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .message .sender-info span {
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .message .message-text {
+            word-break: break-word;
+            color: #e0e0e0;
+        }
+
+        .message .image-message {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .message .audio-message {
+            width: 100%;
+            margin-top: 5px;
+        }
+        
+         .message .video-message-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+             align-items: center;
+            margin-top: 5px;
+            max-height: 300px;
+        }
+         .message .video-message {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        .video-controls{
+            display: flex;
+           align-items: center;
+           position: absolute;
+             bottom: '5px';
+           right: '5px';
+         z-index: 1;
+
+        }
+           .video-controls select{
+                 background-color: #2a3942;
+                color: #e0e0e0;
+                border: none;
+               margin-left: 5px;
+                 border-radius: 5px;
+                padding: 2px;
+                cursor: pointer;
+              outline: none;
+                font-size: 0.9em;
+
+            }
+          .audio-controls{
+            display: flex;
+           align-items: center;
+
+        }
+           .audio-controls select{
+                 background-color: #2a3942;
+                color: #e0e0e0;
+                border: none;
+               margin-left: 5px;
+                 border-radius: 5px;
+                padding: 2px;
+                cursor: pointer;
+              outline: none;
+                font-size: 0.9em;
+
+            }
+            .message-content-link{
+                cursor: pointer;
             }
 
-            const file = fileUpload.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('base64', base64);
+           .context-menu {
+            position: absolute;
+                background-color: #1e2a33;
+                border: 1px solid #3e4c54;
+                border-radius: 5px;
+                padding: 5px 0;
+               z-index: 1002;
+            display: none;
+        }
+        .context-menu button{
+            display: block;
+                width: 100%;
+                 text-align: left;
+             padding: 8px 15px;
+           background-color: transparent;
+             color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+              transition: background-color 0.3s ease;
+             font-size: 1em;
+             white-space: nowrap;
+              overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .context-menu button:hover{
+            background-color: rgba(255, 255, 255, 0.1);
+         }
 
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
+        .input-area {
+            display: flex;
+            padding: 8px;
+            border-top: 1px solid #3e4c54;
+            background-color: #1e2731;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            max-height: 150px;
+            box-sizing: border-box;
+        }
 
-                if (!response.ok) {
-                    throw new Error('Falha ao gerar CDN');
+        .input-area .user-info {
+            display: flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .input-area .user-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 5px;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 8px;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            outline: none;
+            min-width: 0;
+        }
+
+        #send-button {
+            padding: 8px 15px;
+            border: none;
+            background-color: #008069;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        #send-button:hover {
+            background-color: #006659;
+        }
+
+        #attachment-input {
+            display: none;
+        }
+         #record-button {
+            padding: 8px 15px;
+            border: none;
+              background-color: transparent;
+            color: white;
+             border-radius: 20px;
+             cursor: pointer;
+             font-size: 1.2em;
+           transition: background-color 0.3s ease;
+          margin-right: 8px;
+             display: flex;
+             align-items: center;
+         }
+
+        #record-button.recording{
+           background-color: rgba(255,0,0,0.4);
+         }
+
+        .top-buttons {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 10px;
+            background-color: #1e2a33;
+            border-bottom: 1px solid #3e4c54;
+        }
+
+
+        .settings-button,
+        #new-group-button,
+        #group-list-button,
+        #console-button,
+          #pv-button {
+            background-color: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .settings-button:hover,
+        #new-group-button:hover,
+        #group-list-button:hover,
+        #console-button:hover,
+          #pv-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .attachment-button,
+        #emoji-button {
+            padding: 8px 15px;
+            border: none;
+            background-color: transparent;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .attachment-button:hover,
+        #emoji-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .settings-modal .settings-content {
+            background-color: #1e2a33;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            text-align: left;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .settings-modal .settings-content label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .settings-modal .settings-content select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .settings-modal .settings-content button {
+            padding: 10px 20px;
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #1e2a33;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            width: 80%;
+            box-sizing: border-box;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #008069;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #006659;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            background-color: #1e2a33;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            display: none;
+            z-index: 1001;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #e0e0e0;
+        }
+
+        .emoji-picker span {
+            font-size: 1.5em;
+            margin: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .input-area {
+            position: relative;
+        }
+
+        #emoji-button {
+            font-size: 20px;
+        }
+
+        .group-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .group-list li {
+            padding: 10px;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-list li:hover {
+            background-color: #3e4c54;
+        }
+
+        .group-list-options {
+            display: flex;
+            align-items: center;
+        }
+
+        .group-list-options button {
+            background-color: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 1em;
+        }
+
+        .group-list-options button:hover {
+            color: #bbb;
+        }
+
+        .enter-group-by-id {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .enter-group-by-id input[type="text"] {
+            width: 70%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            margin-right: 5px;
+        }
+
+        .enter-group-by-id button {
+            padding: 8px 15px;
+            border: none;
+            background-color: #008069;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .enter-group-by-id button:hover {
+            background-color: #006659;
+        }
+
+        .modal-content input[type="admname"] {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2a3942;
+            color: #e0e0e0;
+            width: 80%;
+            box-sizing: border-box;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .console-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1e2a33;
+            border-top: 1px solid #3e4c54;
+            padding: 10px;
+            overflow-y: auto;
+            display: none;
+            z-index: 999;
+            max-height: 70vh;
+            box-sizing: border-box;
+        }
+
+        .console-panel h2 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3e4c54;
+        }
+
+        .console-panel ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+
+        .console-panel li {
+            padding: 10px;
+            border-bottom: 1px solid #3e4c54;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .console-panel li span {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 5px;
+        }
+
+        .console-panel li .group-copy-button {
+            padding: 5px 10px;
+            border: none;
+            background-color: #008069;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+
+        .console-panel li .group-copy-button:hover {
+            background-color: #006659;
+        }
+
+        .console-panel .console-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 10px;
+            border-top: 1px solid #3e4c54;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .console-panel .console-footer button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            color: white;
+        }
+
+        .console-panel .console-footer .console-cancel-button {
+            background-color: #888;
+        }
+
+        .console-panel .console-footer .console-cancel-button:hover {
+            background-color: #666;
+        }
+
+        .console-panel .console-footer .console-delete-button {
+            background-color: #d32f2f;
+        }
+
+        .console-panel .console-footer .console-delete-button:hover {
+            background-color: #b71c1c;
+        }
+
+        .console-panel .no-groups-message {
+            text-align: center;
+        }
+        
+        .modal#clearChatModal .modal-content{
+            text-align: center;
+        }
+          .modal#pvPanel .modal-content {
+        position: relative;
+        }
+            #pvPanel .modal-content input[type="text"] {
+               width: 90%;
+                padding: 8px;
+                border-radius: 5px;
+                border: none;
+                background-color: #2a3942;
+                color: #e0e0e0;
+                margin-right: 5px;
+               margin-bottom: 10px;
+            }
+    #pvPanel  .modal-content label{
+                    display: block;
+                    margin-bottom: 5px;
+                    color: #e0e0e0;
+                    display: flex;
+                    align-items: center;
+                }
+               #pvPanel .modal-content  label input[type="checkbox"]{
+                    margin-right: 5px;
+                }
+                
+                 #pvPanel .modal-content  button {
+                     padding: 8px 15px;
+                    border: none;
+                    background-color: #008069;
+                    color: white;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-bottom: 10px;
+
                 }
 
-                const data = await response.json();
-                console.log(data);
-                const link = data.link;
-                const url = window.location.origin + link;
-
-                linkArea.innerHTML = `<p>CDN link: <a href="${url}" target="_blank">${url}</a></p>`;
-                await showOnEditor(url, data.base64);
-
-            } catch(error){
-                console.error("Ocorreu um erro:", error)
+           #pvPanel .modal-content button:hover {
+                background-color: #006659;
             }
+            
+             #pvPanel .modal-content .group-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    margin-bottom: 10px;
+                }
+
+            #pvPanel .modal-content .group-list li {
+                    padding: 10px;
+                    border-bottom: 1px solid #3e4c54;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                     cursor: pointer;
+                }
+
+          #pvPanel .modal-content .group-list li:hover {
+                 background-color: #3e4c54;
+            }
+                
+            #pvPanel .modal-content .group-list li span {
+                    flex-grow: 1;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin-right: 5px;
+                }
+            .settings-modal .settings-content #user-nick-display {
+                background-color: #2a3942;
+                padding: 8px;
+                 border-radius: 5px;
+                 color: #e0e0e0;
+               margin-bottom: 10px;
+                 white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+           display: inline-block;
+         max-width: 70%;
+            }
+             .settings-modal .settings-content button#copy-nick-button {
+                padding: 5px 10px;
+             background-color: #008069;
+                color: white;
+                 border: none;
+                 border-radius: 5px;
+                cursor: pointer;
+                  font-size: 0.9em;
+                margin-left: 5px;
+                white-space: nowrap;
+            }
+            .settings-modal .settings-content button#copy-nick-button:hover{
+                background-color: #006659;
+            }
+           /* Style for file links */
+            .file-link {
+                color: #008069;
+                 text-decoration: underline;
+                cursor: pointer;
+            }
+    </style>
+</head>
+
+<body>
+    <audio id="messageSound" src="som.mp3" preload="auto"></audio>
+    <div class="chat-container">
+        <div class="top-buttons">
+            <button class="settings-button" id="settingsButton">⚙️</button>
+            <button id="new-group-button">👥 Novo Grupo</button>
+            <button id="group-list-button">📁 Lista Grupos</button>
+            <button id="console-button">⚙️ Console</button>
+              <button id="pv-button">PV</button>
+        </div>
+
+        <div class="messages" id="messages">
+        </div>
+        <div class="input-area">
+            <div class="user-info">
+                <img id="currentUserImage" src="" alt="Foto de Perfil">
+            </div>
+            <div class="emoji-picker" id="emojiPicker">
+                <span>😀</span>
+                <span>😂</span>
+                <span>😊</span>
+                <span>😍</span>
+                <span>🤔</span>
+                <span>👍</span>
+                <span>❤️</span>
+                <span>🙏</span>
+                <span>🎉</span>
+                <span>🔥</span>
+            </div>
+           <button id="record-button">🎤</button>
+            <button class="attachment-button" id="attachment-button">📎</button>
+            <input type="file" id="attachment-input" accept="image/*, audio/mpeg, audio/ogg, video/*, application/pdf, text/*, .html"
+                style="display: none;">
+            <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+            <button id="send-button">Enviar</button>
+        </div>
+    </div>
+
+    <div class="console-panel" id="consolePanel">
+        <h2>Console de Grupos</h2>
+        <ul id="consoleGroupList">
+        </ul>
+         <p class="no-groups-message" style="display: none;">Nenhum grupo disponível.</p>
+        <div class="console-footer">
+            <button class="console-cancel-button" id="closeConsoleButton">Cancelar</button>
+        </div>
+    </div>
+    <div class="modal" id="pvPanel">
+        <div class="modal-content">
+            <h2>Conversas Privadas</h2>
+            <input type="text" id="pvUserSearch" placeholder="Digite o apelido do usuário">
+            <label>
+                <input type="checkbox" id="pvTermsCheckbox"> Aceito os termos e condições
+            </label>
+            <button id="createPvButton">Criar Conversa</button>
+            <ul class="group-list" id="pvChatList">
+            </ul>
+        </div>
+    </div>
+    <div class="modal" id="usernameModal">
+        <div class="modal-content">
+            <h2>Crie sua conta</h2>
+            <label for="usernameInput">Nome de Usuário:</label>
+            <input type="text" id="usernameInput" placeholder="Seu nome" required>
+
+            <label for="profileImageInput">Foto de Perfil:</label>
+            <input type="file" id="profileImageInput" accept="image/*" required>
+
+            <button id="setUsernameButton">Confirmar</button>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h2>Configurações</h2>
+             <label>Seu Nick:
+                <span id="user-nick-display"></span>
+                <button id="copy-nick-button">Copiar</button>
+            </label>
+            <label for="themeSelect">Tema:</label>
+            <select id="themeSelect">
+                <option value="dark">Escuro (Padrão)</option>
+                <option value="solarized">Solarized Dark</option>
+                <option value="monokai">Monokai</option>
+                <option value="dracula">Dracula</option>
+                <option value="gruvbox">Gruvbox Dark</option>
+                <option value="nord">Nord</option>
+            </select>
+
+            <label for="editProfile">Editar Perfil:</label>
+            <button id="editProfile">Editar Nome e Foto</button>
+
+            <button id="clearChatButton">Apagar Conversas</button>
+        </div>
+    </div>
+
+    <div class="modal" id="newGroupModal">
+        <div class="modal-content">
+            <h2>Criar Novo Grupo</h2>
+
+            <label for="admNameInput">Nome do ADM:</label>
+            <input type="admname" id="admNameInput" placeholder="Nome ADM" required>
+
+            <label for="groupNameInput">Nome do Grupo:</label>
+            <input type="text" id="groupNameInput" placeholder="Nome do Grupo" required>
+
+            <label for="groupImageInput">Imagem do Grupo:</label>
+            <input type="file" id="groupImageInput" accept="image/*" required>
+
+            <button id="createGroupButton">Criar Grupo</button>
+        </div>
+    </div>
+
+    <div class="modal" id="groupListModal">
+        <div class="modal-content">
+            <h2>Lista de Grupos</h2>
+            <ul class="group-list" id="groupList">
+            </ul>
+            <div class="enter-group-by-id">
+                <input type="text" id="groupIdInput" placeholder="Digite o ID do Grupo">
+                <button id="enterGroupIdButton">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="defineAdminModal">
+        <div class="modal-content">
+            <h2>Definir Administrador</h2>
+            <label for="newAdminNameInput">Nome de Usuário para ADM:</label>
+            <input type="text" id="newAdminNameInput" placeholder="Nome de Usuário" required>
+            <button id="setAdminButton">Definir ADM</button>
+        </div>
+    </div>
+    <div class="modal" id="deleteGroupModal">
+        <div class="modal-content">
+            <h2>Tem certeza que deseja deletar este grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                <button class="console-delete-button" id="confirmDeleteButton" style="margin-right:5px;">Deletar</button>
+                <button class="console-cancel-button" id="cancelDeleteButton">Cancelar</button>
+            </div>
+        </div>
+    </div>
+        <div class="modal" id="clearChatModal">
+        <div class="modal-content">
+              <h2>Deseja limpar o chat deste grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmClearChatButton" style="margin-right:5px;">Sim</button>
+                 <button class="console-cancel-button"  id="cancelClearChatButton">Não</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="reportGroupModal">
+        <div class="modal-content">
+             <h2>Tem certeza que deseja denunciar este grupo?</h2>
+            <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmReportGroupButton" style="margin-right:5px;">Sim</button>
+                 <button class="console-cancel-button" id="cancelReportGroupButton">Não</button>
+            </div>
+        </div>
+    </div>
+     <div class="context-menu" id="messageContextMenu">
+        <button id="replyMessageButton">Responder</button>
+        <button id="shareMessageButton">Compartilhar</button>
+        <button id="reportMessageButton">Reportar</button>
+    </div>
+       <div class="modal" id="leaveChatModal">
+        <div class="modal-content">
+            <h2>Tem certeza que deseja sair desta conversa?</h2>
+            <div style="display:flex; justify-content: center;">
+                <button class="console-delete-button" id="confirmLeaveButton" style="margin-right:5px;">Sair</button>
+                <button class="console-cancel-button" id="cancelLeaveButton">Cancelar</button>
+            </div>
+        </div>
+    </div>
+     <div class="modal" id="clearPvChatModal">
+        <div class="modal-content">
+              <h2>Deseja limpar o chat desta conversa?</h2>
+            <div style="display:flex; justify-content: center;">
+                 <button class="console-delete-button" id="confirmClearPvChatButton" style="margin-right:5px;">Sim</button>
+                 <button class="console-cancel-button"  id="cancelClearPvChatButton">Não</button>
+            </div>
+        </div>
+    </div>
+     <div class="modal" id="editPvNickModal">
+    <div class="modal-content">
+        <h2>Editar Apelido</h2>
+        <input type="text" id="newPvNickInput" placeholder="Digite o novo apelido" required>
+        <div style="display:flex; justify-content: center;">
+            <button class="console-delete-button" id="confirmEditPvNick" style="margin-right:5px;">Salvar</button>
+            <button class="console-cancel-button" id="cancelEditPvNick">Cancelar</button>
+        </div>
+        <audio id="notificationSound" src="notifica.mp3" preload="auto"></audio>
+    </div>
+</div>
+<div id="audioContextMenu" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; z-index: 1000;">
+  <button id="downloadAudioButton" style="width: 100%; border:none; padding: 10px; text-align: left; cursor: pointer;">Baixar Áudio</button>
+</div>
+<script type="module">
+    import {
+        initializeApp
+    } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+    import {
+        getDatabase,
+        ref,
+        push,
+        onValue,
+        remove,
+        update,
+        get,
+        query,
+        orderByChild,
+        equalTo
+    } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+
+    //Import FCM if using
+    /* import {
+         getMessaging,
+         getToken,
+         onMessage,
+     } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js';
+*/
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBEO9AtPfECkKns2uG41fOgaxXPXdgAIc8",
+        authDomain: "engine-c02f6.firebaseapp.com",
+        projectId: "engine-c02f6",
+        storageBucket: "engine-c02f6.firebasestorage.app",
+        messagingSenderId: "562488086423",
+        appId: "1:562488086423:web:cdb49a6c23225a68f17ed2",
+        measurementId: "G-T81G36LMJG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const messagesRef = ref(database, 'messages');
+    const groupsRef = ref(database, 'groups');
+    const reportsRef = ref(database, 'reports');
+
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const messagesContainer = document.getElementById('messages');
+    const usernameModal = document.getElementById('usernameModal');
+    const usernameInput = document.getElementById('usernameInput');
+    const profileImageInput = document.getElementById('profileImageInput');
+    const setUsernameButton = document.getElementById('setUsernameButton');
+    const currentUserImage = document.getElementById('currentUserImage');
+    const attachmentButton = document.getElementById('attachment-button');
+    const attachmentInput = document.getElementById('attachment-input');
+    const recordButton = document.getElementById('record-button');
+
+    const emojiPicker = document.getElementById('emojiPicker');
+    let emojiPickerVisible = false;
+
+    const newGroupButton = document.getElementById('new-group-button');
+    const groupListButton = document.getElementById('group-list-button');
+    const newGroupModal = document.getElementById('newGroupModal');
+    const groupListModal = document.getElementById('groupListModal');
+    const groupNameInput = document.getElementById('groupNameInput');
+    const groupImageInput = document.getElementById('groupImageInput');
+    const createGroupButton = document.getElementById('createGroupButton');
+    const groupList = document.getElementById('groupList');
+    const groupIdInput = document.getElementById('groupIdInput');
+    const enterGroupIdButton = document.getElementById('enterGroupIdButton');
+    const admNameInput = document.getElementById('admNameInput');
+
+    const defineAdminModal = document.getElementById('defineAdminModal');
+    const newAdminNameInput = document.getElementById('newAdminNameInput');
+    const setAdminButton = document.getElementById('setAdminButton');
+    const settingsButton = document.getElementById('settingsButton');
+    const settingsModal = document.getElementById('settingsModal');
+    const clearChatButton = document.getElementById('clearChatButton');
+    const editProfileButton = document.getElementById('editProfile');
+    const consoleButton = document.getElementById('console-button');
+    const consolePanel = document.getElementById('consolePanel');
+    const consoleGroupList = document.getElementById('consoleGroupList');
+    const closeConsoleButton = document.getElementById('closeConsoleButton');
+    const noGroupsMessage = document.querySelector('.console-panel .no-groups-message');
+    let consoleVisible = false;
+    const themeSelect = document.getElementById('themeSelect');
+
+    //New variables
+    const pvButton = document.getElementById('pv-button');
+    const pvPanel = document.getElementById('pvPanel');
+    const pvUserSearch = document.getElementById('pvUserSearch');
+    const pvTermsCheckbox = document.getElementById('pvTermsCheckbox');
+    const createPvButton = document.getElementById('createPvButton');
+    const pvChatList = document.getElementById('pvChatList');
+
+    let pvPanelVisible = false;
+    const privateChatsRef = ref(database, 'privateChats');
+    let currentPvChatId = null;
+
+    const messageSound = document.getElementById('messageSound');
+    const notificationSound = document.getElementById('notificationSound');
+
+    let username = localStorage.getItem('username');
+    let profileImage = localStorage.getItem('profileImage');
+    let userNick = localStorage.getItem('userNick');
+    let theme = localStorage.getItem('theme') || 'dark';
+    const emojiButton = document.createElement('button');
+    emojiButton.textContent = 'Emoji';
+    emojiButton.id = 'emoji-button';
+    emojiButton.innerHTML = 'Emoji';
+    document.querySelector('.input-area').prepend(emojiButton);
+    emojiButton.addEventListener('click', function () {
+        emojiPickerVisible = !emojiPickerVisible;
+        emojiPicker.style.display = emojiPickerVisible ? 'block' : 'none';
+    });
+
+
+    let currentGroupId = null;
+    let groups = [];
+    let currentGroupAdmin = null;
+    let currentGroupIdToUpdate = null;
+    const chatContainer = document.querySelector('.chat-container');
+    const inputArea = document.querySelector('.input-area');
+
+
+    let currentPlayingAudio = null;
+    let currentPlayingVideo = null;
+    const userNickDisplay = document.getElementById('user-nick-display');
+    const copyNickButton = document.getElementById('copy-nick-button');
+    let currentSelectedMessage = null;
+    const messageContextMenu = document.getElementById('messageContextMenu');
+    const replyMessageButton = document.getElementById('replyMessageButton');
+    const shareMessageButton = document.getElementById('shareMessageButton');
+    const reportMessageButton = document.getElementById('reportMessageButton');
+    const reportGroupModal = document.getElementById('reportGroupModal');
+    const confirmReportGroupButton = document.getElementById('confirmReportGroupButton');
+    const cancelReportGroupButton = document.getElementById('cancelReportGroupButton');
+    let reportingGroup = false;
+    let currentMessage = null;
+    let currentReplyId = null;
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let pvNicknames = JSON.parse(localStorage.getItem('pvNicknames') || '{}');
+    const editPvNickModal = document.getElementById('editPvNickModal');
+    const newPvNickInput = document.getElementById('newPvNickInput');
+    const confirmEditPvNick = document.getElementById('confirmEditPvNick');
+    const cancelEditPvNick = document.getElementById('cancelEditPvNick');
+    let currentPvUserToUpdate = null;
+    let lastMessageTimestamps = {}; // Track last received message timestamp for notification logic
+    let currentAudioElement = null;
+    const audioContextMenu = document.getElementById('audioContextMenu');
+    const downloadAudioButton = document.getElementById('downloadAudioButton');
+    function generateRandomNick() {
+        const randomNumber = Math.floor(1000 + Math.random() * 9000);
+        return `User-${randomNumber}`;
+    }
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => {
+            console.error("Erro no FileReader: ", error);
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    const updateUsernameAndImage = async (newUsername, newProfileImage) => {
+        try {
+            const snapshot = await get(messagesRef);
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const message = childSnapshot.val();
+                    if (message.sender === username) {
+                        const messageKey = childSnapshot.key;
+                        const updates = {};
+                        updates[`/messages/${messageKey}/sender`] = newUsername;
+                        updates[`/messages/${messageKey}/nick`] = userNick;
+                        updates[`/messages/${messageKey}/profileImage`] = newProfileImage;
+                        update(ref(database), updates);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar o Firebase: ", error);
+            alert("Erro ao atualizar o perfil. Tente novamente.");
         }
+    };
+    if (!username || !profileImage || !userNick) {
+        usernameModal.style.display = 'flex';
+    } else {
+        currentUserImage.src = profileImage;
+        updateSettingsDisplay();
+        // Request permission for notifications on load
+        requestNotificationPermission();
+    }
 
-        async function showOnEditor(url, isBase64) {
-            try {
-            const response = await fetch(url);
-            const content = await response.text();
-
-            if (isBase64) {
-                let base64Text = content;
-                editor.session.setValue(atob(base64Text));
-                editor.session.setMode("ace/mode/text");
+    // Notification permission handling function
+    async function requestNotificationPermission() {
+        if ('Notification' in window) {
+            if (Notification.permission === 'default') {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        console.log("Permissão de notificação concedida.")
+                        //   initFCM(); // If using FCM
+                    } else {
+                        console.log("Permissão de notificação negada ou ignorada.")
+                    }
+                } catch (error) {
+                    console.error("Erro ao solicitar permissão de notificação:", error);
+                }
+            } else if (Notification.permission === 'granted') {
+                console.log('Notificações já concedidas.');
+                //  initFCM();  // If using FCM
             } else {
-                editor.session.setValue(content);
-                const mode = getModeFromURL(url);
-                editor.session.setMode(mode);
+                console.log("Notificações bloqueadas.");
             }
+        } else {
+            console.log('Notificações não suportadas neste browser.');
+        }
+    }
+    // Function to display the notification
+
+    function showNotification(title, body, icon = null) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const options = {
+                body: body,
+                icon: icon || 'default-profile.png', // Default icon if not provided
+                timestamp: Date.now(),
+            };
+            const notification = new Notification(title, options);
+            notification.onclick = function (event) {
+                window.focus();
+                if (event.target)
+                    event.target.close();
+
+            }
+        } else {
+            console.log("Notificações não suportadas ou permissão negada.");
+        }
+    }
+
+
+    /*
+     // Initialize FCM if using
+   async function initFCM()
+   {
+         try{
+          const messaging = getMessaging(app);
+           const token = await getToken(messaging, {vapidKey: 'BMwL4o3tq56RkY24h3n0m-eR884GvE2w137o5v745p8c_p1j9X7y1H8X9tJ17_uVzT-R8y7p46b_k'});
+
+            if(token){
+               console.log('FCM token: ', token)
+
+            }else{
+               console.log("No FCM registration token available");
+           }
+
+            onMessage(messaging, (payload) => {
+                   console.log("Message received: ", payload);
+                   const title = payload.notification.title;
+                   const body = payload.notification.body;
+                     showNotification(title, body);
+              });
+          } catch(error){
+           console.error("Error initializing FCM: ", error);
+         }
+
+   }
+    */
+
+    setUsernameButton.addEventListener('click', async () => {
+        const inputName = usernameInput.value.trim();
+        const imageFile = profileImageInput.files[0];
+        if (!imageFile) {
+            alert("Por favor, selecione uma imagem de perfil.");
+            return;
+        }
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(imageFile.type)) {
+            alert("Por favor, selecione um arquivo de imagem JPEG, PNG ou GIF.");
+            return;
+        }
+        if (inputName !== '' && imageFile) {
+            try {
+                const base64Image = await toBase64(imageFile);
+                username = inputName;
+                profileImage = base64Image;
+                userNick = generateRandomNick();
+                localStorage.setItem('username', username);
+                localStorage.setItem('profileImage', profileImage);
+                localStorage.setItem('userNick', userNick);
+                usernameModal.style.display = 'none';
+                currentUserImage.src = profileImage;
+                updateSettingsDisplay();
+                await updateUsernameAndImage(username, profileImage).catch(error => {
+                    console.error("Erro ao atualizar o Firebase: ", error);
+                    alert("Erro ao atualizar o perfil. Tente novamente.");
+                });
             } catch (error) {
-            console.error("Falha ao exibir no editor", error);
+                console.error("Erro ao converter a imagem: ", error);
+                alert("Erro ao processar a imagem. Tente novamente.");
+            }
+        } else {
+            alert("Por favor, preencha o nome e selecione uma imagem de perfil.");
+        }
+    });
+
+
+    function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    let lastDisplayedDate = null;
+    function displayDateSeparator(timestamp) {
+        const date = new Date(timestamp);
+        const dateString = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        if (dateString !== lastDisplayedDate) {
+            const separator = document.createElement('div');
+            separator.classList.add('date-separator');
+            separator.textContent = dateString;
+            messagesContainer.appendChild(separator);
+            lastDisplayedDate = dateString;
+        }
+    }
+
+    function fetchGroupMessages(groupId) {
+        if (!groupId) {
+            console.warn("fetchGroupMessages called with undefined groupId.");
+            messagesContainer.innerHTML = '<p>Nenhum grupo selecionado.</p>';
+            return;
+        }
+
+        const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(groupId));
+        lastDisplayedDate = null;
+
+        onValue(groupMessagesRef, (snapshot) => {
+            messagesContainer.innerHTML = '';
+            const data = snapshot.val();
+            if (data) {
+                let lastMessageTimestamp = lastMessageTimestamps[groupId] || 0;
+                let newMessages = false;
+                Object.entries(data).forEach(([key, message]) => {
+                    displayDateSeparator(message.timestamp);
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    messageElement.dataset.messageId = key;
+
+                    const senderInfo = document.createElement('div');
+                    senderInfo.classList.add('sender-info');
+
+                    const profileImageElement = document.createElement('img');
+                    profileImageElement.src = message.profileImage || 'default-profile.png';
+                    profileImageElement.alt = "Foto de Perfil";
+                    senderInfo.appendChild(profileImageElement);
+
+                    let messageContent;
+                    if (message.type === 'image') {
+                        messageContent = document.createElement('img');
+                        messageContent.src = message.content;
+                        messageContent.alt = "Imagem";
+                        messageContent.classList.add('image-message');
+                    } else if (message.type === 'audio') {
+                        messageContent = createAudioDisplay(message.content);
+
+                    } else if (message.type === 'video') {
+                        messageContent = createVideoDisplay(message.content);
+                    } else if (message.type === 'text') {
+                        messageContent = document.createElement('span');
+                        messageContent.classList.add('message-text');
+                        if (message.replyId) {
+                            const replyMessage = data[message.replyId];
+                            if (replyMessage) {
+                                const replyText = document.createElement('span');
+                                replyText.style.color = '#aaa';
+                                replyText.style.display = 'block';
+                                replyText.style.fontStyle = 'italic';
+                                replyText.style.marginBottom = '5px';
+                                replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                                messageContent.appendChild(replyText);
+                            }
+
+                        }
+                        messageContent.textContent += message.content;
+                    } else {
+                        messageContent = createFileDisplay(message.content, message.fileType);
+                    }
+
+                    const timestampElement = document.createElement('span');
+                    timestampElement.classList.add('timestamp');
+                    timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                    if (message.sender === userNick) {
+                        messageElement.classList.add('sent');
+                    } else {
+                        messageElement.classList.add('received');
+                    }
+
+                    messageElement.appendChild(senderInfo);
+                    messageElement.appendChild(messageContent);
+                    messageElement.appendChild(timestampElement);
+                    messagesContainer.appendChild(messageElement);
+                    if (message.sender !== userNick && message.timestamp > lastMessageTimestamp) {
+                        newMessages = true;
+                        lastMessageTimestamp = message.timestamp; // Update last timestamp only if its newer
+                    }
+                });
+                lastMessageTimestamps[groupId] = lastMessageTimestamp;
+                if (newMessages) {
+                    notificationSound.play();
+                    showNotification("Nova Mensagem", "Você recebeu uma nova mensagem em um grupo.");
+                }
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                messagesContainer.innerHTML = '<p>Nenhuma mensagem neste grupo.</p>';
+            }
+        });
+    }
+
+    function fetchPvMessages(pvChatId, otherUserAlias) {
+        if (!pvChatId) {
+            console.warn("fetchPvMessages called with undefined pvChatId.");
+            messagesContainer.innerHTML = `<p>Nenhuma conversa privada selecionada com ${otherUserAlias}.</p>`;
+            return;
+        }
+
+        const pvMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(pvChatId));
+        lastDisplayedDate = null;
+        onValue(pvMessagesRef, (snapshot) => {
+            messagesContainer.innerHTML = '';
+            const data = snapshot.val();
+            if (data) {
+                let lastMessageTimestamp = lastMessageTimestamps[pvChatId] || 0;
+                let newMessages = false;
+                Object.entries(data).forEach(([key, message]) => {
+                    displayDateSeparator(message.timestamp);
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    messageElement.dataset.messageId = key;
+                    const senderInfo = document.createElement('div');
+                    senderInfo.classList.add('sender-info');
+
+                    const profileImageElement = document.createElement('img');
+                    profileImageElement.src = message.profileImage || 'default-profile.png';
+                    profileImageElement.alt = "Foto de Perfil";
+                    senderInfo.appendChild(profileImageElement);
+
+                    let messageContent;
+                    if (message.type === 'image') {
+                        messageContent = document.createElement('img');
+                        messageContent.src = message.content;
+                        messageContent.alt = "Imagem";
+                        messageContent.classList.add('image-message');
+                    } else if (message.type === 'audio') {
+                        messageContent = createAudioDisplay(message.content);
+
+                    } else if (message.type === 'video') {
+                        messageContent = createVideoDisplay(message.content);
+                    } else if (message.type === 'text') {
+                        messageContent = document.createElement('span');
+                        messageContent.classList.add('message-text');
+                        if (message.replyId) {
+                            const replyMessage = data[message.replyId];
+                            if (replyMessage) {
+                                const replyText = document.createElement('span');
+                                replyText.style.color = '#aaa';
+                                replyText.style.display = 'block';
+                                replyText.style.fontStyle = 'italic';
+                                replyText.style.marginBottom = '5px';
+                                replyText.textContent = `Resposta para: ${replyMessage.sender}: ${replyMessage.content.substring(0, 20)}...`;
+                                messageContent.appendChild(replyText);
+                            }
+
+                        }
+                        messageContent.textContent += message.content;
+                    }
+                    else {
+                        messageContent = createFileDisplay(message.content, message.fileType);
+                    }
+
+                    const timestampElement = document.createElement('span');
+                    timestampElement.classList.add('timestamp');
+                    timestampElement.textContent = formatTimestamp(message.timestamp);
+
+                    if (message.sender === userNick) {
+                        messageElement.classList.add('sent');
+                    } else {
+                        messageElement.classList.add('received');
+                    }
+
+                    messageElement.appendChild(senderInfo);
+                    messageElement.appendChild(messageContent);
+                    messageElement.appendChild(timestampElement);
+                    messagesContainer.appendChild(messageElement);
+                    if (message.sender !== userNick && message.timestamp > lastMessageTimestamp) {
+                        newMessages = true;
+                        lastMessageTimestamp = message.timestamp;
+                    }
+                });
+                lastMessageTimestamps[pvChatId] = lastMessageTimestamp;
+                if (newMessages) {
+                    messageSound.play();
+                    showNotification("Nova Mensagem", `Você recebeu uma nova mensagem de ${otherUserAlias}.`);
+                }
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                messagesContainer.innerHTML = `<p>Nenhuma mensagem nesta conversa com ${otherUserAlias}.</p>`;
+            }
+
+        });
+    }
+    function createFileDisplay(fileContent, fileType) {
+        let fileDisplay = document.createElement('div');
+        fileDisplay.classList.add('message-content-link');
+        let link;
+        if (fileType.startsWith('image/')) {
+            link = document.createElement('img');
+            link.src = fileContent;
+            link.alt = "Imagem";
+            link.classList.add('image-message');
+
+        } else if (fileType === 'text/plain') {
+            link = document.createElement('a');
+            link.href = fileContent;
+            link.textContent = "Abrir Texto";
+            link.target = "_blank";
+            link.rel = "noopener noreferrer"
+            link.classList.add('file-link');
+
+        } else if (fileType === 'text/html') {
+            link = document.createElement('a');
+            link.href = fileContent;
+            link.textContent = "Abrir HTML";
+            link.target = "_blank";
+            link.rel = "noopener noreferrer"
+            link.classList.add('file-link');
+
+        } else if (fileType === 'application/pdf') {
+            link = document.createElement('a');
+            link.href = fileContent;
+            link.textContent = "Abrir PDF";
+            link.target = "_blank";
+            link.rel = "noopener noreferrer"
+            link.classList.add('file-link');
+        } else {
+            link = document.createElement('a');
+            link.href = fileContent;
+            link.textContent = "Download";
+            link.download = 'download';
+            link.target = "_blank";
+            link.rel = "noopener noreferrer"
+            link.classList.add('file-link');
+        }
+        fileDisplay.appendChild(link);
+        return fileDisplay;
+
+    }
+
+     function createAudioDisplay(audioSrc) {
+        const audioDisplay = document.createElement('div');
+        audioDisplay.classList.add('audio-message');
+
+        const audioControls = document.createElement('div');
+        audioControls.classList.add('audio-controls');
+
+        const playButton = document.createElement('button');
+        playButton.innerHTML = '▶';
+        playButton.style.fontSize = '1.2em';
+        playButton.style.padding = '2px 10px';
+        playButton.style.borderRadius = '5px';
+
+        const timeDisplay = document.createElement('span');
+        timeDisplay.textContent = '0:00 / 0:00';
+        timeDisplay.style.marginLeft = '5px';
+        timeDisplay.style.whiteSpace = 'nowrap';
+
+        let audio = new Audio(audioSrc);
+        let isPlaying = false;
+        let currentSrc = audioSrc;
+
+        audioDisplay.addEventListener('click', (event) => {
+            event.preventDefault();
+              currentAudioElement = audioDisplay;
+                audioContextMenu.style.display = 'block';
+                   audioContextMenu.style.left = `${event.clientX}px`;
+                audioContextMenu.style.top = `${event.clientY}px`;
+
+        });
+
+        playButton.addEventListener('click', function () {
+            if (currentPlayingAudio && currentPlayingAudio !== audio) {
+                currentPlayingAudio.pause();
+                const prevAudioDisplay = currentPlayingAudio.parentNode.parentNode;
+                if (prevAudioDisplay) {
+                    const prevPlayButton = prevAudioDisplay.querySelector('.audio-controls button');
+                    if (prevPlayButton) {
+                        prevPlayButton.innerHTML = '▶';
+                    }
+                }
+
+            }
+            if (isPlaying) {
+                audio.pause();
+                playButton.innerHTML = '▶';
+                isPlaying = false;
+                currentPlayingAudio = null;
+            } else {
+                audio.play();
+                playButton.innerHTML = '⏸';
+                isPlaying = true;
+                currentPlayingAudio = audio;
+            }
+        });
+        audio.addEventListener('loadedmetadata', () => {
+            const duration = formatTime(audio.duration);
+            timeDisplay.textContent = `0:00 / ${duration}`;
+        });
+
+        audio.addEventListener('timeupdate', function () {
+            timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        });
+        audio.addEventListener('ended', function () {
+            playButton.innerHTML = '▶';
+            isPlaying = false;
+            currentPlayingAudio = null;
+        });
+
+        const playbackSpeedSelect = document.createElement('select');
+        const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+        speeds.forEach(speed => {
+            const option = document.createElement('option');
+            option.value = speed;
+            option.textContent = `${speed}x`;
+            if (speed == 1)
+                option.selected = true;
+            playbackSpeedSelect.appendChild(option);
+        });
+
+        playbackSpeedSelect.addEventListener('change', function () {
+            audio.playbackRate = parseFloat(this.value);
+        });
+
+        audioControls.appendChild(playButton);
+        audioControls.appendChild(timeDisplay);
+        audioControls.appendChild(playbackSpeedSelect);
+        audioDisplay.appendChild(audioControls)
+        return audioDisplay;
+    }
+
+    function createVideoDisplay(videoSrc) {
+        const videoDisplayContainer = document.createElement('div');
+        videoDisplayContainer.classList.add('video-message-container');
+        const video = document.createElement('video');
+        video.src = videoSrc;
+        video.classList.add('video-message');
+        video.controls = false;
+        let isPlaying = false;
+
+        const playButton = document.createElement('button');
+        playButton.innerHTML = '▶';
+        playButton.style.fontSize = '1.2em';
+        playButton.style.padding = '2px 10px';
+        playButton.style.borderRadius = '5px';
+        playButton.style.position = 'absolute';
+        playButton.style.top = '50%';
+        playButton.style.left = '50%';
+        playButton.style.transform = 'translate(-50%, -50%)';
+        playButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        playButton.style.zIndex = '1';
+        playButton.style.color = 'white';
+        playButton.style.border = 'none';
+        playButton.style.cursor = 'pointer';
+        playButton.style.width = '50px';
+        playButton.style.height = '50px';
+        playButton.style.borderRadius = '50%';
+        playButton.style.display = 'flex';
+        playButton.style.alignItems = 'center';
+        playButton.style.justifyContent = 'center';
+        const videoControls = document.createElement('div');
+        videoControls.classList.add('video-controls');
+        videoControls.style.position = 'absolute';
+        videoControls.style.bottom = '5px';
+        videoControls.style.right = '5px';
+        videoControls.style.zIndex = 1;
+
+        video.addEventListener('click', function () {
+            if (currentPlayingVideo && currentPlayingVideo !== video) {
+                currentPlayingVideo.pause();
+                const prevVideoDisplay = currentPlayingVideo.parentNode.parentNode;
+                if (prevVideoDisplay) {
+                    const prevPlayButton = prevVideoDisplay.querySelector('.video-controls button');
+                    if (prevPlayButton) {
+                        prevPlayButton.innerHTML = '▶';
+                    }
+                }
+            }
+            if (isPlaying) {
+                video.pause();
+                playButton.innerHTML = '▶';
+                isPlaying = false;
+                currentPlayingVideo = null;
+            } else {
+                video.play();
+                playButton.innerHTML = '⏸';
+                isPlaying = true;
+                currentPlayingVideo = video;
+            }
+
+        });
+
+        playButton.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
+        video.addEventListener('ended', function () {
+            playButton.innerHTML = '▶';
+            isPlaying = false;
+            currentPlayingVideo = null;
+        });
+
+        const playbackSpeedSelect = document.createElement('select');
+        const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+        speeds.forEach(speed => {
+            const option = document.createElement('option');
+            option.value = speed;
+            option.textContent = `${speed}x`;
+            if (speed == 1)
+                option.selected = true;
+            playbackSpeedSelect.appendChild(option);
+        });
+
+        playbackSpeedSelect.addEventListener('change', function () {
+            video.playbackRate = parseFloat(this.value);
+        });
+        const timeDisplay = document.createElement('span');
+        timeDisplay.textContent = '0:00 / 0:00';
+        timeDisplay.style.whiteSpace = 'nowrap';
+        timeDisplay.style.marginLeft = '5px';
+
+        video.addEventListener('loadedmetadata', () => {
+            const duration = formatTime(video.duration);
+            timeDisplay.textContent = `0:00 / ${duration}`;
+        });
+
+        video.addEventListener('timeupdate', function () {
+            timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+        });
+        videoControls.appendChild(timeDisplay);
+        videoControls.appendChild(playbackSpeedSelect);
+        videoDisplayContainer.appendChild(video);
+        videoDisplayContainer.appendChild(playButton);
+        videoDisplayContainer.appendChild(videoControls);
+
+        return videoDisplayContainer;
+    }
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+    function fetchGroupList() {
+        onValue(groupsRef, (snapshot) => {
+            groups = [];
+            const data = snapshot.val();
+            if (data) {
+                Object.entries(data).forEach(([key, group]) => {
+                    groups.push({
+                        id: key,
+                        name: group.name,
+                        image: group.image,
+                        members: group.members,
+                        admin: group.admin
+                    });
+                });
+            }
+            populateGroupList();
+            updateConsoleGroupList();
+        });
+    }
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (text !== '') {
+            let messageGroupId;
+
+            if (currentGroupId) {
+                messageGroupId = currentGroupId;
+            } else if (currentPvChatId) {
+                messageGroupId = currentPvChatId;
+            }
+            let messageData = {
+                type: 'text',
+                content: text,
+                sender: userNick,profileImage: profileImage,
+                timestamp: Date.now(),
+                groupId: messageGroupId,
+            };
+            if (currentReplyId) {
+                messageData.replyId = currentReplyId;
+                currentReplyId = null;
+                messageInput.placeholder = "Digite sua mensagem...";
+            }
+            push(messagesRef, messageData);
+
+            messageInput.value = '';
+        }
+    }
+    emojiPicker.addEventListener('click', function (event) {
+        if (event.target.tagName === 'SPAN') {
+            const selectedEmoji = event.target.textContent;
+            messageInput.value += selectedEmoji;
+            emojiPicker.style.display = 'none';
+            emojiPickerVisible = false;
+        }
+    });
+    newGroupButton.addEventListener('click', () => {
+        newGroupModal.style.display = 'flex';
+    });
+
+    groupListButton.addEventListener('click', () => {
+        populateGroupList();
+        groupListModal.style.display = 'flex';
+    });
+
+    consoleButton.addEventListener('click', () => {
+        consoleVisible = !consoleVisible;
+        consolePanel.style.display = consoleVisible ? 'block' : 'none';
+        updateConsoleGroupList();
+    });
+
+    function populateGroupList() {
+        groupList.innerHTML = '';
+        groups.forEach(group => {
+            const listItem = document.createElement('li');
+            listItem.dataset.groupId = group.id;
+            let isAdmin = false;
+            let adminMessage = '';
+
+            if (!group.admin) {
+                adminMessage = ' (Grupo sem ADM. Atualize!)';
+            } else {
+                isAdmin = group.admin.toLowerCase() === username.toLowerCase();
+            }
+            listItem.innerHTML = `
+                    ${group.name}${adminMessage}
+                    <div class="group-list-options">
+                        <button title="Editar Nome" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>✏️</button>
+                        <button title="Ver ID do Grupo" data-group-id="${group.id}">#</button>
+                        <button title="Deletar Grupo" data-group-id="${group.id}" ${!isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''} ${adminMessage !== '' ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🗑️</button>
+                                                    <button title="Sair do Grupo" class="leave-group-button" data-group-id="${group.id}"  ${isAdmin ? 'disabled style="opacity:0.5; cursor: not-allowed;"' : ''}>🚪</button>
+                         ${adminMessage !== '' ? `<button title="Definir ADM" data-group-id="${group.id}">👑</button>` : ''}
+                          <button title="Reportar Grupo" data-group-id="${group.id}">🚩</button>
+                    </div>
+                `;
+            groupList.appendChild(listItem);
+        });
+    }
+    function updateConsoleGroupList() {
+        consoleGroupList.innerHTML = '';
+        if (groups.length === 0) {
+            noGroupsMessage.style.display = 'block';
+        } else {
+            noGroupsMessage.style.display = 'none';
+            groups.forEach(group => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span>${group.name} - ID: ${group.id}</span>
+                <button class="group-copy-button" data-group-id="${group.id}">Copiar ID</button>`;
+                consoleGroupList.appendChild(listItem);
+            });
+        }
+
+    }
+
+    function switchChatToGroup(groupId) {
+        currentGroupId = groupId;
+        currentPvChatId = null;
+        localStorage.setItem('lastGroupId', groupId);
+        get(ref(database, `groups/${groupId}`)).then(snapshot => {
+            const group = snapshot.val();
+            if (group) {
+                currentGroupAdmin = group.admin;
+                console.log("Current Group Admin:", currentGroupAdmin);
+            } else {
+                currentGroupAdmin = null;
+            }
+            fetchGroupMessages(groupId);
+        });
+        console.log(`Switching chat to group: ${groupId}`);
+    }
+    createGroupButton.addEventListener('click', async () => {
+        const groupName = groupNameInput.value.trim();
+        const groupImageFile = groupImageInput.files[0];
+        const admNameInputVal = admNameInput.value.trim();
+        if (!groupName || !groupImageFile || !admNameInputVal) {
+            alert("Por favor, preencha o nome, selecione uma imagem e insira o nome do ADM para o grupo.");
+            return;
+        }
+
+        try {
+            const base64Image = await toBase64(groupImageFile);
+            const newGroup = {
+                name: groupName,
+                image: base64Image,
+                members: [username],
+                admin: admNameInputVal
+            };
+            push(groupsRef, newGroup).then((snapshot) => {
+                groupNameInput.value = '';
+                groupImageInput.value = null;
+                admNameInput.value = '';
+                newGroupModal.style.display = 'none';
+                fetchGroupList();
+                switchChatToGroup(snapshot.key);
+            })
+        } catch (error) {
+            console.error("Erro ao processar a imagem: ", error);
+            alert("Erro ao processar a imagem. Tente novamente.");
+        }
+    });
+
+    function generateGroupId() {
+        return Math.random().toString(36).substring(2, 15);
+    }
+    usernameModal.addEventListener('click', (e) => {
+        if (e.target === usernameModal) {
+            usernameModal.style.display = 'none';
+        }
+    });
+
+    settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    });
+
+    newGroupModal.addEventListener('click', (e) => {
+        if (e.target === newGroupModal) {
+            newGroupModal.style.display = 'none';
+        }
+    });
+
+    groupListModal.addEventListener('click', (e) => {
+        if (e.target === groupListModal) {
+            groupListModal.style.display = 'none';
+        }
+    });
+    consolePanel.addEventListener('click', (e) => {
+        if (e.target === consolePanel) {
+            consolePanel.style.display = 'none';
+            consoleVisible = false;
+        }
+    });
+    async function sendAttachment() {
+        const file = attachmentInput.files[0];
+        if (!file) {
+            alert("Por favor, selecione um arquivo para enviar.");
+            return;
+        }
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'audio/ogg', 'video/mp4', 'video/webm', 'video/ogg', 'application/pdf', 'text/plain', 'text/html'];
+        if (!allowedTypes.includes(file.type)) {
+            alert("Por favor, selecione um arquivo suportado.");
+            return;
+        }
+
+        try {
+            const base64File = await toBase64(file);
+            let messageType = 'file';
+            let fileType = file.type;
+            if (file.type.startsWith('image/')) {
+                messageType = 'image';
+            } else if (file.type.startsWith('audio/')) {
+                messageType = 'audio';
+            } else if (file.type.startsWith('video/')) {
+                messageType = 'video';
+            }
+            else if (file.type === 'audio/ogg') {
+                messageType = 'audio';
+            }
+
+            else {
+                messageType = 'file';
+            }
+
+            let messageGroupId;
+
+            if (currentGroupId) {
+                messageGroupId = currentGroupId;
+            } else if (currentPvChatId) {
+                messageGroupId = currentPvChatId;
+            }
+            push(messagesRef, {
+                type: messageType,
+                content: base64File,
+                sender: userNick,
+                profileImage: profileImage,
+                timestamp: Date.now(),
+                groupId: messageGroupId,
+                fileType: fileType
+            });
+            attachmentInput.value = '';
+        } catch (error) {
+            console.error("Erro ao enviar o arquivo: ", error);
+            alert("Erro ao processar o arquivo. Tente novamente.");
+        }
+    }
+    sendButton.addEventListener('click', sendMessage);
+
+    messageInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+    attachmentButton.addEventListener('click', () => {
+        attachmentInput.click();
+    });
+    attachmentInput.addEventListener('change', sendAttachment);
+
+    settingsButton.addEventListener('click', () => {
+        updateSettingsDisplay();
+        settingsModal.style.display = 'flex';
+    });
+    function updateSettingsDisplay() {
+        userNickDisplay.textContent = userNick;
+    }
+    function isCurrentUserAdmin() {
+        return currentGroupAdmin === username;
+    }
+    function sendAdminMessage(messageText) {
+        push(messagesRef, {
+            type: 'admin',
+            content: messageText,
+            sender: 'Sistema',
+            profileImage: '',
+            timestamp: Date.now(),
+            groupId: currentGroupId
+        });
+    }
+    const clearChatModal = document.getElementById('clearChatModal');
+    const confirmClearChatButton = document.getElementById('confirmClearChatButton');
+    const cancelClearChatButton = document.getElementById('cancelClearChatButton');
+    let clearingMessages = false;
+    clearChatButton.addEventListener('click', () => {
+        if (isCurrentUserAdmin()) {
+            clearChatModal.style.display = 'flex';
+        } else {
+            alert("Você não tem permissão para apagar as mensagens deste grupo.");
+        }
+    });
+    cancelClearChatButton.addEventListener('click', () => {
+        clearChatModal.style.display = 'none';
+        clearingMessages = false;
+    });
+    confirmClearChatButton.addEventListener('click', () => {
+        if (!clearingMessages) {
+            clearingMessages = true;
+            const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupId));
+            get(groupMessagesRef).then((snapshot) => {
+                const updates = {};
+                snapshot.forEach(child => {
+                    updates[child.key] = null;
+                });
+                return update(ref(database, 'messages'), updates);
+            })
+                .then(() => {
+                    clearChatModal.style.display = 'none';
+                    alert("Conversas apagadas com sucesso!");
+                    clearingMessages = false;
+                })
+                .catch((error) => {
+                    console.error("Erro ao apagar as conversas: ", error);
+                    alert("Erro ao apagar as conversas. Tente novamente.");
+                    clearingMessages = false;
+                });
+        }
+
+
+    });
+    editProfileButton.addEventListener('click', () => {
+        settingsModal.style.display = 'none';
+        usernameModal.style.display = 'flex';
+    });
+    enterGroupIdButton.addEventListener('click', () => {
+        const groupId = groupIdInput.value.trim();
+        if (groupId) {
+            switchChatToGroup(groupId);
+            groupListModal.style.display = 'none';
+        } else {
+            alert('Por favor, digite o ID do grupo.');
+        }
+    });
+    fetchGroupList();
+    const deleteGroupModal = document.getElementById('deleteGroupModal');
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+    let currentGroupIdToDelete = null;
+    function showDeleteConfirmation(groupId) {
+        currentGroupIdToDelete = groupId;
+        deleteGroupModal.style.display = 'flex';
+    }
+    cancelDeleteButton.addEventListener('click', () => {
+        deleteGroupModal.style.display = 'none';
+        currentGroupIdToDelete = null;
+    });
+    function handleGroupDeletion() {
+        if (currentGroupIdToDelete) {
+            const groupRef = ref(database, `groups/${currentGroupIdToDelete}`);
+            remove(groupRef)
+                .then(() => {
+                    const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentGroupIdToDelete));
+                    get(groupMessagesRef).then((snapshot) => {
+                        const updates = {};
+                        snapshot.forEach(child => {
+                            updates[child.key] = null;
+                        });
+                        return update(ref(database, 'messages'), updates);
+                    })
+                        .then(() => {
+                            alert("Grupo deletado com sucesso!");
+                            fetchGroupList();
+                            if (currentGroupId === currentGroupIdToDelete) {
+                                messagesContainer.innerHTML = '';
+                                currentGroupId = null;
+                                currentGroupAdmin = null;
+                            }
+                            deleteGroupModal.style.display = 'none';
+                            currentGroupIdToDelete = null;
+                        })
+                        .catch((error) => {
+                            console.error("Erro ao apagar as conversas: ", error);
+                            alert("Erro ao apagar as conversas. Tente novamente.");
+                        });
+                })
+                .catch((error) => {
+                    console.error("Erro ao deletar o grupo: ", error);
+                    alert("Erro ao deletar o grupo. Tente novamente.");
+                });
+        }
+    }
+    confirmDeleteButton.addEventListener('click', () => {
+        handleGroupDeletion();
+    });
+    const leaveChatModal = document.getElementById('leaveChatModal');
+    const confirmLeaveButton = document.getElementById('confirmLeaveButton');
+    const cancelLeaveButton = document.getElementById('cancelLeaveButton');
+    let currentChatIdToDelete = null;
+    function showLeaveConfirmation(groupId) {
+        currentChatIdToDelete = groupId;
+        leaveChatModal.style.display = 'flex';
+    }
+    cancelLeaveButton.addEventListener('click', () => {
+        leaveChatModal.style.display = 'none';
+        currentChatIdToDelete = null;
+    });
+    function handleLeaveChat() {
+        if (currentChatIdToDelete) {
+            const groupRef = ref(database, `groups/${currentChatIdToDelete}`);
+            get(groupRef).then(snapshot => {
+                const group = snapshot.val();
+                if (group) {
+                    const newMembers = group.members.filter(member => member !== username);
+                    update(groupRef, { members: newMembers })
+                        .then(() => {
+                            alert("Você saiu do grupo!");
+                            fetchGroupList();
+                            if (currentGroupId === currentChatIdToDelete) {
+                                messagesContainer.innerHTML = '';
+                                currentGroupId = null;
+                                currentGroupAdmin = null;
+                            }
+                            leaveChatModal.style.display = 'none';
+                            currentChatIdToDelete = null;
+                        }).catch((error) => {
+                            console.error("Erro ao sair do grupo: ", error);
+                            alert("Erro ao sair do grupo. Tente novamente.");
+                        });
+                }
+            });
+        }
+    }
+    confirmLeaveButton.addEventListener('click', () => {
+        handleLeaveChat();
+    });
+    groupList.addEventListener('click', (event) => {
+        const target = event.target;
+        const groupId = target.dataset.groupId;
+        if (target.tagName === 'BUTTON' && groupId) {
+            event.stopPropagation();
+
+            switch (target.title) {
+                case 'Editar Nome':
+                    const newName = prompt('Novo nome para o grupo:');
+                    if (newName) {
+                        const groupRef = ref(database, `groups/${groupId}`);
+                        update(groupRef, { name: newName })
+                            .then(() => {
+                                alert("Nome do grupo atualizado com sucesso!");
+                                fetchGroupList()
+                            })
+                            .catch((error) => {
+                                console.error("Erro ao atualizar o nome do grupo: ", error);
+                                alert("Erro ao atualizar o nome do grupo. Tente novamente.");
+                            });
+                    }
+                    break;
+                case 'Ver ID do Grupo':
+                    alert(`ID do Grupo: ${groupId}`);
+                    break;
+                case 'Deletar Grupo':
+                    showDeleteConfirmation(groupId)
+                    break;
+                case 'Sair do Grupo':
+                    showLeaveConfirmation(groupId);
+                    break;
+                case 'Reportar Grupo':
+                    showReportConfirmation(groupId);
+                    break;
+                case 'Definir ADM':
+                    defineAdminModal.style.display = 'flex';
+                    currentGroupIdToUpdate = groupId;
+                    break;
+                default:
+                    break;
+            }
+
+        } else {
+            if (groupId) {
+                console.log("Switching to group:", groupId);
+                switchChatToGroup(groupId);
+                groupListModal.style.display = 'none';
+            } else {
+                console.log("groupId is undefined, not switching group.");
             }
         }
 
-        function getModeFromURL(url) {
-        const extension = url.split('.').pop().toLowerCase();
+    });
+    function showReportConfirmation(groupId) {
+        reportGroupModal.style.display = 'flex';
+        currentGroupIdToDelete = groupId;
+    }
+    cancelReportGroupButton.addEventListener('click', () => {
+        reportGroupModal.style.display = 'none';
+        currentGroupIdToDelete = null;
+    })
+    confirmReportGroupButton.addEventListener('click', () => {
+        if (!reportingGroup) {
+            reportingGroup = true;
+            const reportData = {
+                groupId: currentGroupIdToDelete,
+                reporter: username,
+                timestamp: Date.now(),
+            };
+            push(reportsRef, reportData).then(() => {
+                alert("Grupo reportado com sucesso!")
+                reportGroupModal.style.display = 'none';
+                currentGroupIdToDelete = null;
+                reportingGroup = false;
+            }).catch(() => {
+                alert("Erro ao reportar o grupo, tente novamente.")
+                reportingGroup = false;
+            })
+        }
+    });
+    setAdminButton.addEventListener('click', async () => {
+        const newAdminName = newAdminNameInput.value.trim();
+        if (!newAdminName) {
+            alert("Por favor insira o nome de usuário para o ADM!");
+            return;
+        }
 
-        switch (extension) {
-            case 'js':
-            return 'ace/mode/javascript';
-            case 'css':
-            return 'ace/mode/css';
-            case 'html':
-            return 'ace/mode/html';
-            default:
-            return 'ace/mode/text';
+        if (currentGroupIdToUpdate) {
+            const groupRef = ref(database, `groups/${currentGroupIdToUpdate}`);
+
+            get(groupRef).then(snapshot => {
+                const group = snapshot.val();
+                if (group && group.admin && group.admin.toLowerCase() !== username.toLowerCase()) {
+                    alert("Este grupo já possui um administrador definido.");
+                    defineAdminModal.style.display = 'none';
+                    return;
+                }
+                update(groupRef, { admin: newAdminName })
+                    .then(() => {
+                        sendAdminMessage(`${newAdminName} se tornou o novo ADM do grupo.`);
+                        alert("ADM Definido com Sucesso!");
+                        fetchGroupList()
+                        defineAdminModal.style.display = 'none';
+                    }).catch((error) => {
+                        console.error("Erro ao definir o ADM: ", error);
+                        alert("Erro ao definir o ADM. Tente novamente!");
+                    });
+            });
         }
+    });
+
+    defineAdminModal.addEventListener('click', (e) => {
+        if (e.target === defineAdminModal) {
+            defineAdminModal.style.display = 'none';
         }
-    </script>
+    });
+    consoleGroupList.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.classList.contains('group-copy-button')) {
+            const groupId = target.dataset.groupId;
+            navigator.clipboard.writeText(groupId)
+                .then(() => {
+                    alert('ID do grupo copiado!');
+                })
+                .catch(err => {
+                    console.error('Erro ao copiar ID do grupo', err);
+                    alert("Não foi possível copiar o ID do grupo.")
+                });
+        }
+    });
+    closeConsoleButton.addEventListener('click', () => {
+        consolePanel.style.display = 'none';
+        consoleVisible = false;
+    });
+    let lastGroupId = localStorage.getItem('lastGroupId');
+    window.addEventListener('load', () => {
+        if (lastGroupId) {
+            console.log("Loading last group:", lastGroupId);
+            switchChatToGroup(lastGroupId);
+        } else {
+            messagesContainer.innerHTML = '<p>Selecione um grupo para começar.</p>';
+        }
+    });
+
+    function adjustInputArea() {
+        const chatContainerHeight = chatContainer.offsetHeight;
+        const inputAreaHeight = inputArea.offsetHeight;
+        chatContainer.style.height = `calc(100vh - ${inputAreaHeight}px)`;
+    }
+    window.addEventListener('load', adjustInputArea);
+    window.addEventListener('resize', adjustInputArea);
+    function applyTheme() {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+    themeSelect.addEventListener('change', () => {
+        theme = themeSelect.value;
+        localStorage.setItem('theme', theme);
+        applyTheme();
+    });
+    themeSelect.value = theme;
+    applyTheme();
+
+    function createPrivateChatId(user1, user2) {
+        const sortedUsers = [user1, user2].sort();
+        return `${sortedUsers[0]}_${sortedUsers[1]}`;
+    }
+    function fetchPrivateChats() {
+        onValue(privateChatsRef, (snapshot) => {
+            const data = snapshot.val();
+            pvChatList.innerHTML = '';
+            if (data) {
+                Object.entries(data).forEach(([key, chat]) => {
+                    if (chat.participants && (chat.participants[0] === username || chat.participants[1] === username)) {
+                        let otherUser = chat.participants[0] === username ? chat.participants[1] : chat.participants[0];
+                        const li = document.createElement('li');
+                        const alias = pvNicknames[otherUser] || otherUser;
+                        li.innerHTML = `<span>${alias}</span>
+                                <div class="group-list-options">
+                                    <button title="Editar Apelido" class="edit-pv-nick-button" data-other-user="${otherUser}">✏️</button>
+                                     <button title="Limpar Conversa" class="clear-pv-chat-button" data-other-user="${otherUser}">🗑️</button>
+                                </div>`;
+                        li.dataset.pvChatId = key;
+                        li.dataset.otherUser = otherUser;
+                        pvChatList.appendChild(li);
+                    }
+
+                });
+            }
+        });
+    }
+
+    pvButton.addEventListener('click', () => {
+        pvPanelVisible = !pvPanelVisible;
+        pvPanel.style.display = pvPanelVisible ? 'flex' : 'none';
+        fetchPrivateChats();
+    });
+    pvPanel.addEventListener('click', (e) => {
+        if (e.target === pvPanel) {
+            pvPanel.style.display = 'none';
+            pvPanelVisible = false;
+        }
+    });
+
+
+    createPvButton.addEventListener('click', async () => {
+        const otherUserAlias = pvUserSearch.value.trim();
+        if (!otherUserAlias) {
+            alert("Por favor, digite o apelido do usuário para iniciar a conversa privada.");
+            return;
+        }
+
+        if (!pvTermsCheckbox.checked) {
+            alert("Por favor, aceite os termos e condições.");
+            return;
+        }
+
+        const otherUsername = otherUserAlias;
+        const pvChatId = createPrivateChatId(username, otherUsername);
+        const existingPvChat = await get(ref(database, `privateChats/${pvChatId}`));
+        if (existingPvChat.exists()) {
+            alert("Conversa já existe com esse usuário, clique no usuário na lista abaixo.");
+            return;
+        }
+        push(privateChatsRef, {
+            id: pvChatId,
+            participants: [username, otherUsername]
+
+        }).then(() => {
+            pvPanel.style.display = 'none';
+            pvPanelVisible = false;
+            switchChatToPv(pvChatId, otherUserAlias);
+            pvUserSearch.value = '';
+            pvTermsCheckbox.checked = false;
+        });
+
+    });
+    function switchChatToPv(pvChatId, otherUserAlias) {
+        let alias = otherUserAlias
+        currentGroupId = null;
+        currentPvChatId = pvChatId;
+        localStorage.setItem('lastGroupId', null);
+        fetchPvMessages(pvChatId, alias);
+    }
+    copyNickButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(userNick)
+            .then(() => {
+                alert('Nick copiado!');
+            })
+            .catch((err) => {
+                console.error('Erro ao copiar o Nick', err);
+                alert("Não foi possível copiar o Nick.");
+            });
+    });
+    const clearPvChatModal = document.getElementById('clearPvChatModal');
+    const confirmClearPvChatButton = document.getElementById('confirmClearPvChatButton');
+    const cancelClearPvChatButton = document.getElementById('cancelClearPvChatButton');
+    let clearingPvMessages = false;
+    function showClearPvConfirmation(pvChatId) {
+        currentChatIdToDelete = pvChatId;
+        clearPvChatModal.style.display = 'flex';
+    }
+    cancelClearPvChatButton.addEventListener('click', () => {
+        clearPvChatModal.style.display = 'none';
+        clearingPvMessages = false;
+        currentChatIdToDelete = null;
+    });
+    confirmClearPvChatButton.addEventListener('click', () => {
+        if (!clearingPvMessages) {
+            clearingPvMessages = true;
+            const groupMessagesRef = query(messagesRef, orderByChild('groupId'), equalTo(currentChatIdToDelete));
+            get(groupMessagesRef).then((snapshot) => {
+                const updates = {};
+                snapshot.forEach(child => {
+                    updates[child.key] = null;
+                });
+                return update(ref(database, 'messages'), updates);
+            })
+                .then(() => {
+                    clearPvChatModal.style.display = 'none';
+                    alert("Conversas apagadas com sucesso!");
+                    clearingPvMessages = false;
+                    currentChatIdToDelete = null;
+                })
+                .catch((error) => {
+                    console.error("Erro ao apagar as conversas: ", error);
+                    alert("Erro ao apagar as conversas. Tente novamente.");
+                    clearingPvMessages = false;
+                    currentChatIdToDelete = null;
+                });
+        }
+
+
+    });
+    pvChatList.addEventListener('click', (event) => {
+        const target = event.target;
+        const pvChatId = target.closest('li')?.dataset.pvChatId;
+        const otherUser = target.closest('li')?.dataset.otherUser;
+
+        if (pvChatId) {
+            switchChatToPv(pvChatId, otherUser);
+            pvPanel.style.display = 'none';
+            pvPanelVisible = false;
+        }
+
+    });
+    pvChatList.addEventListener('click', async (event) => {
+        const target = event.target;
+        const li = target.closest('li');
+        if (!li) return;
+
+        const pvChatId = li.dataset.pvChatId;
+        const otherUser = li.dataset.otherUser;
+        if (target.classList.contains('edit-pv-nick-button')) {
+            event.stopPropagation();
+            currentPvUserToUpdate = otherUser;
+            editPvNickModal.style.display = 'flex';
+        } else if (target.classList.contains('clear-pv-chat-button')) {
+            event.stopPropagation();
+            if (currentPvChatId == pvChatId) {
+                showClearPvConfirmation(pvChatId);
+            }
+        } else if (pvChatId) {
+            switchChatToPv(pvChatId, otherUser);
+            pvPanel.style.display = 'none';
+            pvPanelVisible = false;
+        }
+    });
+    confirmEditPvNick.addEventListener('click', () => {
+        const newNick = newPvNickInput.value.trim();
+        if (newNick && currentPvUserToUpdate) {
+            pvNicknames[currentPvUserToUpdate] = newNick;
+            localStorage.setItem('pvNicknames', JSON.stringify(pvNicknames));
+            editPvNickModal.style.display = 'none';
+            fetchPrivateChats();
+            currentPvUserToUpdate = null;
+            newPvNickInput.value = '';
+        }
+    });
+    cancelEditPvNick.addEventListener('click', () => {
+        editPvNickModal.style.display = 'none';
+        currentPvUserToUpdate = null;
+        newPvNickInput.value = '';
+    });
+    editPvNickModal.addEventListener('click', (e) => {
+        if (e.target === editPvNickModal) {
+            editPvNickModal.style.display = 'none';
+            currentPvUserToUpdate = null;
+            newPvNickInput.value = '';
+        }
+    });
+    messagesContainer.addEventListener('click', (event) => {
+        const target = event.target.closest('.message');
+        if (target) {
+            event.preventDefault(); // Prevent default behavior
+            currentSelectedMessage = target;
+            messageContextMenu.style.display = 'block';
+            messageContextMenu.style.left = `${event.clientX}px`;
+            messageContextMenu.style.top = `${event.clientY}px`;
+            currentMessage = target;
+        } else {
+            messageContextMenu.style.display = 'none';
+            currentSelectedMessage = null;
+        }
+
+    });
+      document.addEventListener('click', (event) => {
+            if (event.target !== currentSelectedMessage && event.target !== messageContextMenu && !messageContextMenu.contains(event.target) ) {
+                messageContextMenu.style.display = 'none';
+                 currentSelectedMessage = null;
+            }
+             if(event.target !== currentAudioElement && event.target !== audioContextMenu && !audioContextMenu.contains(event.target)){
+                   audioContextMenu.style.display = 'none';
+                    currentAudioElement = null;
+                 }
+    });
+
+    replyMessageButton.addEventListener('click', () => {
+        const selectedMessageId = currentSelectedMessage.dataset.messageId;
+        currentReplyId = selectedMessageId;
+        messageInput.placeholder = "Respondendo a mensagem";
+        messageContextMenu.style.display = 'none';
+        currentSelectedMessage = null;
+    });
+    shareMessageButton.addEventListener('click', () => {
+        alert("Função de Compartilhar está sendo construída!");
+        messageContextMenu.style.display = 'none';
+        currentSelectedMessage = null;
+    });
+    reportMessageButton.addEventListener('click', () => {
+        const selectedMessageId = currentSelectedMessage.dataset.messageId;
+        const reportData = {
+            messageId: selectedMessageId,
+            reporter: userNick,
+            timestamp: Date.now(),
+        };
+        push(reportsRef, reportData).then(() => {
+            alert("Mensagem reportada com sucesso");
+        }).catch(() => {
+            alert("Erro ao reportar mensagem.")
+        })
+
+        messageContextMenu.style.display = 'none';
+        currentSelectedMessage = null;
+    });
+
+    async function sendAudioMessage(audioBlob) {
+        // Show the save audio dialog
+        const audioFilename = prompt("Digite o nome para o arquivo de áudio:", "audio_gravado.webm");
+        if (!audioFilename) return; // User cancelled or input empty
+
+        // Create a temporary link and trigger a download
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = audioUrl;
+        downloadLink.download = audioFilename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(audioUrl); //clean up the url
+
+        try {
+             // Convert blob to base64
+          const base64Audio = await toBase64(audioBlob);
+
+               let messageGroupId;
+                 if(currentGroupId){
+                    messageGroupId = currentGroupId;
+                } else if(currentPvChatId){
+                    messageGroupId = currentPvChatId;
+                }
+                push(messagesRef, {
+                    type: 'audio',
+                    content: base64Audio,
+                    sender: userNick,
+                     profileImage: profileImage,
+                    timestamp: Date.now(),
+                     groupId: messageGroupId
+                });
+
+        } catch (error) {
+            console.error("Erro ao enviar o arquivo: ", error);
+            alert("Erro ao processar o arquivo. Tente novamente.");
+        }
+
+    }
+    function createFileList(file) {
+         const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            return dataTransfer.files;
+        }
+
+     function downloadAudioFromBase64(base64Audio) {
+          const audioFilename = prompt("Digite o nome para o arquivo de áudio:", "audio_baixado.webm");
+            if(!audioFilename) return;
+        try {
+            const byteString = atob(base64Audio.split(',')[1]);
+            const mimeString = base64Audio.split(',')[0].split(':')[1].split(';')[0];
+            const byteArray = new Uint8Array(byteString.length);
+            for (let i = 0; i < byteString.length; i++) {
+                byteArray[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([byteArray], { type: mimeString });
+             const audioUrl = URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+              downloadLink.href = audioUrl;
+           downloadLink.download = audioFilename;
+           document.body.appendChild(downloadLink);
+           downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(audioUrl);
+
+        } catch (error) {
+            console.error("Erro ao baixar o áudio", error);
+            alert("Erro ao baixar o áudio. Tente novamente.");
+        }
+    }
+
+    downloadAudioButton.addEventListener('click', () => {
+        audioContextMenu.style.display = 'none';
+          if(currentAudioElement)
+           {
+               const audioSrc =  currentAudioElement.querySelector('audio')?.src;
+                  if(audioSrc){
+                        let base64Audio = audioSrc;
+                       downloadAudioFromBase64(base64Audio);
+                   }
+                currentAudioElement = null;
+           }
+
+    });
+
+    recordButton.addEventListener('click', async () => {
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
+                });
+                mediaRecorder.addEventListener('stop', async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    sendAudioMessage(audioBlob);
+                    isRecording = false;
+                    recordButton.classList.remove('recording');
+                    recordButton.innerHTML = '🎤';
+                });
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordButton.classList.add('recording');
+                recordButton.innerHTML = '⏺️';
+            } catch (err) {
+                console.error('Erro ao acessar o microfone', err);
+                alert('Erro ao iniciar a gravação de áudio. Verifique as permissões do microfone.');
+                isRecording = false;
+                recordButton.classList.remove('recording');
+                recordButton.innerHTML = '🎤';
+
+            }
+        } else {
+            mediaRecorder.stop();
+        }
+    });
+   
+
+</script>
+</script>
 </body>
 </html>
